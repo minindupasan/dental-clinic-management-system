@@ -5,6 +5,7 @@ Welcome to the **Dental Clinic Management System** designed for **Dental Clinic 
 ## Project Overview
 
 This system provides a comprehensive solution to manage:
+
 - **Patient Records**: Capture and maintain patient details and medical history.
 - **Appointment Scheduling**: Schedule, view, and manage patient appointments with notifications.
 - **Billing & Payments**: Generate invoices, track payments, and manage payment histories.
@@ -25,12 +26,13 @@ This system provides a comprehensive solution to manage:
 - **Inventory Tracking**: Track dental supply levels, receive low-stock alerts, and manage orders.
 
 ## User Tips for Key Features
-  ### 1. Patient Management
 
-  - **Patient Management**: Register new patients, update records, and view patient history.
+### 1. Patient Management
 
-  > [!NOTE]
-  > Ensure that all required fields such as contact information, medical history, and insurance details are accurately filled when registering or updating patient records. This will help in providing better care and seamless follow-ups.
+- **Patient Management**: Register new patients, update records, and view patient history.
+
+> [!NOTE]
+> Ensure that all required fields such as contact information, medical history, and insurance details are accurately filled when registering or updating patient records. This will help in providing better care and seamless follow-ups.
 
 ---
 
@@ -64,32 +66,34 @@ This system provides a comprehensive solution to manage:
 To set up the project locally:
 
 1. **Clone the repository:**
-    ```
-    git clone https://github.com/yourusername/dental-clinic-management-system.git
-2.	Navigate to the project directory:
-    ```
-    cd dental-clinic-management-system
-3.	Set up the back-end:
-    - Navigate to the backend directory.
-  	- Build and run the Spring Boot application.
-    ```
-    ./mvnw spring-boot:run
-4.  Set up the front-end:
-    - Navigate to the frontend directory.
-    - Install dependencies and start the development server.
-    ~~~
-    npm install
-    npm start
-    ~~~
-5.	Configure the database:
-    - Update the database configuration in src/main/resources/application.properties.
-
+   ```
+   git clone https://github.com/yourusername/dental-clinic-management-system.git
+   ```
+2. Navigate to the project directory:
+   ```
+   cd dental-clinic-management-system
+   ```
+3. Set up the back-end:
+   - Navigate to the backend directory.
+   - Build and run the Spring Boot application.
+   ```
+   ./mvnw spring-boot:run
+   ```
+4. Set up the front-end:
+   - Navigate to the frontend directory.
+   - Install dependencies and start the development server.
+   ```
+   npm install
+   npm start
+   ```
+5. Configure the database:
+   - Update the database configuration in src/main/resources/application.properties.
 
 ## Branches:
+
 - main: Contains stable, production-ready code.
 - develop: Integration branch for ongoing development.
 - feature/{feature-name}: Feature-specific branches.
 - bugfix/{bug-name}: Branches for bug fixes.
 - hotfix/{hotfix-name}: Branches for urgent fixes.
 - release/{version-number}: Branches for preparing releases.
-
