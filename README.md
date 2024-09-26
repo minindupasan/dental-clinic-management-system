@@ -13,9 +13,9 @@ This system provides a comprehensive solution to manage:
 
 ## Technology Stack
 
-- **Front-End**: [React](https://reactjs.org/)
+- **Front-End**: [Next.js]
 - **Back-End**: [Spring Boot](https://spring.io/projects/spring-boot)
-- **Database**: MySQL
+- **Database**: PostgreSQL
 - **Version Control**: GitHub
 
 ## Features
