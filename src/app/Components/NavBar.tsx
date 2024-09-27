@@ -2,8 +2,8 @@ import React from "react";
 import NavItem from "./NavItem";
 const navItems = [
   { name: "Home", path: "/" },
-  { name: "About", path: "/About" },
-  { name: "Contact", path: "/Contact" },
+  { name: "About", path: "./About/" },
+  { name: "Contact", path: "./Contact/" },
 ];
 export default function NavBar() {
   return (

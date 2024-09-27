@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Theme } from "@radix-ui/themes";
 import { Poppins } from "next/font/google";
+import NavBar from "./Components/NavBar";
 
 const poppins = Poppins({
   weight: ["400", "700"],
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={poppins.className}>
         <Theme>
+          <NavBar />
           <main>{children}</main>
         </Theme>
       </body>

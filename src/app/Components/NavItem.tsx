@@ -10,10 +10,8 @@ export default function NavItem({
 }) {
   return (
     <div>
-      <Link href="./">
-        <div className="p-5 bg-slate-800 text-gray-300 ring-blue-200-2">
-          {name}
-        </div>
+      <Link href={path}>
+        <div className="hover:ring-blue-200-2 text-2xl">{name}</div>
       </Link>
     </div>
   );
