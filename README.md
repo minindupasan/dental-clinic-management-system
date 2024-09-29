@@ -1,99 +1,53 @@
-# Dental Clinic Management System - Dr. Preethi Gunsekara
+# Next.js & NextUI Template
 
-Welcome to the **Dental Clinic Management System** designed for **Dental Clinic by Dr. Preethi Gunsekara**. This project aims to streamline the management of patient records, appointments, billing, and inventory for the clinic.
+This is a template for creating applications using Next.js 14 (app directory) and NextUI (v2).
 
-## Project Overview
+[Try it on CodeSandbox](https://githubbox.com/nextui-org/next-app-template)
 
-This system provides a comprehensive solution to manage:
+## Technologies Used
 
-- **Patient Records**: Capture and maintain patient details and medical history.
-- **Appointment Scheduling**: Schedule, view, and manage patient appointments with notifications.
-- **Billing & Payments**: Generate invoices, track payments, and manage payment histories.
-- **Inventory Management**: Monitor and manage dental supplies, with low-stock alerts.
+- [Next.js 14](https://nextjs.org/docs/getting-started)
+- [NextUI v2](https://nextui.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Tailwind Variants](https://tailwind-variants.org)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [next-themes](https://github.com/pacocoursey/next-themes)
 
-## Technology Stack
+## How to Use
 
-- **Front-End**: [Next.js]
-- **Back-End**: [Spring Boot](https://spring.io/projects/spring-boot)
-- **Database**: PostgreSQL
-- **Version Control**: GitHub
+### Use the template with create-next-app
 
-## Features
+To create a new project based on this template using `create-next-app`, run the following command:
 
-- **Patient Management**: Register new patients, update records, and view patient history.
-- **Appointment Scheduling**: Book, reschedule, and cancel appointments; view calendar.
-- **Billing**: Generate and manage invoices, track payments, and view payment history.
-- **Inventory Tracking**: Track dental supply levels, receive low-stock alerts, and manage orders.
+```bash
+npx create-next-app -e https://github.com/nextui-org/next-app-template
+```
 
-## User Tips for Key Features
+### Install dependencies
 
-### 1. Patient Management
+You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
 
-- **Patient Management**: Register new patients, update records, and view patient history.
+```bash
+npm install
+```
 
-> [!NOTE]
-> Ensure that all required fields such as contact information, medical history, and insurance details are accurately filled when registering or updating patient records. This will help in providing better care and seamless follow-ups.
+### Run the development server
 
----
+```bash
+npm run dev
+```
 
-### 2. Appointment Scheduling
+### Setup pnpm (optional)
 
-- **Appointment Scheduling**: Book, reschedule, and cancel appointments; view calendar.
+If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
 
-> [!NOTE]
-> Make use of the calendar view for efficient appointment scheduling. When rescheduling or canceling appointments, inform patients via email or SMS to avoid miscommunication. Double-check your schedule to prevent booking conflicts.
+```bash
+public-hoist-pattern[]=*@nextui-org/*
+```
 
----
+After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
 
-### 3. Billing
+## License
 
-- **Billing**: Generate and manage invoices, track payments, and view payment history.
-
-> [!NOTE]
-> Ensure services and treatments are properly logged before generating invoices to avoid billing errors. Regularly review payment history to track outstanding payments and send reminders to patients if needed.
-
----
-
-### 4. Inventory Tracking
-
-- **Inventory Tracking**: Track dental supply levels, receive low-stock alerts, and manage orders.
-
-> [!NOTE]
-> Frequently update the inventory after each procedure to maintain accurate stock levels. Activate low-stock alerts to ensure that you are notified before running out of essential supplies, and process new orders promptly to avoid disruptions in service.
-
-## Getting Started
-
-To set up the project locally:
-
-1. **Clone the repository:**
-   ```
-   git clone https://github.com/yourusername/dental-clinic-management-system.git
-   ```
-2. Navigate to the project directory:
-   ```
-   cd dental-clinic-management-system
-   ```
-3. Set up the back-end:
-   - Navigate to the backend directory.
-   - Build and run the Spring Boot application.
-   ```
-   ./mvnw spring-boot:run
-   ```
-4. Set up the front-end:
-   - Navigate to the frontend directory.
-   - Install dependencies and start the development server.
-   ```
-   npm install
-   npm start
-   ```
-5. Configure the database:
-   - Update the database configuration in src/main/resources/application.properties.
-
-## Branches:
-
-- main: Contains stable, production-ready code.
-- develop: Integration branch for ongoing development.
-- feature/{feature-name}: Feature-specific branches.
-- bugfix/{bug-name}: Branches for bug fixes.
-- hotfix/{hotfix-name}: Branches for urgent fixes.
-- release/{version-number}: Branches for preparing releases.
+Licensed under the [MIT license](https://github.com/nextui-org/next-app-template/blob/main/LICENSE).
