@@ -1,5 +1,7 @@
 "use client";
+
 import React from "react";
+import { usePathname } from "next/navigation";
 
 import {
   Navbar,
@@ -15,20 +17,29 @@ import {
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const pathname = usePathname();
 
   const menuItems = [
-    { menuItemName: "Dashboard", menuItemPath: "./Dashboard" },
-    { menuItemName: "Appointments", menuItemPath: "./Appointments" },
-    { menuItemName: "Profile", menuItemPath: "./Profile" },
-    { menuItemName: "Notification", menuItemPath: "./Notification" },
-    { menuItemName: "Log Out", menuItemPath: "./LogOut" },
+    { menuItemName: "Dashboard", menuItemPath: "/dashboard" },
+    { menuItemName: "Appointments", menuItemPath: "/appointments" },
+    { menuItemName: "Profile", menuItemPath: "/profile" },
+    { menuItemName: "Notification", menuItemPath: "/notification" },
+    { menuItemName: "Log Out", menuItemPath: "/logout" },
+    { menuItemName: "Services", menuItemPath: "/Services" },
+    { menuItemName: "About", menuItemPath: "/About" },
+    { menuItemName: "Contact", menuItemPath: "/Contact" },
   ];
 
   const navItems = [
-    { itemName: "Services", itemPath: "./Services" },
-    { itemName: "About", itemPath: "./About" },
-    { itemName: "Contact", itemPath: "./Contact" },
+    { itemName: "Dashboard", itemPath: "/dashboard" },
+    { itemName: "Appointments", itemPath: "/appointments" },
+    { itemName: "Notification", itemPath: "/notification" },
+    { itemName: "Services", itemPath: "/Services" },
+    { itemName: "About", itemPath: "/About" },
+    { itemName: "Contact", itemPath: "/Contact" },
   ];
+
+  const isActive = (path: string) => pathname === path;
 
   return (
     <Navbar
@@ -46,7 +57,7 @@ export default function App() {
       <NavbarContent className="sm:hidden pr-3" justify="center">
         <NavbarBrand>
           <p className="font-bold text-white">
-            <Link href="./">DentCare+</Link>
+            <Link href="/">DentCare+</Link>
           </p>
         </NavbarBrand>
       </NavbarContent>
@@ -57,16 +68,18 @@ export default function App() {
             <Link href="/">DentCare+</Link>
           </p>
         </NavbarBrand>
-        <NavbarItem isActive className="justify-center">
-          <Link href="Page/">Home</Link>
-        </NavbarItem>
-        {navItems.map((item, index) => (
-          <NavbarItem key={`${item.itemPath}-${index}`}>
+
+        {navItems.map((navItem, index) => (
+          <NavbarItem key={`${navItem.itemName}-${index}`}>
             <Link
-              color={index === 0 ? "foreground" : "primary"}
-              href={item.itemPath}
+              className={`w-full ${
+                isActive(navItem.itemPath)
+                  ? "text-green-500" // Highlight color for the active item
+                  : "text-white hover:text-green-300" // Default foreground color (white) with hover effect
+              }`}
+              href={navItem.itemPath}
             >
-              {item.itemName}
+              {navItem.itemName}
             </Link>
           </NavbarItem>
         ))}
@@ -74,10 +87,24 @@ export default function App() {
 
       <NavbarContent justify="end">
         <NavbarItem className="hidden lg:flex">
-          <Link href="#">Login</Link>
+          <Link
+            href="/login"
+            className={
+              isActive("/login")
+                ? "text-green-500"
+                : "text-white hover:text-green-300"
+            }
+          >
+            Login
+          </Link>
         </NavbarItem>
         <NavbarItem>
-          <Button as={Link} color="warning" href="./SignUp" variant="flat">
+          <Button
+            as={Link}
+            href="./SignUp"
+            variant="flat"
+            className={isActive("./SignUp") ? "bg-purple-700 text-white" : ""}
+          >
             Sign Up
           </Button>
         </NavbarItem>
@@ -85,14 +112,14 @@ export default function App() {
 
       <NavbarMenu className="bg-neutral-900">
         {menuItems.map((menuItem, index) => (
-          <NavbarMenuItem key={`${menuItem}-${index}`}>
+          <NavbarMenuItem key={`${menuItem.menuItemName}-${index}`}>
             <Link
               className={`w-full ${
-                index === 2
-                  ? "text-white" // Warning color (yellow)
+                isActive(menuItem.menuItemPath)
+                  ? "text-green-500" // Highlight color for the active item
                   : index === menuItems.length - 1
-                    ? "text-red-500" // Danger color (red)
-                    : "text-white" // Default foreground color (white)
+                    ? "text-red-500" // Danger color (red) for "Log Out"
+                    : "text-white hover:text-green-300" // Default foreground color (white) with hover effect
               }`}
               href={menuItem.menuItemPath}
               size="lg"
