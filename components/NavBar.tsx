@@ -20,20 +20,20 @@ export default function App() {
   const pathname = usePathname();
 
   const menuItems = [
-    { menuItemName: "Dashboard", menuItemPath: "/dashboard" },
-    { menuItemName: "Appointments", menuItemPath: "/appointments" },
-    { menuItemName: "Profile", menuItemPath: "/profile" },
-    { menuItemName: "Notification", menuItemPath: "/notification" },
-    { menuItemName: "Log Out", menuItemPath: "/logout" },
+    { menuItemName: "Dashboard", menuItemPath: "/Dashboard" },
+    { menuItemName: "Appointments", menuItemPath: "/Appointments" },
+    { menuItemName: "Profile", menuItemPath: "/Profile" },
+    { menuItemName: "Notification", menuItemPath: "/Notification" },
+    { menuItemName: "Log Out", menuItemPath: "/LogOut" },
     { menuItemName: "Services", menuItemPath: "/Services" },
     { menuItemName: "About", menuItemPath: "/About" },
     { menuItemName: "Contact", menuItemPath: "/Contact" },
   ];
 
   const navItems = [
-    { itemName: "Dashboard", itemPath: "/dashboard" },
-    { itemName: "Appointments", itemPath: "/appointments" },
-    { itemName: "Notification", itemPath: "/notification" },
+    { itemName: "Dashboard", itemPath: "/Dashboard" },
+    { itemName: "Appointments", itemPath: "/Appointments" },
+    { itemName: "Notification", itemPath: "/Notification" },
     { itemName: "Services", itemPath: "/Services" },
     { itemName: "About", itemPath: "/About" },
     { itemName: "Contact", itemPath: "/Contact" },
@@ -75,7 +75,7 @@ export default function App() {
               className={`w-full ${
                 isActive(navItem.itemPath)
                   ? "text-green-500" // Highlight color for the active item
-                  : "text-white hover:text-green-300" // Default foreground color (white) with hover effect
+                  : "text-white hover:text-purple-300" // Default foreground color (white) with hover effect
               }`}
               href={navItem.itemPath}
             >
@@ -92,7 +92,7 @@ export default function App() {
             className={
               isActive("/login")
                 ? "text-green-500"
-                : "text-white hover:text-green-300"
+                : "text-white hover:text-purple-300"
             }
           >
             Login
@@ -119,7 +119,7 @@ export default function App() {
                   ? "text-green-500" // Highlight color for the active item
                   : index === menuItems.length - 1
                     ? "text-red-500" // Danger color (red) for "Log Out"
-                    : "text-white hover:text-green-300" // Default foreground color (white) with hover effect
+                    : "text-white hover:text-purple-300" // Default foreground color (white) with hover effect
               }`}
               href={menuItem.menuItemPath}
               size="lg"
