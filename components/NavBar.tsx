@@ -29,23 +29,26 @@ export default function NavBar() {
             <ThemeSwitch />
           </div>
           <div className="md:hidden flex">
-            <Button
-              size="sm"
-              radius={"full"}
-              variant="bordered"
-              className="mr-3 text-default-500 border-default-500"
-            >
-              Login
-            </Button>
-
-            <Button
-              size="sm"
-              radius={"full"}
-              variant="solid"
-              className="mr-3 bg-default-500 text-white"
-            >
-              Sign Up
-            </Button>
+            <Link href="/Login">
+              <Button
+                size="sm"
+                radius={"full"}
+                variant="bordered"
+                className="mr-3 text-default-500 border-default-500"
+              >
+                Login
+              </Button>
+            </Link>
+            <Link href="/SignUp">
+              <Button
+                size="sm"
+                radius={"full"}
+                variant="solid"
+                className="mr-3 bg-default-500 text-white"
+              >
+                Sign Up
+              </Button>
+            </Link>
           </div>
           <div className="hidden md:flex">
             <Link href="/Login">
