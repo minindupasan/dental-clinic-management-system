@@ -5,7 +5,7 @@ import { SunIcon } from "./icons/SunIcon";
 export default function ThemeSwitch() {
   return (
     <Switch
-      className="px-12 ml-4"
+      className="px-12"
       defaultSelected
       size="lg"
       color="secondary"

@@ -10,15 +10,17 @@ export default function NavBar() {
   return (
     <div className="w-full bg-gray-100 py-4 px-4">
       <div className="flex justify-between items-center w-full">
-        <DentCareLogo />
-        <span
-          className={clsx(
-            "text-lg font-bold text-gray-800 font-serif prima",
-            fontSerif.variable
-          )}
-        >
-          DentCare
-        </span>
+        <div className="flex-grow flex ">
+          <DentCareLogo />
+          <div
+            className={clsx(
+              "text-lg font-bold text-gray-800",
+              fontSerif.className
+            )}
+          >
+            DentCare
+          </div>
+        </div>
         <div className="flex-grow flex justify-center">
           <Tabs radius={"full"}>
             <Tab key="dashboard" title="Dashboard" />
@@ -29,7 +31,20 @@ export default function NavBar() {
           </Tabs>
         </div>
         <ThemeSwitch />
-        <Button variant="solid">Dashboard</Button>
+        <Button
+          radius={"full"}
+          variant="bordered"
+          className="mx-5 text-default-500 border-default-500"
+        >
+          Login
+        </Button>
+        <Button
+          radius={"full"}
+          variant="solid"
+          className="bg-default-500 text-white"
+        >
+          Sign Up
+        </Button>
       </div>
     </div>
   );
