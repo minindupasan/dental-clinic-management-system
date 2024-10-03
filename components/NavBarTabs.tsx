@@ -17,9 +17,9 @@ export default function NavBarTabs() {
         value="/Orders"
       />
       <Tab
-        key="earnings"
-        title={<Link href="/Earnings">Earnings</Link>}
-        value="/Earnings"
+        key="Dentures"
+        title={<Link href="/Dentures">Dentures</Link>}
+        value="/Dentures"
       />
       <Tab
         key="profile"

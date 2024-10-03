@@ -38,11 +38,11 @@ export default function App() {
             <DentCareLogo />
             <div
               className={clsx(
-                "hidden lg:block lg:text-lg lg:font-bold lg:text-gray-800 lg:ml-3",
+                "hidden lg:block lg:text-lg lg:font-bold lg:text-gray-800 lg:ml-3 lg:text-xl",
                 fontSerif.className
               )}
             >
-              DentCare
+              DentCare+
             </div>
           </Link>
         </NavbarBrand>

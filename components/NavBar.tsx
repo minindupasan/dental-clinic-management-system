@@ -6,6 +6,7 @@ import clsx from "clsx";
 import { usePathname } from "next/navigation";
 import NavBarTabs from "./NavBarTabs";
 import MenuBar from "./MenuBar";
+import Link from "next/link";
 
 export default function NavBar() {
   const router = usePathname();
@@ -27,21 +28,45 @@ export default function NavBar() {
           <div className="hidden md:flex md:justify-end md:items-center">
             <ThemeSwitch />
           </div>
-          <Button
-            radius={"full"}
-            variant="bordered"
-            className="mr-3 text-default-500 border-default-500"
-          >
-            Login
-          </Button>
+          <div className="md:hidden flex">
+            <Button
+              size="sm"
+              radius={"full"}
+              variant="bordered"
+              className="mr-3 text-default-500 border-default-500"
+            >
+              Login
+            </Button>
 
-          <Button
-            radius={"full"}
-            variant="solid"
-            className="mr-3 bg-default-500 text-white"
-          >
-            Sign Up
-          </Button>
+            <Button
+              size="sm"
+              radius={"full"}
+              variant="solid"
+              className="mr-3 bg-default-500 text-white"
+            >
+              Sign Up
+            </Button>
+          </div>
+          <div className="hidden md:flex">
+            <Link href="/Login">
+              <Button
+                radius={"full"}
+                variant="bordered"
+                className="mr-3 text-default-500 border-default-500"
+              >
+                Login
+              </Button>
+            </Link>
+            <Link href="/SignUp">
+              <Button
+                radius={"full"}
+                variant="solid"
+                className="mr-3 bg-default-500 text-white"
+              >
+                Sign Up
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
