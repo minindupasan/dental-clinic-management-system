@@ -1,18 +1,24 @@
 "use client";
 import { Tabs, Tab } from "@nextui-org/react";
 import ThemeSwitch from "./ThemeSwitch";
+import Button from "./Button"; // Use ButtonComponent here
 import { DentCareLogo } from "./icons/DentCareLogo";
-import { Poppins } from "next/font/google";
+import { fontSerif } from "@/config/fonts";
+import clsx from "clsx";
 
 export default function NavBar() {
   return (
     <div className="w-full bg-gray-100 py-4 px-4">
       <div className="flex justify-between items-center w-full">
-        {/* Aligning the Logo, Tabs, and ThemeSwitch in one line */}
         <DentCareLogo />
-        <span className="text-lg font-bold text-gray-800 ">DentCare</span>
-        
-        {/* Center Tabs */}
+        <span
+          className={clsx(
+            "text-lg font-bold text-gray-800 font-serif prima",
+            fontSerif.variable
+          )}
+        >
+          DentCare
+        </span>
         <div className="flex-grow flex justify-center">
           <Tabs radius={"full"}>
             <Tab key="dashboard" title="Dashboard" />
@@ -22,9 +28,8 @@ export default function NavBar() {
             <Tab key="profile" title="Profile" />
           </Tabs>
         </div>
-
-        {/* Theme Switch on the right */}
         <ThemeSwitch />
+        <Button variant="solid">Dashboard</Button>
       </div>
     </div>
   );
