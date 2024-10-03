@@ -1,5 +1,10 @@
 import React from "react";
+import Card from "@/components/Card";
 
 export default function Contact() {
-  return <div>Contact Page</div>;
+  return (
+    <div>
+      <Card />
+    </div>
+  );
 }

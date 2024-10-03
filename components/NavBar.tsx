@@ -5,32 +5,60 @@ import Button from "./Button"; // Use ButtonComponent here
 import { DentCareLogo } from "./icons/DentCareLogo";
 import { fontSerif } from "@/config/fonts";
 import clsx from "clsx";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function NavBar() {
+  const router = usePathname();
+  const currentPath = router;
+
   return (
     <div className="w-full bg-gray-100 py-4 px-4">
       <div className="flex justify-between items-center w-full">
-        <div className="flex-grow flex ">
+        <div className="flex-grow flex items-center">
           <DentCareLogo />
           <div
             className={clsx(
-              "text-lg font-bold text-gray-800",
+              "text-lg font-bold text-gray-800 ml-3",
               fontSerif.className
             )}
           >
             DentCare
           </div>
         </div>
-        <div className="flex-grow flex justify-center">
+
+        <div className=" hidden lg:flex-grow lg:flex lg:justify-center)">
           <Tabs radius={"full"}>
-            <Tab key="dashboard" title="Dashboard" />
-            <Tab key="appointments" title="Appointments" />
-            <Tab key="orders" title="Orders" />
-            <Tab key="earnings" title="Earnings" />
-            <Tab key="profile" title="Profile" />
+            <Tab
+              key="dashboard"
+              title={<Link href="/">Dashboard</Link>}
+              value="/"
+            />
+            <Tab
+              key="appointments"
+              title={<Link href="/Appointments">Appointments</Link>}
+              value="/Appointments"
+            />
+            <Tab
+              key="orders"
+              title={<Link href="/Orders">Orders</Link>}
+              value="/Orders"
+            />
+            <Tab
+              key="earnings"
+              title={<Link href="/Earnings">Earnings</Link>}
+              value="/Earnings"
+            />
+            <Tab
+              key="profile"
+              title={<Link href="/Profile">Profile</Link>}
+              value="/Profile"
+            />
           </Tabs>
         </div>
-        <ThemeSwitch />
+        <div className="hidden lg:flex-grow lg:flex lg:justify-end lg:items-center">
+          <ThemeSwitch />
+        </div>
         <Button
           radius={"full"}
           variant="bordered"
@@ -38,6 +66,7 @@ export default function NavBar() {
         >
           Login
         </Button>
+
         <Button
           radius={"full"}
           variant="solid"
