@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function LogOut() {
+export default function logOut() {
   return <div>Log Out Successfully</div>;
 }

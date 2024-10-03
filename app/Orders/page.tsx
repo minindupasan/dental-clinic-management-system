@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function Contact() {
-  return <div>Contact Page</div>;
+export default function orders() {
+  return <div>This is the orders page</div>;
 }

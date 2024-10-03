@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function Contact() {
-  return <div>Contact Page</div>;
+export default function profile() {
+  return <div>This is the Profile Page</div>;
 }

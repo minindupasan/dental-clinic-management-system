@@ -23,11 +23,15 @@ export default function App() {
     { itemName: "Orders", itemPath: "/Orders" },
     { itemName: "Earnings", itemPath: "/Earnings" },
     { itemName: "Profile", itemPath: "/Profile" },
+    { itemName: "Log Out", itemPath: "/LogOut" },
   ];
 
   return (
     <Navbar isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
-      <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+      <NavbarMenuToggle
+        className="md:hidden"
+        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+      />
       <NavbarContent>
         <NavbarBrand>
           <Link color="foreground" href="/">
