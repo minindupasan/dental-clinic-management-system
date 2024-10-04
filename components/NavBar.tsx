@@ -13,7 +13,7 @@ export default function NavBar() {
   const currentPath = router;
 
   return (
-    <div className="w-full bg-gray-100 py-1 px-4">
+    <div className="w-full py-1 px-4">
       <div className="flex items-center w-full">
         <div className="flex items-center">
           <MenuBar />
@@ -34,7 +34,7 @@ export default function NavBar() {
                 size="sm"
                 radius={"full"}
                 variant="bordered"
-                className="mr-3 text-default-500 border-default-500"
+                className="mr-3 border-default-100 text-foreground-dark"
               >
                 Login
               </Button>
@@ -44,7 +44,7 @@ export default function NavBar() {
                 size="sm"
                 radius={"full"}
                 variant="solid"
-                className="mr-3 bg-default-500 text-white"
+                className="mr-3 bg-default-100 text-foreground-light"
               >
                 Sign Up
               </Button>
@@ -55,7 +55,7 @@ export default function NavBar() {
               <Button
                 radius={"full"}
                 variant="bordered"
-                className="mr-3 text-default-500 border-default-500"
+                className="mr-3 border-default-100 text-foreground-dark"
               >
                 Login
               </Button>
@@ -64,7 +64,7 @@ export default function NavBar() {
               <Button
                 radius={"full"}
                 variant="solid"
-                className="mr-3 bg-default-500 text-white"
+                className="mr-3 bg-default-100 text-foreground-light"
               >
                 Sign Up
               </Button>

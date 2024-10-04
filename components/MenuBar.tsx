@@ -28,7 +28,7 @@ export default function App() {
   return (
     <Navbar isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
       <NavbarMenuToggle
-        className="md:hidden"
+        className="md:hidden text-white" // Change 'text-white' to the desired color (e.g., 'text-red-500')
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
       />
       <NavbarContent>
@@ -37,7 +37,7 @@ export default function App() {
             <DentCareLogo />
             <div
               className={clsx(
-                "hidden lg:block lg:font-bold lg:text-gray-800 lg:ml-3 lg:text-xl lg:font-serif lg:",
+                "hidden lg:block lg:font-bold lg:text-white lg:ml-3 lg:text-xl lg:font-serif ",
                 fontSerif.className
               )}
             >
@@ -50,14 +50,12 @@ export default function App() {
         {menuItems.map(({ itemName, itemPath }, index) => (
           <NavbarMenuItem key={`${itemName}-${index}`}>
             <Link
-              color={
-                index === 2
-                  ? "warning"
-                  : index === menuItems.length - 1
-                    ? "danger"
-                    : "foreground"
-              }
+              className={clsx(
+                "w-full",
+                index === menuItems.length - 1 ? "text-danger-500" : "text-foreground-dark"
+              )}
               href={itemPath}
+              size="lg"
             >
               {itemName}
             </Link>
