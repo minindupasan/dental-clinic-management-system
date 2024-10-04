@@ -8,7 +8,6 @@ import {
   NavbarMenu,
   NavbarContent,
   Link,
-  Button,
 } from "@nextui-org/react";
 import { DentCareLogo } from "./icons/DentCareLogo";
 import { fontSerif } from "@/config/fonts";
@@ -38,7 +37,7 @@ export default function App() {
             <DentCareLogo />
             <div
               className={clsx(
-                "hidden lg:block lg:text-lg lg:font-bold lg:text-gray-800 lg:ml-3 lg:text-xl",
+                "hidden lg:block lg:font-bold lg:text-gray-800 lg:ml-3 lg:text-xl lg:font-serif lg:",
                 fontSerif.className
               )}
             >
