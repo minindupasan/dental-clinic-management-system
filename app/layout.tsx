@@ -34,7 +34,7 @@ export default function RootLayout({
       >
         {" "}
         <NavBar />
-        <main className={clsx("mx-6")}>{children}</main>
+        <main className={clsx("mx-4 md:mx-6 lg:mx-10")}>{children}</main>
       </body>
     </html>
   );
