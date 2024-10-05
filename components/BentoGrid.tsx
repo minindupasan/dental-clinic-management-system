@@ -7,11 +7,7 @@ import {
   CardBody,
   CardFooter,
   Button,
-  Divider,
-  Link,
-  Image,
 } from "@nextui-org/react";
-import { NewItemIcon } from "@/components/icons/NewItemIcon";
 import NewItemButton from "@/components/NewItemButton";
 
 export default function Dashboard() {
@@ -241,13 +237,6 @@ export default function Dashboard() {
                 className="bg-gray-100 p-4 rounded-lg grid gap-2 mb-2 last:mb-0"
               >
                 <div className="flex items-start gap-4">
-                  <Image
-                    src={appointment.image}
-                    alt={appointment.name}
-                    className="rounded-full"
-                    width={60}
-                    height={60}
-                  />
                   <div>
                     <p>
                       <span className="font-medium">Name:</span>{" "}
@@ -287,13 +276,6 @@ export default function Dashboard() {
                 className="bg-gray-100 p-4 rounded-lg mb-2 last:mb-0"
               >
                 <div className="flex items-start gap-4">
-                  <Image
-                    src={appointment.image}
-                    alt={appointment.name}
-                    className="rounded-full"
-                    width={60}
-                    height={60}
-                  />
                   <div>
                     <p>
                       <span className="font-medium">Name:</span>{" "}
