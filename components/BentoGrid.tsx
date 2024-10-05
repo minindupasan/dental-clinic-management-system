@@ -1,14 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardHeader,
   CardBody,
   CardFooter,
   Button,
+  Chip,
+  Tabs,
+  Tab,
 } from "@nextui-org/react";
 import NewItemButton from "@/components/NewItemButton";
+import { MedicalReportIcon } from "./icons/MedicalReportIcon";
 
 export default function Dashboard() {
   const appointments = [
@@ -218,15 +222,38 @@ export default function Dashboard() {
       total: "Text",
     },
   ];
+  const [activeTab, setActiveTab] = useState("daily");
+
+  const summaryData = {
+    daily: {
+      earned: "LKR 16,350",
+      patientsTreated: 24,
+    },
+    monthly: {
+      earned: "LKR 487,500",
+      patientsTreated: 720,
+    },
+    yearly: {
+      earned: "LKR 5,850,000",
+      patientsTreated: 8640,
+    },
+  };
+
+  const handleTabChange = (key: React.Key) => {
+    setActiveTab(key.toString());
+  };
 
   return (
     <div className="mx-auto max-w-full px-4 sm:px-4 lg:px-4 py-8 text-foreground-light">
       <div className="grid gap-3 md:grid-cols-1 lg:grid-cols-4">
         {/*Today's Appointments*/}
         <Card className="lg:h-60 max-h-96 w-full col-span-1 lg:col-span-2 lg:row-span-1 bg-background-light">
-          <CardHeader className="flex justify-between items-center">
+          <CardHeader className="py-0 pt-5 flex justify-between items-center">
             <h2 className="text-xl font-semibold">Today's Appointments</h2>
-            <NewItemButton className="bg-default-200" radius="full">
+            <NewItemButton
+              className="bg-secondary-200 text-foreground-light"
+              radius="full"
+            >
               New Patient
             </NewItemButton>
           </CardHeader>
@@ -234,26 +261,42 @@ export default function Dashboard() {
             {appointments.map((appointment, index) => (
               <div
                 key={index}
-                className="bg-gray-100 p-4 rounded-lg grid gap-2 mb-2 last:mb-0"
+                className="bg-default-100 p-4 rounded-lg flex items-center gap-4 mb-2 last:mb-0"
               >
-                <div className="flex items-start gap-4">
-                  <div>
-                    <p>
-                      <span className="font-medium">Name:</span>{" "}
-                      {appointment.name}
-                    </p>
-                    <p>
-                      <span className="font-medium">Age:</span>{" "}
-                      {appointment.age}
-                    </p>
-                    <p>
-                      <span className="font-medium">Treatment:</span>{" "}
-                      {appointment.treatment}
-                    </p>
-                    <Button size="sm" className="mt-2 bg-gray-300">
-                      Medical History
-                    </Button>
+                <div className="flex flex-col justify-center items-center min-w-[80px]">
+                  <div className="text-center">
+                    <div className="font-semibold text-lg md:text-xl lg:text-3xl">
+                      {appointment.time}
+                    </div>
+                    <div className="font-semibold text-md md:text-lg lg:text-xl">
+                      {new Date(appointment.date).toLocaleDateString("en-US", {
+                        day: "2-digit",
+                        month: "short",
+                      })}
+                    </div>
                   </div>
+                </div>
+                <div>
+                  <p>
+                    <span className="font-medium">Name:</span>{" "}
+                    {appointment.name}
+                  </p>
+                  <p>
+                    <span className="font-medium">Age:</span> {appointment.age}
+                  </p>
+                  <p>
+                    <span className="font-medium">Treatment:</span>{" "}
+                    {appointment.treatment}
+                  </p>
+                  <Button
+                    variant="shadow"
+                    size="sm"
+                    radius="full"
+                    className="mt-2"
+                    startContent={<MedicalReportIcon />}
+                  >
+                    Medical History
+                  </Button>
                 </div>
               </div>
             ))}
@@ -263,9 +306,12 @@ export default function Dashboard() {
 
         {/* Upcoming Appointments */}
         <Card className="lg:h-60 max-h-96 w-full col-span-1 lg:col-span-2 lg:row-span-1 lg:row-start-2 lg:row-end-3 bg-background-light">
-          <CardHeader className="flex justify-between items-center">
+          <CardHeader className="py-0 pt-5 flex justify-between items-center">
             <h2 className="text-xl font-semibold">Upcoming Appointments</h2>
-            <NewItemButton className="bg-default-200" radius="full">
+            <NewItemButton
+              className="bg-secondary-200 text-foreground-light"
+              radius="full"
+            >
               New Patient
             </NewItemButton>
           </CardHeader>
@@ -273,26 +319,42 @@ export default function Dashboard() {
             {appointments.map((appointment, index) => (
               <div
                 key={index}
-                className="bg-gray-100 p-4 rounded-lg mb-2 last:mb-0"
+                className="bg-default-100 p-4 rounded-lg flex items-center gap-4 mb-2 last:mb-0"
               >
-                <div className="flex items-start gap-4">
-                  <div>
-                    <p>
-                      <span className="font-medium">Name:</span>{" "}
-                      {appointment.name}
-                    </p>
-                    <p>
-                      <span className="font-medium">Age:</span>{" "}
-                      {appointment.age}
-                    </p>
-                    <p>
-                      <span className="font-medium">Treatment:</span>{" "}
-                      {appointment.treatment}
-                    </p>
-                    <Button size="sm" className="mt-2 bg-gray-300">
-                      Medical History
-                    </Button>
+                <div className="flex flex-col justify-center items-center min-w-[80px]">
+                  <div className="text-center">
+                    <div className="font-semibold text-lg md:text-xl lg:text-3xl">
+                      {appointment.time}
+                    </div>
+                    <div className="font-semibold text-md md:text-lg lg:text-xl">
+                      {new Date(appointment.date).toLocaleDateString("en-US", {
+                        day: "2-digit",
+                        month: "short",
+                      })}
+                    </div>
                   </div>
+                </div>
+                <div>
+                  <p>
+                    <span className="font-medium">Name:</span>{" "}
+                    {appointment.name}
+                  </p>
+                  <p>
+                    <span className="font-medium">Age:</span> {appointment.age}
+                  </p>
+                  <p>
+                    <span className="font-medium">Treatment:</span>{" "}
+                    {appointment.treatment}
+                  </p>
+                  <Button
+                    variant="shadow"
+                    size="sm"
+                    radius="full"
+                    className="mt-2"
+                    startContent={<MedicalReportIcon />}
+                  >
+                    Medical History
+                  </Button>
                 </div>
               </div>
             ))}
@@ -302,39 +364,39 @@ export default function Dashboard() {
 
         {/* Dentures */}
         <Card className="col-span-1 lg:col-span-2 lg:row-span-2 lg:col-start-3 lg:col-end-5 bg-white">
-          <CardHeader>
+          <CardHeader className="mb-3 py-0 pt-5 flex justify-between items-center">
             <h2 className="text-xl font-semibold">Dentures</h2>
           </CardHeader>
           <CardBody className="max-h-96 overflow-y-auto">
             {dentures.map((denture, index) => (
               <div
                 key={index}
-                className="bg-default-300 p-4 rounded-lg mb-2 last:mb-0"
+                className="bg-default-100 p-4 rounded-lg mb-2 last:mb-0"
               >
                 <p>
-                  <span className="font-medium">Patient ID:</span>{" "}
+                  <span className="font-bold pr-4">Patient ID:</span>{" "}
                   {denture.patientId}
                 </p>
                 <p>
-                  <span className="font-medium">Order ID:</span>{" "}
+                  <span className="font-bold pr-4">Order ID:</span>{" "}
                   {denture.orderId}
                 </p>
                 <p>
-                  <span className="font-medium">Estimated trial date:</span>{" "}
+                  <span className="font-bold pr-4">Estimated trial date:</span>{" "}
                   {denture.trialDate}
                 </p>
                 <p>
-                  <span className="font-medium">Estimated arrival date:</span>{" "}
+                  <span className="font-bold pr-4">
+                    Estimated arrival date:
+                  </span>{" "}
                   {denture.arrivalDate}
                 </p>
-                <p>
-                  <span className="font-medium">Status:</span>
-                  <span
-                    className={`ml-2 px-2 py-1 rounded ${denture.status === "Completed" ? "bg-green-500 text-white" : "bg-yellow-500 text-black"}`}
-                  >
-                    {denture.status}
-                  </span>
-                </p>
+                <span className="font-bold pr-4">Status:</span>
+                <Chip
+                  className={`ml-2 px-2 py-1  ${denture.status === "Completed" ? "bg-green-500 text-white" : "bg-yellow-500 text-black"}`}
+                >
+                  {denture.status === "Completed" ? "Completed" : "Pending"}
+                </Chip>
               </div>
             ))}
           </CardBody>
@@ -346,21 +408,31 @@ export default function Dashboard() {
           <CardHeader>
             <h2 className="text-xl font-semibold">Summary</h2>
           </CardHeader>
+          <div className="flex flex-wrap gap-4 mx-3">
+            <Tabs
+              radius="full"
+              size="sm"
+              variant="bordered"
+              aria-label="Summary time period"
+              selectedKey={activeTab}
+              onSelectionChange={handleTabChange}
+            >
+              <Tab key="daily" title="Daily" />
+              <Tab key="monthly" title="Monthly" />
+              <Tab key="yearly" title="Yearly" />
+            </Tabs>
+          </div>
           <CardBody>
-            <div className="flex justify-between mb-4">
-              <Button size="sm" className="bg-gray-200">
-                Daily
-              </Button>
-              <Button size="sm" className="bg-gray-200">
-                Weekly
-              </Button>
-              <Button size="sm" className="bg-gray-200">
-                Monthly
-              </Button>
-            </div>
-            <h3 className="text-3xl font-bold mb-1">LKR 16,350</h3>
+            <h3 className="text-3xl font-bold mb-1">
+              {summaryData[activeTab as keyof typeof summaryData].earned}
+            </h3>
             <p className="text-gray-600 mb-4">Earned</p>
-            <h3 className="text-3xl font-bold mb-1">24</h3>
+            <h3 className="text-3xl font-bold mb-1">
+              {
+                summaryData[activeTab as keyof typeof summaryData]
+                  .patientsTreated
+              }
+            </h3>
             <p className="text-gray-600">No. of Patients Treated</p>
           </CardBody>
         </Card>
@@ -376,7 +448,7 @@ export default function Dashboard() {
                 key={index}
                 className="flex items-center gap-4 bg-gray-100 p-4 rounded-lg mb-2 last:mb-0"
               >
-                <div className="bg-gray-300 rounded-full p-2">
+                <div className="bg-default-100 rounded-full p-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-6 w-6"
@@ -406,18 +478,21 @@ export default function Dashboard() {
         </Card>
 
         {/* Orders */}
-        <Card className="col-span-1 md:col-span-4 lg:col-span-4 bg-white">
+        <Card className="hidden lg:flex md:col-span-1 md:col-span-4 lg:col-span-4 bg-white">
           <CardHeader className="flex justify-between items-center">
             <h2 className="text-xl font-semibold">Orders</h2>
-            <NewItemButton className="bg-gray-200 text-black" radius="full">
+            <NewItemButton
+              className="bg-secondary-200 text-foreground-light"
+              radius="full"
+            >
               Create New Order
             </NewItemButton>
           </CardHeader>
           <CardBody>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto ">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-100">
+                  <tr className="bg-default-200">
                     <th className="p-2 text-left">ID</th>
                     <th className="p-2 text-left">DATE</th>
                     <th className="p-2 text-left">NAME</th>

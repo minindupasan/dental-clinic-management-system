@@ -46,13 +46,15 @@ export default function App() {
           </Link>
         </NavbarBrand>
       </NavbarContent>
-      <NavbarMenu>
+      <NavbarMenu className="bg-background-dark backdrop-blur-md bg-opacity-50">
         {menuItems.map(({ itemName, itemPath }, index) => (
           <NavbarMenuItem key={`${itemName}-${index}`}>
             <Link
               className={clsx(
                 "w-full",
-                index === menuItems.length - 1 ? "text-danger-500" : "text-foreground-dark"
+                index === menuItems.length - 1
+                  ? "text-danger-500"
+                  : "text-foreground-dark"
               )}
               href={itemPath}
               size="lg"
