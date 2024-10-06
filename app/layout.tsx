@@ -28,13 +28,13 @@ export default function RootLayout({
       <head />
       <body
         className={clsx(
-          "themeColor min-h-screen bg-foreground font-sans antialiased",
+          "bg-background-dark text-foreground-dark min-h-screen bg-foreground font-sans antialiased",
           fontSans.variable
         )}
       >
         {" "}
         <NavBar />
-        <main className="mx-6">{children}</main>
+        <main className={clsx("mx-4 md:mx-6 lg:mx-10")}>{children}</main>
       </body>
     </html>
   );

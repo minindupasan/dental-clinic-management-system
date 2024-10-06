@@ -1,5 +1,11 @@
+"use client";
+import AppointmentsTable from "@/components/AppointmentsTable";
 import React from "react";
 
-export default function Contact() {
-  return <div>Contact Page</div>;
+export default function appointments() {
+  return (
+    <div className="text-foreground-light">
+      <AppointmentsTable />
+    </div>
+  );
 }

@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function Login() {
-  return <div>Login Page</div>;
+export default function login() {
+  return <div>Login Successfully</div>;
 }
