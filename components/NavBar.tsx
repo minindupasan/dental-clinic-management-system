@@ -1,77 +1,94 @@
 "use client";
-import ThemeSwitch from "./ThemeSwitch";
-import Button from "./Button";
-import { fontSerif } from "@/config/fonts";
-import clsx from "clsx";
+
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+import {
+  Button,
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+} from "@nextui-org/react";
 import NavBarTabs from "./NavBarTabs";
 import MenuBar from "./MenuBar";
-import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export default function NavBar() {
-  const router = usePathname();
-  const currentPath = router;
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleTabClick = (path: string) => {
+    console.log(`Tab clicked: ${path}`);
+  };
+
+  const handleThemeChange = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  if (!mounted) return null;
 
   return (
-    <div className="w-full py-1 px-4">
-      <div className="flex items-center w-full">
-        <div className="flex items-center">
-          <MenuBar />
-        </div>
-        <div className="flex-grow flex justify-center">
-          <div className="hidden lg:flex-grow lg:flex lg:justify-center">
-            <NavBarTabs />
-          </div>
+    <Navbar className="w-full py-1 px-4">
+      <NavbarBrand>
+        <MenuBar />
+      </NavbarBrand>
+      <NavbarContent
+        className="hidden lg:flex lg:justify-center"
+        justify="center"
+      >
+        <NavBarTabs onTabClick={handleTabClick} currentPath={pathname} />
+      </NavbarContent>
+      <NavbarContent justify="end">
+        {/* Hidden on medium and larger screens, visible only on small screens */}
+        <div className="md:hidden flex items-center space-x-2">
+          <Button
+            radius="full"
+            as={Link}
+            href="/Login"
+            variant="bordered"
+            size="sm" // Small size for mobile
+          >
+            Login
+          </Button>
+          <Button
+            radius="full"
+            as={Link}
+            href="/SignUp"
+            variant="solid"
+            size="sm" // Small size for mobile
+          >
+            Sign Up
+          </Button>
         </div>
 
-        <div className="flex justify-end items-center">
-          <div className="hidden md:flex md:justify-end md:items-center">
-            <ThemeSwitch />
-          </div>
-          <div className="md:hidden flex">
-            <Link href="/Login">
-              <Button
-                size="sm"
-                radius={"full"}
-                variant="bordered"
-                className="mr-3 border-default-100 text-foreground-dark"
-              >
-                Login
-              </Button>
-            </Link>
-            <Link href="/SignUp">
-              <Button
-                size="sm"
-                radius={"full"}
-                variant="solid"
-                className="mr-3 bg-default-100 text-foreground-light"
-              >
-                Sign Up
-              </Button>
-            </Link>
-          </div>
-          <div className="hidden md:flex">
-            <Link href="/Login">
-              <Button
-                radius={"full"}
-                variant="bordered"
-                className="mr-3 border-default-100 text-foreground-dark"
-              >
-                Login
-              </Button>
-            </Link>
-            <Link href="/SignUp">
-              <Button
-                radius={"full"}
-                variant="solid"
-                className="mr-3 bg-default-100 text-foreground-light"
-              >
-                Sign Up
-              </Button>
-            </Link>
-          </div>
+        {/* Visible only on medium and larger screens */}
+        <div className="hidden md:flex items-center space-x-4">
+          <Button
+            radius="full"
+            as={Link}
+            href="/Login"
+            variant="bordered"
+            size="lg"
+          >
+            Login
+          </Button>
+          <Button
+            radius="full"
+            as={Link}
+            href="/SignUp"
+            variant="solid"
+            size="lg"
+          >
+            Sign Up
+          </Button>
         </div>
-      </div>
-    </div>
+      </NavbarContent>
+    </Navbar>
   );
 }
