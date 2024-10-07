@@ -54,11 +54,15 @@ const columns = [
 
 export default function App() {
   return (
-    <div className="bg-background-light rounded-xl">
+    <div className="bg-background-light rounded-xl h-full">
       <div className="py-5 flex items-center justify-between px-10">
         <div className="font-semibold text-xl">Appointments</div>
         <div>
-          <Button className="bg-secondary-200" radius="full" startContent={<NewItemIcon />}>
+          <Button
+            className="bg-secondary-200"
+            radius="full"
+            startContent={<NewItemIcon />}
+          >
             New Appointment
           </Button>
         </div>

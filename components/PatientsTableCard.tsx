@@ -9,6 +9,8 @@ import {
   Button,
   Card,
   CardHeader,
+  CardFooter,
+  CardBody,
 } from "@nextui-org/react";
 import { NewItemIcon } from "./icons/NewItemIcon";
 
@@ -188,7 +190,7 @@ const columns = [
 
 export default function App() {
   return (
-    <Card className="bg-background-light rounded-xl w-full">
+    <Card className="bg-background-light text-foreground-light rounded-xl w-full">
       <CardHeader>
         <div className="w-full pt-3 flex justify-between items-center mx-6">
           <h1 className="font-semibold text-xl">Patient Records</h1>
@@ -202,26 +204,31 @@ export default function App() {
           </Button>
         </div>
       </CardHeader>
-
-      {/* Scrollable Table Container */}
-      <div className="px-10" style={{ maxHeight: "300px", overflowY: "auto" }}>
-        <Table aria-label="Example table with dynamic content">
-          <TableHeader columns={columns}>
-            {(column) => (
-              <TableColumn key={column.key}>{column.label}</TableColumn>
-            )}
-          </TableHeader>
-          <TableBody items={rows}>
-            {(item) => (
-              <TableRow key={item.key}>
-                {(columnKey) => (
-                  <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-                )}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <CardBody>
+        {/* Scrollable Table Container */}
+        <div
+          className="px-10"
+          style={{ maxHeight: "300px", overflowY: "auto" }}
+        >
+          <Table aria-label="Patient Records">
+            <TableHeader columns={columns}>
+              {(column) => (
+                <TableColumn key={column.key}>{column.label}</TableColumn>
+              )}
+            </TableHeader>
+            <TableBody items={rows}>
+              {(item) => (
+                <TableRow key={item.key}>
+                  {(columnKey) => (
+                    <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardBody>
+      <CardFooter className="p-2"></CardFooter>
     </Card>
   );
 }

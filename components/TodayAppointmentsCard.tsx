@@ -83,7 +83,7 @@ export default function TodayAppointmentsCard() {
               className="bg-default-100 p-4 rounded-lg flex items-center gap-4 mb-2 last:mb-0"
             >
               <div className="flex flex-col justify-center items-center min-w-[80px]">
-                <div className="text-center">
+                <div className="rounded-xl p-5 bg-white text-center">
                   <div className="font-semibold text-lg md:text-xl lg:text-3xl">
                     {appointment.time}
                   </div>

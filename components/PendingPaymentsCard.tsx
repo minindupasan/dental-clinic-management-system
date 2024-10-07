@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardHeader, CardBody } from "@nextui-org/react";
+import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
 
 const pendingPayments = [
   {
@@ -49,7 +49,7 @@ const pendingPayments = [
 export default function PendingPayments() {
   return (
     <div>
-      <Card className="h-auto max-h-72 bg-white">
+      <Card className="h-auto max-h-72 bg-white text-foreground-light">
         <CardHeader>
           <div className="w-full pt-3 flex justify-between items-center mx-6">
             <h2 className="text-xl font-semibold">Pending Payments</h2>
@@ -88,6 +88,7 @@ export default function PendingPayments() {
             </div>
           ))}
         </CardBody>
+        <CardFooter className="p-2"></CardFooter>
       </Card>
     </div>
   );
