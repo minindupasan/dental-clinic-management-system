@@ -7,8 +7,8 @@ import {
   CardFooter,
   Button,
 } from "@nextui-org/react";
-import { NewItemIcon } from "./icons/NewItemIcon";
-import { MedicalReportIcon } from "./icons/MedicalReportIcon";
+import { CirclePlus } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 const appointments = [
   {
     name: "Moksha Mudalige",
@@ -70,7 +70,7 @@ export default function UpcomingAppointmentsCard() {
             <Button
               className="bg-secondary-200 text-foreground-light"
               radius="full"
-              startContent={<NewItemIcon />}
+              startContent={<CirclePlus />}
             >
               New Patient
             </Button>
@@ -111,7 +111,7 @@ export default function UpcomingAppointmentsCard() {
                   size="sm"
                   radius="full"
                   className="mt-2"
-                  startContent={<MedicalReportIcon />}
+                  startContent={<ClipboardList />}
                 >
                   Medical History
                 </Button>

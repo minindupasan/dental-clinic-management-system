@@ -12,9 +12,8 @@ import {
   Button,
   Tooltip,
 } from "@nextui-org/react";
-import { NewItemIcon } from "./icons/NewItemIcon";
-import { EditIcon } from "./icons/EditIcon";
-import { DeleteIcon } from "./icons/DeleteIcon";
+import { CirclePlus } from "lucide-react";
+import TableEditMenu from "./TableEditMenu";
 
 const rows = [
   {
@@ -161,6 +160,14 @@ const rows = [
     treatment: "Nerve Filling",
     total: "LKR 7000.00",
   },
+  {
+    key: "P0019",
+    date: "2024-09-12",
+    name: "Dinesh Chandimal",
+    nic: "200001234585",
+    treatment: "Implant",
+    total: "LKR 25000.00",
+  },
 ];
 
 const columns = [
@@ -192,7 +199,7 @@ export default function PatientRecords() {
           <Button
             className="bg-secondary-200"
             radius="full"
-            startContent={<NewItemIcon />}
+            startContent={<CirclePlus />}
           >
             New Patient
           </Button>
@@ -213,27 +220,9 @@ export default function PatientRecords() {
                     <div className="flex items-center gap-2">
                       <Tooltip
                         className="text-foreground-light"
-                        content="Edit patient"
+                        content="Edit Patient"
                       >
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          onPress={() => handleEdit(item.key)}
-                        >
-                          <EditIcon />
-                        </Button>
-                      </Tooltip>
-                      <Tooltip content="Delete patient" color="danger">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          color="danger"
-                          onPress={() => handleDelete(item.key)}
-                        >
-                          <DeleteIcon />
-                        </Button>
+                        <TableEditMenu />
                       </Tooltip>
                     </div>
                   ) : (

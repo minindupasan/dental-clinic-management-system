@@ -9,11 +9,10 @@ import {
   CardHeader,
   Input,
 } from "@nextui-org/react";
-import { EyeFilledIcon } from "./icons/EyeFilledIcon";
-import { EyeSlashFilledIcon } from "./icons/EyeSlashFilledIcon";
-import { MailIcon } from "./icons/Mailicon";
-import { LoginIcon } from "./icons/LoginIcon";
-import { LockIcon } from "./icons/LockIcon";
+import { AtSign, Eye } from "lucide-react";
+import { EyeClosed } from "lucide-react";
+import { LogIn } from "lucide-react";
+import { Key } from "lucide-react";
 
 export default function LoginCard() {
   const [email, setEmail] = useState("");
@@ -93,7 +92,7 @@ export default function LoginCard() {
                 onChange={(e) => setEmail(e.target.value)}
                 labelPlacement="outside"
                 startContent={
-                  <MailIcon className="text-2xl pointer-events-none flex-shrink-0" />
+                  <AtSign className="text-default-900 pointer-events-none flex-shrink-0" />
                 }
               />
               <Input
@@ -104,7 +103,7 @@ export default function LoginCard() {
                 value={password}
                 onChange={handlePasswordChange}
                 labelPlacement="outside"
-                startContent={<LockIcon />}
+                startContent={<Key className="text-default-900" />}
                 endContent={
                   <button
                     className="focus:outline-none"
@@ -113,9 +112,9 @@ export default function LoginCard() {
                     aria-label="toggle password visibility"
                   >
                     {isVisible ? (
-                      <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      <EyeClosed className="text-default-900 pointer-events-none" />
                     ) : (
-                      <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      <Eye className="text-default-900 pointer-events-none" />
                     )}
                   </button>
                 }
@@ -123,15 +122,15 @@ export default function LoginCard() {
               {error && <p className=" text-red-500 text-sm">{error}</p>}
             </div>
             <div className="flex flex-col justify-between items-center space-y-4">
-                <Button
+              <Button
                 className="bg-background-dark text-foreground-dark"
                 type="submit"
                 color={email && password && !error ? "primary" : "default"}
-                startContent={<LoginIcon />}
+                startContent={<LogIn />}
                 isDisabled={!!error}
-                >
+              >
                 Login
-                </Button>
+              </Button>
               <Link href="#" size="sm">
                 Forgot Password?
               </Link>

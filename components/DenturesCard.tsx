@@ -7,8 +7,8 @@ import {
   CardFooter,
   Chip,
 } from "@nextui-org/react";
-import { OrderCompletedIcon } from "./icons/OrderCompletedIcon";
-import { OrderPendingIcon } from "./icons/OrderPendingIcon";
+import { ClipboardCheck } from "lucide-react";
+import { ClipboardCopy } from "lucide-react";
 
 const dentures = [
   {
@@ -77,34 +77,34 @@ export default function DentureCard() {
                 <div className="mx-12">
                   <div className="flex-shrink-0 mr-4 flex justify-center items-center">
                     {denture.status === "Completed" ? (
-                      <OrderCompletedIcon />
+                      <ClipboardCheck size={"48px"} />
                     ) : (
-                      <OrderPendingIcon />
+                      <ClipboardCopy size={"48px"} />
                     )}
                   </div>
                 </div>
                 <div>
-                  <p>
+                  <div>
                     <span className="font-bold pr-4">Patient ID:</span>{" "}
                     {denture.patientId}
-                  </p>
-                  <p>
+                  </div>
+                  <div>
                     <span className="font-bold pr-4">Order ID:</span>{" "}
                     {denture.orderId}
-                  </p>
-                  <p>
+                  </div>
+                  <div>
                     <span className="font-bold pr-4">
                       Estimated trial date:
                     </span>{" "}
                     {denture.trialDate}
-                  </p>
-                  <p>
+                  </div>
+                  <div>
                     <span className="font-bold pr-4">
                       Estimated arrival date:
                     </span>{" "}
                     {denture.arrivalDate}
-                  </p>
-                  <p>
+                  </div>
+                  <div>
                     <span className="font-bold pr-4">Status:</span>
                     <Chip
                       className={`ml-2 px-2 py-1 ${
@@ -115,7 +115,7 @@ export default function DentureCard() {
                     >
                       {denture.status === "Completed" ? "Completed" : "Pending"}
                     </Chip>
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
