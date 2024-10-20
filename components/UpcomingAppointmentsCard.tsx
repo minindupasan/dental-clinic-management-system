@@ -1,69 +1,63 @@
 "use client";
 
+import React, { useState, useCallback } from "react";
 import {
   Card,
   CardHeader,
   CardBody,
   CardFooter,
   Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Input,
+  useDisclosure,
 } from "@nextui-org/react";
 import { CirclePlus } from "lucide-react";
-import { ClipboardList } from "lucide-react";
-const appointments = [
-  {
-    name: "Moksha Mudalige",
-    age: "21",
-    treatment: "Extraction",
-    date: "2024-09-02",
-    time: "10:00 AM",
-  },
-  {
-    name: "Minindu Pasan",
-    age: "25",
-    treatment: "Orthodontic",
-    date: "2024-09-02",
-    time: "11:00 AM",
-  },
-  {
-    name: "Anjula Dabarera",
-    age: "30",
-    treatment: "Root Canal",
-    date: "2024-09-03",
-    time: "09:00 AM",
-  },
-  {
-    name: "Christine Samandi",
-    age: "28",
-    treatment: "Cleaning",
-    date: "2024-09-03",
-    time: "01:00 PM",
-  },
-  {
-    name: "Linali Kariyawasam",
-    age: "22",
-    treatment: "Filling",
-    date: "2024-09-04",
-    time: "02:00 PM",
-  },
-  {
-    name: "Nadil Duiran",
-    age: "35",
-    treatment: "Crown",
-    date: "2024-09-04",
-    time: "03:00 PM",
-  },
-  {
-    name: "Nayantha Nethsara",
-    age: "27",
-    treatment: "Braces",
-    date: "2024-09-05",
-    time: "10:30 AM",
-  },
-];
+import MedicalHistoryPopover from "./MedicalHistoryModal";
+import { patients, Patient } from "./data/PatientData";
+
 export default function UpcomingAppointmentsCard() {
+  const [appointments, setAppointments] = useState<Patient[]>(() =>
+    [...patients].sort((a, b) => {
+      const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
+      const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
+      return dateA.getTime() - dateB.getTime();
+    })
+  );
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [newAppointment, setNewAppointment] = useState<Partial<Patient>>({});
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setNewAppointment((prev) => ({ ...prev, [name]: value }));
+    },
+    []
+  );
+
+  const handleAddAppointment = useCallback(() => {
+    const newPatient: Patient = {
+      id: `P${String(appointments.length + 1).padStart(4, "0")}`,
+      ...(newAppointment as Patient),
+    };
+    setAppointments((prev) => {
+      const updated = [...prev, newPatient].sort((a, b) => {
+        const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
+        const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
+        return dateA.getTime() - dateB.getTime();
+      });
+      return updated;
+    });
+    setNewAppointment({});
+    onClose();
+  }, [newAppointment, onClose]);
+
   return (
     <div>
-      <Card className="lg:h-60 max-h-96 w-full  bg-background-light">
+      <Card className="lg:h-60 max-h-96 w-full bg-background-light">
         <CardHeader>
           <div className="w-full pt-3 flex justify-between items-center mx-6">
             <h2 className="text-xl font-semibold">Upcoming Appointments</h2>
@@ -71,27 +65,31 @@ export default function UpcomingAppointmentsCard() {
               className="bg-secondary-200 text-foreground-light"
               radius="full"
               startContent={<CirclePlus />}
+              onPress={onOpen}
             >
               New Patient
             </Button>
           </div>
         </CardHeader>
         <CardBody className="max-h-96 overflow-y-auto">
-          {appointments.map((appointment, index) => (
+          {appointments.map((appointment) => (
             <div
-              key={index}
+              key={appointment.id}
               className="bg-default-100 p-4 rounded-lg flex items-center gap-4 mb-2 last:mb-0"
             >
               <div className="flex flex-col justify-center items-center min-w-[80px]">
                 <div className="rounded-xl p-5 bg-white text-center">
                   <div className="font-semibold text-lg md:text-xl lg:text-3xl">
-                    {appointment.time}
+                    {appointment.appointmentTime}
                   </div>
                   <div className="font-semibold text-md md:text-lg lg:text-xl">
-                    {new Date(appointment.date).toLocaleDateString("en-US", {
-                      day: "2-digit",
-                      month: "short",
-                    })}
+                    {new Date(appointment.appointmentDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}
                   </div>
                 </div>
               </div>
@@ -106,21 +104,63 @@ export default function UpcomingAppointmentsCard() {
                   <span className="font-medium">Treatment:</span>{" "}
                   {appointment.treatment}
                 </p>
-                <Button
-                  variant="shadow"
-                  size="sm"
-                  radius="full"
-                  className="mt-2"
-                  startContent={<ClipboardList />}
-                >
-                  Medical History
-                </Button>
+                <MedicalHistoryPopover patient={appointment} />
               </div>
             </div>
           ))}
         </CardBody>
         <CardFooter className="p-2"></CardFooter>
       </Card>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            Add New Appointment
+          </ModalHeader>
+          <ModalBody>
+            <Input
+              label="Name"
+              name="name"
+              value={newAppointment.name || ""}
+              onChange={handleInputChange}
+            />
+            <Input
+              label="Age"
+              name="age"
+              value={newAppointment.age || ""}
+              onChange={handleInputChange}
+            />
+            <Input
+              label="Treatment"
+              name="treatment"
+              value={newAppointment.treatment || ""}
+              onChange={handleInputChange}
+            />
+            <Input
+              label="Date"
+              name="appointmentDate"
+              type="date"
+              value={newAppointment.appointmentDate || ""}
+              onChange={handleInputChange}
+            />
+            <Input
+              label="Time"
+              name="appointmentTime"
+              type="time"
+              value={newAppointment.appointmentTime || ""}
+              onChange={handleInputChange}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" variant="light" onPress={onClose}>
+              Cancel
+            </Button>
+            <Button color="primary" onPress={handleAddAppointment}>
+              Add Appointment
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
