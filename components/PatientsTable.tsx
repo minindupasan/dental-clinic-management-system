@@ -8,169 +8,87 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  getKeyValue,
-  Button,
-  Tooltip,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-  Input,
+  Spinner,
 } from "@nextui-org/react";
-import { CirclePlus, Pencil, Trash } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 type Patient = {
-  key: string;
-  date: string;
-  name: string;
-  treatment: string;
-  total: string;
+  patientID: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  gender: string;
+  medicalRecords: string;
+  dob: string;
+  createdDate: string;
 };
 
 const columns = [
-  { key: "key", label: "ID" },
-  { key: "date", label: "DATE" },
-  { key: "name", label: "NAME" },
-  { key: "records", label: "PAST RECORDS" },
-  { key: "treatment", label: "TREATMENT" },
-  { key: "total", label: "TOTAL" },
-  { key: "actions", label: "ACTIONS" },
+  { key: "patientID", label: "PATIENT ID" },
+  { key: "fullName", label: "FULL NAME" },
+  { key: "email", label: "EMAIL" },
+  { key: "gender", label: "GENDER" },
+  { key: "medicalRecords", label: "MEDICAL RECORDS" },
+  { key: "dob", label: "DATE OF BIRTH" },
+  { key: "createdDate", label: "CREATED DATE" },
 ];
 
-export default function PatientRecords() {
+export default function PatientTable() {
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loading, setLoading] = useState(true);
 
-  // Fetch patients data from the backend API
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/api/patients");
-        if (response.ok) {
-          const data = await response.json();
-          setPatients(
-            data.map((patient: any, index: number) => ({
-              key: `P${String(index + 1).padStart(4, "0")}`,
-              date: patient.date || new Date().toISOString().split("T")[0], // or however you format the date
-              name: patient.firstName + " " + patient.lastName,
-              nic: patient.nic || "N/A", // Replace 'N/A' if no NIC is provided
-              treatment: patient.treatment || "N/A",
-              total: patient.total || "N/A",
-            }))
-          );
-        } else {
-          console.error("Failed to fetch patients");
-        }
-      } catch (error) {
-        console.error("Error fetching patients:", error);
+  const fetchPatients = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/patients");
+      if (!response.ok) {
+        throw new Error("Failed to fetch patients");
       }
-    };
+      const data = await response.json();
+      console.log("Fetched patient data:", data); // Log the fetched data
+      setPatients(data);
+      setLoading(false);
+    } catch (err) {
+      toast.error("An error occurred while fetching patient data.");
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPatients();
   }, []);
 
-  const handleAdd = () => {
-    setEditingPatient({
-      key: `P${String(patients.length + 1).padStart(4, "0")}`,
-      date: new Date().toISOString().split("T")[0],
-      name: "",
-      treatment: "",
-      total: "",
-    });
-    onOpen();
-  };
-
-  const handleEdit = (patient: Patient) => {
-    setEditingPatient(patient);
-    onOpen();
-  };
-
-  const handleDelete = (key: string) => {
-    setPatients(patients.filter((patient) => patient.key !== key));
-  };
-
-  const handleSave = () => {
-    if (editingPatient) {
-      setPatients((prevPatients) => {
-        const index = prevPatients.findIndex(
-          (p) => p.key === editingPatient.key
-        );
-        if (index !== -1) {
-          // Edit existing patient
-          return [
-            ...prevPatients.slice(0, index),
-            editingPatient,
-            ...prevPatients.slice(index + 1),
-          ];
-        } else {
-          // Add new patient
-          return [...prevPatients, editingPatient];
-        }
-      });
-    }
-    onClose();
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner label="Loading patient data..." color="primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-background-light rounded-xl">
-      <div className="py-5 flex items-center justify-between px-10">
-        <div className="font-semibold text-xl">Patient Records</div>
-        <div>
-          <Button
-            className="bg-secondary-200"
-            radius="full"
-            startContent={<CirclePlus />}
-            onPress={handleAdd}
-          >
-            New Patient
-          </Button>
-        </div>
-      </div>
-      <Table aria-label="Patient records table with dynamic content">
-        <TableHeader columns={columns}>
-          {(column) => (
+    <div className="max-w-full overflow-x-auto">
+      <Table aria-label="Patient data table">
+        <TableHeader>
+          {columns.map((column) => (
             <TableColumn key={column.key}>{column.label}</TableColumn>
-          )}
+          ))}
         </TableHeader>
-        <TableBody items={patients}>
-          {(item) => (
-            <TableRow key={item.key}>
-              {(columnKey) => (
-                <TableCell>
-                  {columnKey === "actions" ? (
-                    <div className="flex items-center gap-2">
-                      <Tooltip content="Edit Patient">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          onPress={() => handleEdit(item)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </Tooltip>
-                      <Tooltip content="Delete Patient">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          color="danger"
-                          onPress={() => handleDelete(item.key)}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </Tooltip>
-                    </div>
-                  ) : (
-                    getKeyValue(item, columnKey)
-                  )}
+        <TableBody>
+          {patients.map((patient) => (
+            <TableRow key={patient.patientID}>
+              {columns.map((column) => (
+                <TableCell key={`${patient.patientID}-${column.key}`}>
+                  {column.key === "fullName"
+                    ? `${patient.firstName} ${patient.lastName}`
+                    : column.key === "dob" || column.key === "createdDate"
+                      ? new Date(
+                          patient[column.key as keyof Patient]
+                        ).toLocaleDateString()
+                      : patient[column.key as keyof Patient]}
                 </TableCell>
-              )}
+              ))}
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
     </div>
