@@ -20,7 +20,6 @@ import {
   Input,
 } from "@nextui-org/react";
 import { CirclePlus, Pencil, Trash } from "lucide-react";
-import NewPatientPopover from "./NewPatientPopover";
 
 type Patient = {
   key: string;
@@ -174,65 +173,6 @@ export default function PatientRecords() {
           )}
         </TableBody>
       </Table>
-
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        className="text-foreground-light"
-      >
-        <ModalContent>
-          <ModalHeader>
-            {editingPatient?.key ? "Edit Patient" : "Add New Patient"}
-          </ModalHeader>
-          <ModalBody>
-            <Input
-              radius="full"
-              label="Name"
-              value={editingPatient?.name}
-              onChange={(e) =>
-                setEditingPatient((prev) => ({
-                  ...prev!,
-                  name: e.target.value,
-                }))
-              }
-            />
-            <Input
-              radius="full"
-              label="Treatment"
-              value={editingPatient?.treatment}
-              onChange={(e) =>
-                setEditingPatient((prev) => ({
-                  ...prev!,
-                  treatment: e.target.value,
-                }))
-              }
-            />
-            <Input
-              radius="full"
-              label="Total"
-              value={editingPatient?.total}
-              onChange={(e) =>
-                setEditingPatient((prev) => ({
-                  ...prev!,
-                  total: e.target.value,
-                }))
-              }
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button color="danger" variant="light" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button
-              className="text-success-500"
-              variant="light"
-              onPress={handleSave}
-            >
-              Save
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </div>
   );
 }
