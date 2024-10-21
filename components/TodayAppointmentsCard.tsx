@@ -9,7 +9,7 @@ import {
 } from "@nextui-org/react";
 import { CirclePlus } from "lucide-react";
 import MedicalHistoryModal from "./MedicalHistoryModal";
-import todaysAppointment from "./data/TodaysAppointmentsData";
+import todaysAppointment from "../app/data/TodaysAppointmentsData";
 export default function TodayAppointmentsCard() {
   return (
     <div>
@@ -56,7 +56,7 @@ export default function TodayAppointmentsCard() {
                   <span className="font-medium">Treatment:</span>{" "}
                   {appointment.treatment}
                 </p>
-                <MedicalHistoryModal />
+                {/* <MedicalHistoryModal /> */}
               </div>
             </div>
           ))}

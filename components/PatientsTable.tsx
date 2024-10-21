@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -20,33 +20,20 @@ import {
   Input,
 } from "@nextui-org/react";
 import { CirclePlus, Pencil, Trash } from "lucide-react";
+import NewPatientPopover from "./NewPatientPopover";
 
 type Patient = {
   key: string;
   date: string;
   name: string;
-  nic: string;
   treatment: string;
   total: string;
 };
-
-const initialRows: Patient[] = [
-  {
-    key: "P0001",
-    date: "2024-09-02",
-    name: "Minindu Pasan",
-    nic: "200001234567",
-    treatment: "Orthodontic",
-    total: "LKR 5000.00",
-  },
-  // ... (other initial patient records)
-];
 
 const columns = [
   { key: "key", label: "ID" },
   { key: "date", label: "DATE" },
   { key: "name", label: "NAME" },
-  { key: "nic", label: "NIC" },
   { key: "records", label: "PAST RECORDS" },
   { key: "treatment", label: "TREATMENT" },
   { key: "total", label: "TOTAL" },
@@ -54,16 +41,43 @@ const columns = [
 ];
 
 export default function PatientRecords() {
-  const [patients, setPatients] = useState<Patient[]>(initialRows);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Fetch patients data from the backend API
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/patients");
+        if (response.ok) {
+          const data = await response.json();
+          setPatients(
+            data.map((patient: any, index: number) => ({
+              key: `P${String(index + 1).padStart(4, "0")}`,
+              date: patient.date || new Date().toISOString().split("T")[0], // or however you format the date
+              name: patient.firstName + " " + patient.lastName,
+              nic: patient.nic || "N/A", // Replace 'N/A' if no NIC is provided
+              treatment: patient.treatment || "N/A",
+              total: patient.total || "N/A",
+            }))
+          );
+        } else {
+          console.error("Failed to fetch patients");
+        }
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
+    };
+
+    fetchPatients();
+  }, []);
 
   const handleAdd = () => {
     setEditingPatient({
       key: `P${String(patients.length + 1).padStart(4, "0")}`,
       date: new Date().toISOString().split("T")[0],
       name: "",
-      nic: "",
       treatment: "",
       total: "",
     });
@@ -180,14 +194,6 @@ export default function PatientRecords() {
                   ...prev!,
                   name: e.target.value,
                 }))
-              }
-            />
-            <Input
-              radius="full"
-              label="NIC"
-              value={editingPatient?.nic}
-              onChange={(e) =>
-                setEditingPatient((prev) => ({ ...prev!, nic: e.target.value }))
               }
             />
             <Input

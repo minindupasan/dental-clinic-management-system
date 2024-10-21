@@ -6,7 +6,7 @@ import {
   Button,
 } from "@nextui-org/react";
 import { ClipboardList } from "lucide-react";
-import { Patient } from "./data/PatientData";
+import { Patient } from "../app/data/PatientData";
 
 interface MedicalHistoryPopoverProps {
   patient: Patient;

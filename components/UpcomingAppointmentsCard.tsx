@@ -17,7 +17,7 @@ import {
 } from "@nextui-org/react";
 import { CirclePlus } from "lucide-react";
 import MedicalHistoryPopover from "./MedicalHistoryModal";
-import { patients, Patient } from "./data/PatientData";
+import { patients, Patient } from "../app/data/PatientData";
 
 export default function UpcomingAppointmentsCard() {
   const [appointments, setAppointments] = useState<Patient[]>(() =>
@@ -37,23 +37,6 @@ export default function UpcomingAppointmentsCard() {
     },
     []
   );
-
-  const handleAddAppointment = useCallback(() => {
-    const newPatient: Patient = {
-      id: `P${String(appointments.length + 1).padStart(4, "0")}`,
-      ...(newAppointment as Patient),
-    };
-    setAppointments((prev) => {
-      const updated = [...prev, newPatient].sort((a, b) => {
-        const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
-        const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
-        return dateA.getTime() - dateB.getTime();
-      });
-      return updated;
-    });
-    setNewAppointment({});
-    onClose();
-  }, [newAppointment, onClose]);
 
   return (
     <div>
@@ -155,9 +138,7 @@ export default function UpcomingAppointmentsCard() {
             <Button color="danger" variant="light" onPress={onClose}>
               Cancel
             </Button>
-            <Button color="primary" onPress={handleAddAppointment}>
-              Add Appointment
-            </Button>
+            <Button color="primary">Add Appointment</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
