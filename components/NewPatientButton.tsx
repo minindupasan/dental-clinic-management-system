@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   Button,
   Modal,
@@ -12,91 +12,74 @@ import {
   useDisclosure,
   Select,
   SelectItem,
-  Switch,
-} from "@nextui-org/react"
-import { CirclePlus } from "lucide-react"
-import { toast, Toaster } from "react-hot-toast"
+} from "@nextui-org/react";
+import { CirclePlus } from "lucide-react";
+import toast from "react-hot-toast";
 
 type Patient = {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  gender: string
-  medicalRecords: string
-  dob: string
-  isRegistered: boolean
-}
+  patientID: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  gender: string;
+  medicalRecords: string;
+  dob: string;
+  createdDate: string;
+};
 
 const genderOptions = [
-  { label: "Male", value: "male" },
-  { label: "Female", value: "female" },
-  { label: "Other", value: "other" },
-]
+  { label: "Male", value: "Male" },
+  { label: "Female", value: "Female" },
+  { label: "Other", value: "Other" },
+];
 
 export default function AddPatientButton({
   onPatientAdded,
 }: {
-  onPatientAdded: () => void
+  onPatientAdded: () => void;
 }) {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [newPatient, setNewPatient] = useState<Omit<Patient, "id">>({
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [newPatient, setNewPatient] = useState<
+    Omit<Patient, "patientID" | "createdDate">
+  >({
     firstName: "",
     lastName: "",
     email: "",
     gender: "",
     medicalRecords: "",
     dob: "",
-    isRegistered: false,
-  })
-  const [errors, setErrors] = useState<Partial<Record<keyof Patient, string>>>({})
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setNewPatient((prev) => ({
       ...prev,
       [name]: value,
-    }))
-    // Clear error when user starts typing
-    setErrors((prev) => ({ ...prev, [name]: "" }))
-  }
+    }));
+  };
 
   const handleGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setNewPatient((prev) => ({
       ...prev,
       gender: e.target.value,
-    }))
-    setErrors((prev) => ({ ...prev, gender: "" }))
-  }
+    }));
+  };
 
-  const handleIsRegisteredChange = (checked: boolean) => {
+  const handleRegisteredChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setNewPatient((prev) => ({
       ...prev,
-      isRegistered: checked,
-    }))
-  }
-
-  const validateForm = () => {
-    const newErrors: Partial<Record<keyof Patient, string>> = {}
-    if (!newPatient.firstName.trim()) newErrors.firstName = "First name is required"
-    if (!newPatient.lastName.trim()) newErrors.lastName = "Last name is required"
-    if (!newPatient.email.trim()) newErrors.email = "Email is required"
-    if (!newPatient.gender) newErrors.gender = "Gender is required"
-    if (!newPatient.dob) newErrors.dob = "Date of birth is required"
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+      isRegistered: e.target.value === "true",
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateForm()) {
-      toast.error("Please fill in all required fields")
-      return
-    }
-
-    const toastId = toast.loading("Adding new patient...")
+    e.preventDefault();
+    const toastId = toast.loading("Adding new patient...");
     try {
+      const patientWithDate = {
+        ...newPatient,
+        createdDate: new Date().toISOString().split("T")[0],
+      };
       const response = await fetch(
         "http://localhost:8080/api/patients/create",
         {
@@ -104,47 +87,42 @@ export default function AddPatientButton({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(newPatient),
+          body: JSON.stringify(patientWithDate),
         }
-      )
-
-      const data = await response.json()
+      );
 
       if (!response.ok) {
-        if (response.status === 409) {
-          // 409 Conflict - usually means duplicate data
-          toast.error("A patient with this email already exists", { id: toastId })
-        } else {
-          throw new Error(data.message || "Failed to add new patient")
-        }
-      } else {
-        toast.success("New patient added successfully!", { id: toastId })
-        setNewPatient({
-          firstName: "",
-          lastName: "",
-          email: "",
-          gender: "",
-          medicalRecords: "",
-          dob: "",
-          isRegistered: false,
-        })
-        onClose()
-        onPatientAdded()
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add new patient");
       }
+
+      const result = await response.json();
+      toast.success(`New patient added successfully! ID: ${result.patientID}`, {
+        id: toastId,
+      });
+      setNewPatient({
+        firstName: "",
+        lastName: "",
+        email: "",
+        gender: "",
+        medicalRecords: "",
+        dob: "",
+      });
+      onClose();
+      onPatientAdded();
     } catch (error) {
-      console.error("Error adding new patient:", error)
+      console.error("Error adding new patient:", error);
       toast.error(
         error instanceof Error
           ? error.message
           : "Failed to add new patient. Please try again.",
         { id: toastId }
-      )
+      );
     }
-  }
+  };
 
   return (
     <>
-      <Toaster position="top-right" />
       <Button
         className="bg-secondary-300"
         onPress={onOpen}
@@ -167,8 +145,6 @@ export default function AddPatientButton({
                   value={newPatient.firstName}
                   onChange={handleInputChange}
                   required
-                  isInvalid={!!errors.firstName}
-                  errorMessage={errors.firstName}
                 />
                 <Input
                   label="Last Name"
@@ -176,8 +152,6 @@ export default function AddPatientButton({
                   value={newPatient.lastName}
                   onChange={handleInputChange}
                   required
-                  isInvalid={!!errors.lastName}
-                  errorMessage={errors.lastName}
                 />
                 <Input
                   label="Email"
@@ -186,8 +160,6 @@ export default function AddPatientButton({
                   value={newPatient.email}
                   onChange={handleInputChange}
                   required
-                  isInvalid={!!errors.email}
-                  errorMessage={errors.email}
                 />
                 <Select
                   label="Gender"
@@ -195,8 +167,6 @@ export default function AddPatientButton({
                   selectedKeys={[newPatient.gender]}
                   onChange={handleGenderChange}
                   required
-                  isInvalid={!!errors.gender}
-                  errorMessage={errors.gender}
                 >
                   {genderOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
@@ -217,16 +187,7 @@ export default function AddPatientButton({
                   value={newPatient.dob}
                   onChange={handleInputChange}
                   required
-                  isInvalid={!!errors.dob}
-                  errorMessage={errors.dob}
                 />
-                <div className="flex items-center justify-between">
-                  <span>Registered</span>
-                  <Switch
-                    isSelected={newPatient.isRegistered}
-                    onValueChange={handleIsRegisteredChange}
-                  />
-                </div>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
@@ -241,5 +202,5 @@ export default function AddPatientButton({
         </ModalContent>
       </Modal>
     </>
-  )
+  );
 }

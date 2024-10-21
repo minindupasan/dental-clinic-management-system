@@ -13,25 +13,24 @@ import {
 import { toast } from "react-hot-toast";
 
 type Patient = {
-  id: string;
+  patientID: number;
   firstName: string;
   lastName: string;
   email: string;
   gender: string;
   medicalRecords: string;
   dob: string;
-  isRegistered: boolean;
+  createdDate: string;
 };
 
 const columns = [
-  { key: "id", label: "ID" },
-  { key: "firstName", label: "First Name" },
-  { key: "lastName", label: "Last Name" },
-  { key: "email", label: "Email" },
-  { key: "gender", label: "Gender" },
-  { key: "medicalRecords", label: "Medical Records" },
-  { key: "dob", label: "Date of Birth" },
-  { key: "isRegistered", label: "Registered" },
+  { key: "patientID", label: "PATIENT ID" },
+  { key: "fullName", label: "FULL NAME" },
+  { key: "email", label: "EMAIL" },
+  { key: "gender", label: "GENDER" },
+  { key: "medicalRecords", label: "MEDICAL RECORDS" },
+  { key: "dob", label: "DATE OF BIRTH" },
+  { key: "createdDate", label: "CREATED DATE" },
 ];
 
 export default function PatientTable() {
@@ -45,6 +44,7 @@ export default function PatientTable() {
         throw new Error("Failed to fetch patients");
       }
       const data = await response.json();
+      console.log("Fetched patient data:", data); // Log the fetched data
       setPatients(data);
       setLoading(false);
     } catch (err) {
@@ -75,17 +75,16 @@ export default function PatientTable() {
         </TableHeader>
         <TableBody>
           {patients.map((patient) => (
-            <TableRow key={patient.id}>
+            <TableRow key={patient.patientID}>
               {columns.map((column) => (
-                <TableCell
-                  className="text-foreground-light"
-                  key={`${patient.id}-${column.key}`}
-                >
-                  {column.key === "isRegistered"
-                    ? patient[column.key]
-                      ? "Yes"
-                      : "No"
-                    : patient[column.key as keyof Patient]}
+                <TableCell key={`${patient.patientID}-${column.key}`}>
+                  {column.key === "fullName"
+                    ? `${patient.firstName} ${patient.lastName}`
+                    : column.key === "dob" || column.key === "createdDate"
+                      ? new Date(
+                          patient[column.key as keyof Patient]
+                        ).toLocaleDateString()
+                      : patient[column.key as keyof Patient]}
                 </TableCell>
               ))}
             </TableRow>
