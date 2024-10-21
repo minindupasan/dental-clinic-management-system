@@ -124,7 +124,7 @@ export default function AddPatientButton({
   return (
     <>
       <Button
-        className="bg-secondary-300"
+        className="bg-secondary-200 text-secondary-600"
         onPress={onOpen}
         radius="full"
         startContent={<CirclePlus />}
@@ -169,7 +169,11 @@ export default function AddPatientButton({
                   required
                 >
                   {genderOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem
+                      className="text-foreground-light"
+                      key={option.value}
+                      value={option.value}
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -193,7 +197,11 @@ export default function AddPatientButton({
                 <Button color="danger" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color="primary" type="submit">
+                <Button
+                  variant="light"
+                  type="submit"
+                  className=" text-success-600"
+                >
                   Add Patient
                 </Button>
               </ModalFooter>
