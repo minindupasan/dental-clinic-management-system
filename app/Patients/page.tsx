@@ -11,8 +11,8 @@ export default function PatientManagement() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 bg-white text-foreground-light rounded-3xl">
+      <div className="flex justify-between items-center px-5 pt-5">
         <h1 className="text-2xl font-bold">Patient Management</h1>
         <AddPatientButton onPatientAdded={handlePatientAdded} />
       </div>

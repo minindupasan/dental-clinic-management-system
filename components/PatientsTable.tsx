@@ -10,6 +10,7 @@ import {
   TableCell,
   Spinner,
 } from "@nextui-org/react";
+import { toast } from "react-hot-toast";
 
 type Patient = {
   id: string;
@@ -36,7 +37,6 @@ const columns = [
 export default function PatientTable() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchPatients = async () => {
     try {
@@ -48,7 +48,7 @@ export default function PatientTable() {
       setPatients(data);
       setLoading(false);
     } catch (err) {
-      setError("An error occurred while fetching patient data.");
+      toast.error("An error occurred while fetching patient data.");
       setLoading(false);
     }
   };
@@ -65,15 +65,6 @@ export default function PatientTable() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center text-red-500 p-4">
-        <p>{error}</p>
-        <p>Please try again later.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-full overflow-x-auto">
       <Table aria-label="Patient data table">
@@ -86,7 +77,10 @@ export default function PatientTable() {
           {patients.map((patient) => (
             <TableRow key={patient.id}>
               {columns.map((column) => (
-                <TableCell key={`${patient.id}-${column.key}`}>
+                <TableCell
+                  className="text-foreground-light"
+                  key={`${patient.id}-${column.key}`}
+                >
                   {column.key === "isRegistered"
                     ? patient[column.key]
                       ? "Yes"
