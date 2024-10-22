@@ -13,7 +13,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { CirclePlus } from "lucide-react";
+import { AtSign, CirclePlus, Dna, Phone } from "lucide-react";
 import toast from "react-hot-toast";
 
 type Patient = {
@@ -21,6 +21,7 @@ type Patient = {
   firstName: string;
   lastName: string;
   email: string;
+  contactNo: string;
   gender: string;
   medicalRecords: string;
   dob: string;
@@ -46,6 +47,7 @@ export default function AddPatientButton({
     lastName: "",
     email: "",
     gender: "",
+    contactNo: "",
     medicalRecords: "",
     dob: "",
   });
@@ -104,6 +106,7 @@ export default function AddPatientButton({
         firstName: "",
         lastName: "",
         email: "",
+        contactNo: "",
         gender: "",
         medicalRecords: "",
         dob: "",
@@ -135,7 +138,7 @@ export default function AddPatientButton({
         <ModalContent>
           {(onClose) => (
             <form onSubmit={handleSubmit}>
-              <ModalHeader className="flex flex-col gap-1">
+              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
                 Add New Patient
               </ModalHeader>
               <ModalBody>
@@ -160,6 +163,17 @@ export default function AddPatientButton({
                   value={newPatient.email}
                   onChange={handleInputChange}
                   required
+                  endContent={<AtSign className="text-secondary-600" />}
+                />
+                <Input
+                  label="Contact No"
+                  name="contactNo"
+                  type="tel"
+                  value={newPatient.contactNo}
+                  onChange={handleInputChange}
+                  required
+                  pattern="[0-9]{10}"
+                  endContent={<Phone className="text-secondary-600" />}
                 />
                 <Select
                   label="Gender"

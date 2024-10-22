@@ -13,7 +13,7 @@ export default function PatientManagement() {
   }, []);
 
   return (
-    <div className="space-y-4 bg-white text-foreground-light rounded-3xl p-6">
+    <div className="max-w-full overflow-x-auto space-y-4 bg-white text-foreground-light rounded-3xl p-6">
       <Toaster position="top-right" />
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-foreground-light">
