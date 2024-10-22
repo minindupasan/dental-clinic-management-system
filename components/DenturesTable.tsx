@@ -8,7 +8,7 @@ import {
   getKeyValue,
   Button,
 } from "@nextui-org/react";
-import { NewItemIcon } from "./icons/NewItemIcon";
+import { CirclePlus } from "lucide-react";
 
 const rows = [
   {
@@ -61,7 +61,7 @@ export default function App() {
           <Button
             className="bg-secondary-200"
             radius="full"
-            startContent={<NewItemIcon />}
+            startContent={<CirclePlus />}
           >
             New Order
           </Button>

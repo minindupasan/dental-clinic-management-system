@@ -10,6 +10,7 @@ import {
   Image,
   CardFooter,
 } from "@nextui-org/react";
+import { MessageSquare, Phone } from "lucide-react";
 
 export default function AboutCard() {
   return (
@@ -47,6 +48,7 @@ export default function AboutCard() {
               radius="full"
               className=" bg-secondary-200"
               onClick={() => (window.location.href = "tel:+123456789")}
+              startContent={<Phone />}
             >
               Call
             </Button>
@@ -54,6 +56,7 @@ export default function AboutCard() {
               radius="full"
               className=" bg-secondary-200"
               onClick={() => (window.location.href = "tel:+123456789")}
+              startContent={<MessageSquare />}
             >
               Message
             </Button>

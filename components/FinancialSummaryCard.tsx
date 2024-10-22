@@ -38,7 +38,7 @@ export default function FinancialSummaryCard() {
 
   return (
     <div>
-      <Card className="min-h-72 h-auto bg-white">
+      <Card className="min-h-72 h-auto bg-white text-foreground-light">
         <CardHeader>
           <div className="w-full pt-3 flex justify-between items-center mx-6">
             <h2 className="text-xl font-semibold">Summary</h2>

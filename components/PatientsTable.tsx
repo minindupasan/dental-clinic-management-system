@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -8,243 +8,481 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  getKeyValue,
+  Spinner,
   Button,
-  Tooltip,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Input,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
-import { NewItemIcon } from "./icons/NewItemIcon";
-import { EditIcon } from "./icons/EditIcon";
-import { DeleteIcon } from "./icons/DeleteIcon";
+import { toast } from "react-hot-toast";
+import { Pencil, Trash2, AtSign, Phone } from "lucide-react";
 
-const rows = [
-  {
-    key: "P0001",
-    date: "2024-09-02",
-    name: "Minindu Pasan",
-    nic: "200001234567",
-    treatment: "Orthodontic",
-    total: "LKR 5000.00",
-  },
-  {
-    key: "P0002",
-    date: "2024-09-02",
-    name: "Anjula Dabarera",
-    nic: "200001234568",
-    treatment: "Root Canal",
-    total: "LKR 8000.00",
-  },
-  {
-    key: "P0003",
-    date: "2024-09-03",
-    name: "Christine Samandi",
-    nic: "200001234569",
-    treatment: "Cleaning",
-    total: "LKR 2000.00",
-  },
-  {
-    key: "P0004",
-    date: "2024-09-03",
-    name: "Linali Kariyawasam",
-    nic: "200001234570",
-    treatment: "Filling",
-    total: "LKR 3000.00",
-  },
-  {
-    key: "P0005",
-    date: "2024-09-04",
-    name: "Nadil Duiran",
-    nic: "200001234571",
-    treatment: "Crown",
-    total: "LKR 10000.00",
-  },
-  {
-    key: "P0006",
-    date: "2024-09-05",
-    name: "Nayantha Nethsara",
-    nic: "200001234572",
-    treatment: "Braces",
-    total: "LKR 15000.00",
-  },
-  {
-    key: "P0007",
-    date: "2024-09-06",
-    name: "Moksha Mudalige",
-    nic: "200001234573",
-    treatment: "Nerve Filling",
-    total: "LKR 7000.00",
-  },
-  {
-    key: "P0008",
-    date: "2024-09-06",
-    name: "Manula Cooray",
-    nic: "200001234574",
-    treatment: "Implant",
-    total: "LKR 25000.00",
-  },
-  {
-    key: "P0009",
-    date: "2024-09-07",
-    name: "Isuru Jayaratne",
-    nic: "200001234575",
-    treatment: "Scaling",
-    total: "LKR 4000.00",
-  },
-  {
-    key: "P0010",
-    date: "2024-09-07",
-    name: "Dilina Raveen",
-    nic: "200001234576",
-    treatment: "Whitening",
-    total: "LKR 6000.00",
-  },
-  {
-    key: "P0011",
-    date: "2024-09-08",
-    name: "Nipun Tharindu",
-    nic: "200001234577",
-    treatment: "Extraction",
-    total: "LKR 9000.00",
-  },
-  {
-    key: "P0012",
-    date: "2024-09-08",
-    name: "Kavindu Jayasooriya",
-    nic: "200001234578",
-    treatment: "Orthodontic",
-    total: "LKR 12000.00",
-  },
-  {
-    key: "P0013",
-    date: "2024-09-09",
-    name: "Nimesha Perera",
-    nic: "200001234579",
-    treatment: "Root Canal",
-    total: "LKR 8000.00",
-  },
-  {
-    key: "P0014",
-    date: "2024-09-09",
-    name: "Dilini Jayawardena",
-    nic: "200001234580",
-    treatment: "Cleaning",
-    total: "LKR 2000.00",
-  },
-  {
-    key: "P0015",
-    date: "2024-09-10",
-    name: "Kusal Mendis",
-    nic: "200001234581",
-    treatment: "Filling",
-    total: "LKR 3000.00",
-  },
-  {
-    key: "P0016",
-    date: "2024-09-10",
-    name: "Chamara Silva",
-    nic: "200001234582",
-    treatment: "Crown",
-    total: "LKR 10000.00",
-  },
-  {
-    key: "P0017",
-    date: "2024-09-11",
-    name: "Lasith Malinga",
-    nic: "200001234583",
-    treatment: "Braces",
-    total: "LKR 15000.00",
-  },
-  {
-    key: "P0018",
-    date: "2024-09-12",
-    name: "Angelo Mathews",
-    nic: "200001234584",
-    treatment: "Nerve Filling",
-    total: "LKR 7000.00",
-  },
-];
+type Patient = {
+  patientID: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactNo: string;
+  gender: string;
+  medicalRecords: string;
+  dob: string;
+  createdDate: string;
+};
 
 const columns = [
-  { key: "key", label: "ID" },
-  { key: "date", label: "DATE" },
-  { key: "name", label: "NAME" },
-  { key: "nic", label: "NIC" },
-  { key: "treatment", label: "TREATMENT" },
-  { key: "total", label: "TOTAL" },
+  { key: "patientID", label: "PATIENT ID" },
+  { key: "fullName", label: "FULL NAME" },
+  { key: "email", label: "EMAIL" },
+  { key: "contactNo", label: "CONTACT NO" },
+  { key: "gender", label: "GENDER" },
+  { key: "medicalRecords", label: "MEDICAL RECORDS" },
+  { key: "dob", label: "DATE OF BIRTH" },
+  { key: "createdDate", label: "CREATED DATE" },
   { key: "actions", label: "ACTIONS" },
 ];
 
-export default function PatientRecords() {
-  const handleEdit = (key: string) => {
-    console.log(`Edit patient with ID: ${key}`);
-    // Implement edit functionality here
+const genderOptions = [
+  { label: "Male", value: "Male" },
+  { label: "Female", value: "Female" },
+  { label: "Other", value: "Other" },
+];
+
+const initialPatientState: Patient = {
+  patientID: "",
+  firstName: "",
+  lastName: "",
+  email: "",
+  contactNo: "",
+  gender: "",
+  medicalRecords: "",
+  dob: "",
+  createdDate: "",
+};
+
+export default function PatientTable() {
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPatient, setCurrentPatient] =
+    useState<Patient>(initialPatientState);
+  const {
+    isOpen: isAddOpen,
+    onOpen: onAddOpen,
+    onClose: onAddClose,
+  } = useDisclosure();
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure();
+
+  const fetchPatients = async () => {
+    try {
+      const response = await fetch(
+        "https://dent-care-plus-springboot.onrender.com/api/patients"
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch patients");
+      }
+      const data = await response.json();
+      setPatients(data);
+      setLoading(false);
+    } catch (err) {
+      toast.error("An error occurred while fetching patient data.");
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (key: string) => {
-    console.log(`Delete patient with ID: ${key}`);
-    // Implement delete functionality here
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentPatient((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCurrentPatient((prev) => ({ ...prev, gender: e.target.value }));
+  };
+
+  const handleAdd = () => {
+    setCurrentPatient(initialPatientState);
+    onAddOpen();
+  };
+
+  const handleEdit = (patient: Patient) => {
+    setCurrentPatient({
+      ...patient,
+      dob: patient.dob.split("T")[0],
+    });
+    onEditOpen();
+  };
+
+  const handleDelete = (patientID: string) => {
+    toast(
+      (t) => (
+        <div>
+          <p>Are you sure you want to delete this patient?</p>
+          <div className="mt-2 flex justify-end space-x-2">
+            <Button
+              size="sm"
+              variant="light"
+              color="default"
+              onPress={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              variant="light"
+              color="danger"
+              onPress={() => confirmDelete(patientID, t.id)}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity }
+    );
+  };
+
+  const confirmDelete = async (patientID: string, toastId: string) => {
+    try {
+      const response = await fetch(
+        `https://dent-care-plus-springboot.onrender.com/api/patients/delete/${patientID}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to delete patient");
+      }
+      toast.success("Patient deleted successfully");
+      fetchPatients();
+    } catch (err) {
+      toast.error("An error occurred while deleting the patient");
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
+
+  const handleCreatePatient = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        "https://dent-care-plus-springboot.onrender.com/api/patients/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(currentPatient),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create patient");
+      }
+
+      toast.success("Patient added successfully");
+      fetchPatients();
+      onAddClose();
+      setCurrentPatient(initialPatientState);
+    } catch (err) {
+      toast.error("An error occurred while creating the patient");
+    }
+  };
+
+  const handleUpdatePatient = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(
+        `https://dent-care-plus-springboot.onrender.com/api/patients/update/${currentPatient.patientID}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(currentPatient),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update patient");
+      }
+
+      toast.success("Patient updated successfully");
+      fetchPatients();
+      onEditClose();
+      setCurrentPatient(initialPatientState);
+    } catch (err) {
+      toast.error("An error occurred while updating the patient");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner label="Loading patient data..." color="primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-background-light rounded-xl">
-      <div className="py-5 flex items-center justify-between px-10">
-        <div className="font-semibold text-xl">Patient Records</div>
-        <div>
-          <Button
-            className="bg-secondary-200"
-            radius="full"
-            startContent={<NewItemIcon />}
-          >
-            New Patient
-          </Button>
-        </div>
-      </div>
-      <Table aria-label="Patient records table with dynamic content">
-        <TableHeader columns={columns}>
-          {(column) => (
+    <>
+      <Button onClick={handleAdd} color="primary" className="mb-4">
+        Add New Patient
+      </Button>
+      <Table aria-label="Patient data table">
+        <TableHeader>
+          {columns.map((column) => (
             <TableColumn key={column.key}>{column.label}</TableColumn>
-          )}
+          ))}
         </TableHeader>
-        <TableBody items={rows}>
-          {(item) => (
-            <TableRow key={item.key}>
-              {(columnKey) => (
-                <TableCell>
-                  {columnKey === "actions" ? (
-                    <div className="flex items-center gap-2">
-                      <Tooltip
-                        className="text-foreground-light"
-                        content="Edit patient"
+        <TableBody>
+          {patients.map((patient) => (
+            <TableRow key={patient.patientID}>
+              {columns.map((column) => (
+                <TableCell key={`${patient.patientID}-${column.key}`}>
+                  {column.key === "fullName" ? (
+                    `${patient.firstName} ${patient.lastName}`
+                  ) : column.key === "dob" || column.key === "createdDate" ? (
+                    new Date(
+                      patient[column.key as keyof Patient]
+                    ).toLocaleDateString()
+                  ) : column.key === "actions" ? (
+                    <div className="flex space-x-2">
+                      <Button
+                        isIconOnly
+                        className="text-warning-600 bg-warning-300"
+                        variant="light"
+                        aria-label="Edit"
+                        onClick={() => handleEdit(patient)}
                       >
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          onPress={() => handleEdit(item.key)}
-                        >
-                          <EditIcon />
-                        </Button>
-                      </Tooltip>
-                      <Tooltip content="Delete patient" color="danger">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          color="danger"
-                          onPress={() => handleDelete(item.key)}
-                        >
-                          <DeleteIcon />
-                        </Button>
-                      </Tooltip>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        isIconOnly
+                        className="text-danger-600 bg-danger-300"
+                        variant="light"
+                        aria-label="Delete"
+                        onClick={() => handleDelete(patient.patientID)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   ) : (
-                    getKeyValue(item, columnKey)
+                    patient[column.key as keyof Patient]
                   )}
                 </TableCell>
-              )}
+              ))}
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
-    </div>
+
+      <Modal
+        isOpen={isAddOpen}
+        onClose={() => {
+          onAddClose();
+          setCurrentPatient(initialPatientState);
+        }}
+        size="2xl"
+        hideCloseButton
+      >
+        <ModalContent>
+          {(onClose) => (
+            <form onSubmit={handleCreatePatient}>
+              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
+                Add New Patient
+              </ModalHeader>
+              <ModalBody>
+                <Input
+                  label="First Name"
+                  name="firstName"
+                  value={currentPatient.firstName}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Last Name"
+                  name="lastName"
+                  value={currentPatient.lastName}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={currentPatient.email}
+                  onChange={handleInputChange}
+                  required
+                  endContent={<AtSign className="text-secondary-600" />}
+                />
+                <Input
+                  label="Contact No"
+                  name="contactNo"
+                  type="tel"
+                  value={currentPatient.contactNo}
+                  onChange={handleInputChange}
+                  required
+                  pattern="[0-9]{10}"
+                  endContent={<Phone className="text-secondary-600" />}
+                />
+                <Select
+                  label="Gender"
+                  placeholder="Select gender"
+                  selectedKeys={[currentPatient.gender]}
+                  onChange={handleGenderChange}
+                  required
+                >
+                  {genderOptions.map((option) => (
+                    <SelectItem
+                      className="text-foreground-light"
+                      key={option.value}
+                      value={option.value}
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Input
+                  label="Medical Records"
+                  name="medicalRecords"
+                  value={currentPatient.medicalRecords}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  label="Date of Birth"
+                  name="dob"
+                  type="date"
+                  value={currentPatient.dob}
+                  onChange={handleInputChange}
+                  required
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="light"
+                  type="submit"
+                  className="text-success-600"
+                >
+                  Add Patient
+                </Button>
+              </ModalFooter>
+            </form>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        isOpen={isEditOpen}
+        onClose={() => {
+          onEditClose();
+          setCurrentPatient(initialPatientState);
+        }}
+        size="2xl"
+        hideCloseButton
+      >
+        <ModalContent>
+          {(onClose) => (
+            <form onSubmit={handleUpdatePatient}>
+              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
+                Edit Patient
+              </ModalHeader>
+              <ModalBody>
+                <Input
+                  label="First Name"
+                  name="firstName"
+                  value={currentPatient.firstName}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Last Name"
+                  name="lastName"
+                  value={currentPatient.lastName}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={currentPatient.email}
+                  onChange={handleInputChange}
+                  required
+                  endContent={<AtSign className="text-secondary-600" />}
+                />
+                <Input
+                  label="Contact No"
+                  name="contactNo"
+                  type="tel"
+                  value={currentPatient.contactNo}
+                  onChange={handleInputChange}
+                  required
+                  pattern="[0-9]{10}"
+                  endContent={<Phone className="text-secondary-600" />}
+                />
+                <Select
+                  label="Gender"
+                  placeholder="Select gender"
+                  selectedKeys={[currentPatient.gender]}
+                  onChange={handleGenderChange}
+                  required
+                >
+                  {genderOptions.map((option) => (
+                    <SelectItem
+                      className="text-foreground-light"
+                      key={option.value}
+                      value={option.value}
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Input
+                  label="Medical Records"
+                  name="medicalRecords"
+                  value={currentPatient.medicalRecords}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  label="Date of Birth"
+                  name="dob"
+                  type="date"
+                  value={currentPatient.dob}
+                  onChange={handleInputChange}
+                  required
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="light"
+                  type="submit"
+                  className="text-success-600"
+                >
+                  Update Patient
+                </Button>
+              </ModalFooter>
+            </form>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
   );
 }

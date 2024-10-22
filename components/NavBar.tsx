@@ -35,16 +35,13 @@ export default function NavBar() {
 
   return (
     <Navbar className="w-full py-1 px-4">
-      <NavbarBrand>
+      <NavbarBrand className="justify-start">
         <MenuBar />
       </NavbarBrand>
-      <NavbarContent
-        className="hidden lg:flex lg:justify-center"
-        justify="center"
-      >
+      <NavbarContent className="hidden lg:flex lg:justify-center">
         <NavBarTabs onTabClick={handleTabClick} currentPath={pathname} />
       </NavbarContent>
-      <NavbarContent justify="end">
+      <NavbarContent className="justify-end">
         {/* Hidden on medium and larger screens, visible only on small screens */}
         <div className="md:hidden flex items-center space-x-2">
           <Button

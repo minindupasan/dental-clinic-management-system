@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, CardHeader, CardBody } from "@nextui-org/react";
+import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/react";
+import { UserRound } from "lucide-react";
 
 const pendingPayments = [
   {
@@ -49,7 +50,7 @@ const pendingPayments = [
 export default function PendingPayments() {
   return (
     <div>
-      <Card className="h-auto max-h-72 bg-white">
+      <Card className="w-full h-auto max-h-72 bg-white text-foreground-light">
         <CardHeader>
           <div className="w-full pt-3 flex justify-between items-center mx-6">
             <h2 className="text-xl font-semibold">Pending Payments</h2>
@@ -61,21 +62,8 @@ export default function PendingPayments() {
               key={index}
               className="flex items-center gap-4 bg-gray-100 p-4 rounded-lg mb-2 last:mb-0"
             >
-              <div className="bg-default-100 rounded-full p-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+              <div className=" m-5">
+                <UserRound size={32} />
               </div>
               <div className="flex-grow">
                 <p className="font-medium">{payment.id}</p>
@@ -88,6 +76,7 @@ export default function PendingPayments() {
             </div>
           ))}
         </CardBody>
+        <CardFooter className="p-2"></CardFooter>
       </Card>
     </div>
   );
