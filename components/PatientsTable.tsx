@@ -83,7 +83,9 @@ export default function PatientTable() {
 
   const fetchPatients = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/patients");
+      const response = await fetch(
+        "https://dent-care-plus-springboot.onrender.com/api/patients"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
       }
@@ -130,7 +132,7 @@ export default function PatientTable() {
           <div className="mt-2 flex justify-end space-x-2">
             <Button
               size="sm"
-              variant="flat"
+              variant="light"
               color="default"
               onPress={() => toast.dismiss(t.id)}
             >
@@ -138,6 +140,7 @@ export default function PatientTable() {
             </Button>
             <Button
               size="sm"
+              variant="light"
               color="danger"
               onPress={() => confirmDelete(patientID, t.id)}
             >
@@ -153,7 +156,7 @@ export default function PatientTable() {
   const confirmDelete = async (patientID: string, toastId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/patients/delete/${patientID}`,
+        `https://dent-care-plus-springboot.onrender.com/api/patients/delete/${patientID}`,
         {
           method: "DELETE",
         }
@@ -174,7 +177,7 @@ export default function PatientTable() {
     e.preventDefault();
     try {
       const response = await fetch(
-        "http://localhost:8080/api/patients/create",
+        "https://dent-care-plus-springboot.onrender.com/api/patients/create",
         {
           method: "POST",
           headers: {
@@ -201,7 +204,7 @@ export default function PatientTable() {
     e.preventDefault();
     try {
       const response = await fetch(
-        `http://localhost:8080/api/patients/update/${currentPatient.patientID}`,
+        `https://dent-care-plus-springboot.onrender.com/api/patients/update/${currentPatient.patientID}`,
         {
           method: "PUT",
           headers: {
@@ -258,7 +261,8 @@ export default function PatientTable() {
                     <div className="flex space-x-2">
                       <Button
                         isIconOnly
-                        color="primary"
+                        className="text-warning-600 bg-warning-300"
+                        variant="light"
                         aria-label="Edit"
                         onClick={() => handleEdit(patient)}
                       >
@@ -266,7 +270,8 @@ export default function PatientTable() {
                       </Button>
                       <Button
                         isIconOnly
-                        color="danger"
+                        className="text-danger-600 bg-danger-300"
+                        variant="light"
                         aria-label="Delete"
                         onClick={() => handleDelete(patient.patientID)}
                       >

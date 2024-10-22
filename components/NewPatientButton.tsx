@@ -83,7 +83,7 @@ export default function AddPatientButton({
         createdDate: new Date().toISOString().split("T")[0],
       };
       const response = await fetch(
-        "http://localhost:8080/api/patients/create",
+        "https://dent-care-plus-springboot.onrender.com/api/patients/create",
         {
           method: "POST",
           headers: {
