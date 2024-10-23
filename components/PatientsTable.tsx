@@ -34,6 +34,7 @@ import {
   ChevronUp,
   Search,
   Filter,
+  RefreshCw,
 } from "lucide-react";
 
 type Patient = {
@@ -100,8 +101,10 @@ export default function PatientTable() {
   }>({ key: "", direction: "none", clickCount: 0 });
   const [filterValue, setFilterValue] = useState("");
   const [viewMode, setViewMode] = useState<"all" | "recent" | "older">("all");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchPatients = async () => {
+    setIsRefreshing(true);
     try {
       const response = await fetch("http://localhost:8080/api/patients");
       if (!response.ok) {
@@ -113,6 +116,8 @@ export default function PatientTable() {
     } catch (err) {
       toast.error("An error occurred while fetching patient data.");
       setLoading(false);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -320,8 +325,8 @@ export default function PatientTable() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner label="Loading patient data..." color="primary" />
+      <div className="flex justify-center items-center h-64 text-foreground-light">
+        <Spinner label="Loading patient data..." />
       </div>
     );
   }
@@ -330,43 +335,61 @@ export default function PatientTable() {
     <>
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
-          <Dropdown>
-            <DropdownTrigger className="w-[200px]">
-              <Button
-                radius="full"
-                startContent={<Filter className="h-4 w-4" />}
-                endContent={<ChevronDown className="h-4 w-4" />}
-                className="px-5 py-1 text-sm bg-white border w-[200px] flex justify-between items-center"
+          <div className="flex items-center space-x-4">
+            <Dropdown>
+              <DropdownTrigger className="w-[200px]">
+                <Button
+                  radius="full"
+                  startContent={<Filter className="h-4 w-4" />}
+                  endContent={<ChevronDown className="h-4 w-4" />}
+                  className="px-5 py-1 text-sm bg-white border w-[200px] flex justify-between items-center"
+                  aria-label="Filter patients"
+                >
+                  {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
+                  Patients
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="View options"
+                onAction={(key) => setViewMode(key as any)}
+                className="w-[200px] text-foreground-light"
               >
-                {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)} Patients
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu
-              aria-label="View options"
-              onAction={(key) => setViewMode(key as any)}
-              className="w-[200px] text-foreground-light"
-            >
-              <DropdownItem key="all">All Patients</DropdownItem>
-              <DropdownItem key="recent">
-                Recent Patients (30 days)
-              </DropdownItem>
-              <DropdownItem key="older">Older Patients</DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-          <Input
-            placeholder="Search patients..."
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-            radius="full"
-            startContent={<Search className="h-4 w-4" />}
-            className="w-[300px]"
-          />
+                <DropdownItem key="all">All Patients</DropdownItem>
+                <DropdownItem key="recent">
+                  Recent Patients (30 days)
+                </DropdownItem>
+                <DropdownItem key="older">Older Patients</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+            <Input
+              placeholder="Search patients..."
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+              radius="full"
+              startContent={<Search className="h-4 w-4" />}
+              className="w-[300px]"
+            />
+          </div>
+          <Button
+            isIconOnly
+            className="bg-primary-200 text-primary-600"
+            aria-label="Refresh"
+            onClick={fetchPatients}
+            isLoading={isRefreshing}
+          >
+            {isRefreshing ? (
+              <Spinner size="sm" color="current" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
       <Table aria-label="Patient data table">
         <TableHeader>
           {columns.map((column) => (
             <TableColumn
+              className="text-center"
               key={column.key}
               onClick={() => column.key !== "actions" && handleSort(column.key)}
               style={{
@@ -382,15 +405,22 @@ export default function PatientTable() {
           {filteredPatients.map((patient) => (
             <TableRow key={patient.patientID}>
               {columns.map((column) => (
-                <TableCell key={`${patient.patientID}-${column.key}`}>
+                <TableCell
+                  key={`${patient.patientID}-${column.key}`}
+                  className="text-center"
+                >
                   {column.key === "fullName" ? (
                     `${patient.firstName} ${patient.lastName}`
                   ) : column.key === "dob" || column.key === "createdDate" ? (
                     new Date(
                       patient[column.key as keyof Patient]
-                    ).toLocaleDateString()
+                    ).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
                   ) : column.key === "actions" ? (
-                    <div className="flex space-x-2">
+                    <div className="flex justify-center space-x-2">
                       <Button
                         isIconOnly
                         className="text-warning-500 bg-warning-100"
@@ -502,15 +532,22 @@ export default function PatientTable() {
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button
+                  variant="solid"
+                  radius="full"
+                  color="danger"
+                  onPress={onClose}
+                  className="text-danger-500 bg-danger-100"
+                >
                   Cancel
                 </Button>
                 <Button
-                  variant="light"
+                  variant="solid"
+                  radius="full"
+                  className="text-success-600 bg-success-100"
                   type="submit"
-                  className="text-success-600"
                 >
-                  Add Patient
+                  Add
                 </Button>
               </ModalFooter>
             </form>

@@ -163,7 +163,7 @@ export default function AddPatientButton({
                   value={newPatient.email}
                   onChange={handleInputChange}
                   required
-                  endContent={<AtSign className="text-secondary-600" />}
+                  endContent={<AtSign className="text-primary-300" />}
                 />
                 <Input
                   label="Contact No"
@@ -173,7 +173,7 @@ export default function AddPatientButton({
                   onChange={handleInputChange}
                   required
                   pattern="[0-9]{10}"
-                  endContent={<Phone className="text-secondary-600" />}
+                  endContent={<Phone className="text-primary-300" />}
                 />
                 <Select
                   label="Gender"

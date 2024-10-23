@@ -111,7 +111,7 @@ export default function PatientTableCard() {
             <Spinner
               size="md"
               label="Loading Patient Data..."
-              className="text-primary-600"
+              className="text-foreground-light"
             />
           </div>
         ) : (
