@@ -104,19 +104,19 @@ export default function PatientTable() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchPatients = async () => {
-    setIsRefreshing(true);
     try {
+      setIsRefreshing(true);
+      setLoading(true);
       const response = await fetch("http://localhost:8080/api/patients");
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
       }
       const data = await response.json();
       setPatients(data);
-      setLoading(false);
     } catch (err) {
       toast.error("An error occurred while fetching patient data.");
-      setLoading(false);
     } finally {
+      setLoading(false);
       setIsRefreshing(false);
     }
   };
@@ -239,33 +239,6 @@ export default function PatientTable() {
       toast.error("An error occurred while deleting the patient");
     } finally {
       toast.dismiss(toastId);
-    }
-  };
-
-  const handleCreatePatient = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(
-        "http://localhost:8080/api/patients/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(currentPatient),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to create patient");
-      }
-
-      toast.success("Patient added successfully");
-      fetchPatients();
-      onAddClose();
-      setCurrentPatient(initialPatientState);
-    } catch (err) {
-      toast.error("An error occurred while creating the patient");
     }
   };
 
