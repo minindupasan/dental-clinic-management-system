@@ -46,7 +46,6 @@ type Patient = {
 
 type Appointment = {
   appointmentID: number;
-  formattedAppointmentID: string;
   patient: Patient;
   appointmentDate: string;
   appointmentTime: string;
@@ -386,8 +385,7 @@ export default function AppointmentManager() {
               {filteredAppointments.map((appointment) => (
                 <TableRow key={appointment.appointmentID}>
                   <TableCell className="text-center">
-                    {appointment.formattedAppointmentID ||
-                      appointment.appointmentID}
+                    {appointment.appointmentID}
                   </TableCell>
                   <TableCell className="text-center">
                     {`${appointment.patient.firstName} ${appointment.patient.lastName}`}
