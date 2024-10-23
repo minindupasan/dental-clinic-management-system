@@ -449,119 +449,13 @@ export default function PatientTable() {
           ))}
         </TableBody>
       </Table>
-
-      <Modal
-        isOpen={isAddOpen}
-        onClose={() => {
-          onAddClose();
-          setCurrentPatient(initialPatientState);
-        }}
-        size="2xl"
-        hideCloseButton
-      >
-        <ModalContent>
-          {(onClose) => (
-            <form onSubmit={handleCreatePatient}>
-              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
-                Add New Patient
-              </ModalHeader>
-              <ModalBody>
-                <Input
-                  label="First Name"
-                  name="firstName"
-                  value={currentPatient.firstName}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Last Name"
-                  name="lastName"
-                  value={currentPatient.lastName}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={currentPatient.email}
-                  onChange={handleInputChange}
-                  required
-                  endContent={<AtSign className="text-secondary-600" />}
-                />
-                <Input
-                  label="Contact No"
-                  name="contactNo"
-                  type="tel"
-                  value={currentPatient.contactNo}
-                  onChange={handleInputChange}
-                  required
-                  pattern="[0-9]{10}"
-                  endContent={<Phone className="text-secondary-600" />}
-                />
-                <Select
-                  label="Gender"
-                  placeholder="Select gender"
-                  selectedKeys={[currentPatient.gender]}
-                  onChange={handleGenderChange}
-                  required
-                >
-                  {genderOptions.map((option) => (
-                    <SelectItem
-                      className="text-foreground-light"
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <Input
-                  label="Medical Records"
-                  name="medicalRecords"
-                  value={currentPatient.medicalRecords}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="Date of Birth"
-                  name="dob"
-                  type="date"
-                  value={currentPatient.dob}
-                  onChange={handleInputChange}
-                  required
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  variant="solid"
-                  radius="full"
-                  color="danger"
-                  onPress={onClose}
-                  className="text-danger-500 bg-danger-100"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="solid"
-                  radius="full"
-                  className="text-success-600 bg-success-100"
-                  type="submit"
-                >
-                  Add
-                </Button>
-              </ModalFooter>
-            </form>
-          )}
-        </ModalContent>
-      </Modal>
-
       <Modal
         isOpen={isEditOpen}
         onClose={() => {
           onEditClose();
           setCurrentPatient(initialPatientState);
         }}
-        size="2xl"
+        size="lg"
         hideCloseButton
       >
         <ModalContent>
@@ -592,7 +486,6 @@ export default function PatientTable() {
                   value={currentPatient.email}
                   onChange={handleInputChange}
                   required
-                  endContent={<AtSign className="text-secondary-600" />}
                 />
                 <Input
                   label="Contact No"
@@ -602,7 +495,6 @@ export default function PatientTable() {
                   onChange={handleInputChange}
                   required
                   pattern="[0-9]{10}"
-                  endContent={<Phone className="text-secondary-600" />}
                 />
                 <Select
                   label="Gender"

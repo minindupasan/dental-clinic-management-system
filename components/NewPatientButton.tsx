@@ -134,7 +134,7 @@ export default function AddPatientButton({
       >
         Add New Patient
       </Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl" hideCloseButton>
+      <Modal isOpen={isOpen} onClose={onClose} size="lg" hideCloseButton>
         <ModalContent>
           {(onClose) => (
             <form onSubmit={handleSubmit}>
@@ -163,7 +163,6 @@ export default function AddPatientButton({
                   value={newPatient.email}
                   onChange={handleInputChange}
                   required
-                  endContent={<AtSign className="text-primary-300" />}
                 />
                 <Input
                   label="Contact No"
@@ -173,7 +172,6 @@ export default function AddPatientButton({
                   onChange={handleInputChange}
                   required
                   pattern="[0-9]{10}"
-                  endContent={<Phone className="text-primary-300" />}
                 />
                 <Select
                   label="Gender"
