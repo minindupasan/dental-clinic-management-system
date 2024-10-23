@@ -46,7 +46,7 @@ type Patient = {
 
 type Appointment = {
   appointmentID: number;
-  formattedAppointmentID: string | null;
+  formattedAppointmentID: string;
   patient: Patient;
   appointmentDate: string;
   appointmentTime: string;

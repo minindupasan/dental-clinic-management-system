@@ -13,15 +13,17 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { CalendarPlus, Clock } from "lucide-react";
+import { CalendarPlus } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 type Appointment = {
   appointmentID: string;
+  formattedAppointmentID: string;
   patientID: string;
   appointmentDate: string;
   appointmentTime: string;
   reason: string;
+  status: string;
 };
 
 type Patient = {
@@ -37,12 +39,14 @@ export default function NewAppointmentButton({
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [newAppointment, setNewAppointment] = useState<
-    Omit<Appointment, "appointmentID">
+    Omit<Appointment, "appointmentID" | "status"> & { status: string }
   >({
     patientID: "",
+    formattedAppointmentID: "",
     appointmentDate: "",
     appointmentTime: "",
     reason: "",
+    status: "Scheduled",
   });
   const [patients, setPatients] = useState<Patient[]>([]);
 
@@ -73,18 +77,33 @@ export default function NewAppointmentButton({
   };
 
   const handlePatientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
     setNewAppointment((prev) => ({
       ...prev,
-      patientID: e.target.value,
+      patientID: value,
     }));
+  };
+
+  const validateAppointmentDateTime = () => {
+    const now = new Date();
+    const appointmentDateTime = new Date(
+      `${newAppointment.appointmentDate}T${newAppointment.appointmentTime}`
+    );
+    return appointmentDateTime > now;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateAppointmentDateTime()) {
+      toast.error("Appointment date and time must be in the future.");
+      return;
+    }
+
     const toastId = toast.loading("Adding new appointment...");
     try {
       const response = await fetch(
-        "http://localhost:8080/api/appointments/create",
+        `http://localhost:8080/api/appointments/create/${newAppointment.patientID}`,
         {
           method: "POST",
           headers: {
@@ -101,16 +120,18 @@ export default function NewAppointmentButton({
 
       const result = await response.json();
       toast.success(
-        `New appointment added successfully! ID: ${result.appointmentID}`,
+        `New appointment added successfully! ID: ${result.formattedAppointmentID}`,
         {
           id: toastId,
         }
       );
       setNewAppointment({
         patientID: "",
+        formattedAppointmentID: "",
         appointmentDate: "",
         appointmentTime: "",
         reason: "",
+        status: "Scheduled",
       });
       onClose();
       onAppointmentAdded();
@@ -129,7 +150,7 @@ export default function NewAppointmentButton({
     <>
       <Button
         className="bg-primary-200 text-primary-600"
-        onPress={onOpen}
+        onClick={onOpen}
         radius="full"
         startContent={<CalendarPlus className="w-4 h-4" />}
       >
@@ -146,8 +167,11 @@ export default function NewAppointmentButton({
                 <Select
                   label="Patient"
                   placeholder="Select patient"
-                  selectedKeys={[newAppointment.patientID]}
-                  onChange={handlePatientChange}
+                  onChange={(e) =>
+                    handlePatientChange(
+                      e as React.ChangeEvent<HTMLSelectElement>
+                    )
+                  }
                   required
                 >
                   {patients.map((patient) => (
@@ -186,18 +210,17 @@ export default function NewAppointmentButton({
               </ModalBody>
               <ModalFooter>
                 <Button
-                  variant="solid"
+                  variant="light"
                   radius="full"
                   color="danger"
-                  onPress={onClose}
-                  className="text-danger-500 bg-danger-100"
+                  onClick={onClose}
                 >
                   Cancel
                 </Button>
                 <Button
-                  variant="solid"
+                  variant="light"
                   radius="full"
-                  className="text-success-600 bg-success-100"
+                  className="text-success-600"
                   type="submit"
                 >
                   Add
