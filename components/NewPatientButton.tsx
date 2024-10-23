@@ -13,7 +13,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { AtSign, CirclePlus, Dna, Phone } from "lucide-react";
+import { AtSign, CirclePlus, Phone } from "lucide-react";
 import toast from "react-hot-toast";
 
 type Patient = {
@@ -83,7 +83,7 @@ export default function AddPatientButton({
         createdDate: new Date().toISOString().split("T")[0],
       };
       const response = await fetch(
-        "https://dent-care-plus-springboot.onrender.com/api/patients/create",
+        "http://localhost:8080/api/patients/create",
         {
           method: "POST",
           headers: {
@@ -127,14 +127,14 @@ export default function AddPatientButton({
   return (
     <>
       <Button
-        className="bg-secondary-200 text-secondary-600"
+        className="bg-primary-200 text-primary-600"
         onPress={onOpen}
         radius="full"
-        startContent={<CirclePlus />}
+        startContent={<CirclePlus className="h-4 w-4" />}
       >
         Add New Patient
       </Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl" hideCloseButton>
+      <Modal isOpen={isOpen} onClose={onClose} size="lg" hideCloseButton>
         <ModalContent>
           {(onClose) => (
             <form onSubmit={handleSubmit}>
@@ -163,7 +163,6 @@ export default function AddPatientButton({
                   value={newPatient.email}
                   onChange={handleInputChange}
                   required
-                  endContent={<AtSign className="text-secondary-600" />}
                 />
                 <Input
                   label="Contact No"
@@ -173,7 +172,6 @@ export default function AddPatientButton({
                   onChange={handleInputChange}
                   required
                   pattern="[0-9]{10}"
-                  endContent={<Phone className="text-secondary-600" />}
                 />
                 <Select
                   label="Gender"
@@ -208,15 +206,22 @@ export default function AddPatientButton({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button
+                  variant="solid"
+                  radius="full"
+                  color="danger"
+                  onPress={onClose}
+                  className="text-danger-500 bg-danger-100"
+                >
                   Cancel
                 </Button>
                 <Button
-                  variant="light"
+                  variant="solid"
+                  radius="full"
+                  className="text-success-600 bg-success-100"
                   type="submit"
-                  className=" text-success-600"
                 >
-                  Add Patient
+                  Add
                 </Button>
               </ModalFooter>
             </form>
