@@ -287,7 +287,7 @@ export default function AppointmentManager() {
       const updatedAppointment = { ...appointmentToUpdate, status: newStatus };
 
       const response = await fetch(
-        `http://localhost:8080/api/appointments/${appointmentID}/status`,
+        `http://localhost:8080/api/appointments/update/${appointmentID}`,
         {
           method: "PUT",
           headers: {
@@ -325,7 +325,7 @@ export default function AppointmentManager() {
   }
 
   return (
-    <div className=" text-foreground rounded-xl w-full">
+    <div className="text-foreground rounded-xl w-full">
       <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
         <Dropdown>
           <DropdownTrigger className="w-full sm:w-[200px]">
@@ -374,6 +374,7 @@ export default function AppointmentManager() {
                   }
                   style={{
                     cursor: column.key !== "actions" ? "pointer" : "default",
+                    textAlign: "center",
                   }}
                 >
                   {column.label}
@@ -384,15 +385,23 @@ export default function AppointmentManager() {
             <TableBody>
               {filteredAppointments.map((appointment) => (
                 <TableRow key={appointment.appointmentID}>
-                  <TableCell>
+                  <TableCell className="text-center">
                     {appointment.formattedAppointmentID ||
                       appointment.appointmentID}
                   </TableCell>
-                  <TableCell>{`${appointment.patient.firstName} ${appointment.patient.lastName}`}</TableCell>
-                  <TableCell>{appointment.appointmentDate}</TableCell>
-                  <TableCell>{appointment.appointmentTime}</TableCell>
-                  <TableCell>{appointment.reason}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
+                    {`${appointment.patient.firstName} ${appointment.patient.lastName}`}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {appointment.appointmentDate}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {appointment.appointmentTime}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {appointment.reason}
+                  </TableCell>
+                  <TableCell className="text-center">
                     <Dropdown>
                       <DropdownTrigger>
                         <Button
@@ -424,8 +433,8 @@ export default function AppointmentManager() {
                       </DropdownMenu>
                     </Dropdown>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
+                  <TableCell className="text-center">
+                    <div className="flex justify-center space-x-2">
                       <Button
                         isIconOnly
                         className="text-warning-500 bg-warning-100"
