@@ -502,15 +502,21 @@ export default function PatientTable() {
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button
+                  radius="full"
+                  className="text-danger-500 bg-danger-100"
+                  variant="light"
+                  onPress={onClose}
+                >
                   Cancel
                 </Button>
                 <Button
+                  radius="full"
                   variant="light"
                   type="submit"
-                  className="text-success-600"
+                  className="text-success-600 bg-success-100"
                 >
-                  Update Patient
+                  Update
                 </Button>
               </ModalFooter>
             </form>

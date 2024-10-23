@@ -65,7 +65,7 @@ const columns = [
   { key: "actions", label: "ACTIONS" },
 ];
 
-const statusOptions = ["Scheduled", "Treated"];
+const statusOptions = ["Scheduled", "Treated", "Cancelled"];
 
 export default function AppointmentManager() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -442,7 +442,12 @@ export default function AppointmentManager() {
                     selectionMode="single"
                   >
                     {statusOptions.map((status) => (
-                      <DropdownItem key={status}>{status}</DropdownItem>
+                      <DropdownItem
+                        className=" text-foreground-light"
+                        key={status}
+                      >
+                        {status}
+                      </DropdownItem>
                     ))}
                   </DropdownMenu>
                 </Dropdown>
@@ -550,6 +555,7 @@ export default function AppointmentManager() {
               </ModalBody>
               <ModalFooter>
                 <Button
+                  radius="full"
                   className="text-danger-500 bg-danger-100"
                   variant="light"
                   onPress={onClose}
@@ -557,6 +563,7 @@ export default function AppointmentManager() {
                   Cancel
                 </Button>
                 <Button
+                  radius="full"
                   variant="light"
                   type="submit"
                   className="text-success-600 bg-success-100"
