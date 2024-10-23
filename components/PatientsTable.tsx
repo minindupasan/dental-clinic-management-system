@@ -180,11 +180,6 @@ export default function PatientTable() {
     setCurrentPatient((prev) => ({ ...prev, gender: e.target.value }));
   };
 
-  const handleAdd = () => {
-    setCurrentPatient(initialPatientState);
-    onAddOpen();
-  };
-
   const handleEdit = (patient: Patient) => {
     setCurrentPatient({
       ...patient,
@@ -334,10 +329,7 @@ export default function PatientTable() {
   return (
     <>
       <div className="mb-6 flex items-center justify-between">
-        <Button onClick={handleAdd} color="primary">
-          Add New Patient
-        </Button>
-        <div className="flex items-center space-x-4 w-[520px]">
+        <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <Dropdown>
             <DropdownTrigger className="w-[200px]">
               <Button
@@ -352,7 +344,7 @@ export default function PatientTable() {
             <DropdownMenu
               aria-label="View options"
               onAction={(key) => setViewMode(key as any)}
-              className="w-[200px]"
+              className="w-[200px] text-foreground-light"
             >
               <DropdownItem key="all">All Patients</DropdownItem>
               <DropdownItem key="recent">

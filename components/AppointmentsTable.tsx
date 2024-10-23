@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -8,31 +8,32 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Input,
+  Spinner,
   Button,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  useDisclosure,
+  Input,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@nextui-org/react";
+import { toast } from "react-hot-toast";
 import {
+  Pencil,
+  Trash2,
   ChevronDown,
   ChevronUp,
   Search,
   Filter,
-  Pencil,
-  Trash2,
 } from "lucide-react";
-import { toast } from "react-hot-toast";
 
 type Patient = {
   patientID: number;
-  formattedPatientID: string | null;
   firstName: string;
   lastName: string;
   email: string;
@@ -55,65 +56,53 @@ type Appointment = {
 
 const columns = [
   { key: "appointmentID", label: "ID" },
-  { key: "patientName", label: "Patient Name" },
-  { key: "appointmentDate", label: "Date" },
-  { key: "appointmentTime", label: "Time" },
-  { key: "reason", label: "Reason" },
-  { key: "status", label: "Status" },
-  { key: "actions", label: "Actions" },
+  { key: "patientName", label: "PATIENT NAME" },
+  { key: "appointmentDate", label: "DATE" },
+  { key: "appointmentTime", label: "TIME" },
+  { key: "reason", label: "REASON" },
+  { key: "status", label: "STATUS" },
+  { key: "actions", label: "ACTIONS" },
 ];
 
 const statusOptions = ["Scheduled", "Treated"];
 
 export default function AppointmentManager() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [filteredAppointments, setFilteredAppointments] = useState<
-    Appointment[]
-  >([]);
+  const [loading, setLoading] = useState(true);
+  const [currentAppointment, setCurrentAppointment] =
+    useState<Appointment | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending" | "none";
-  }>({ key: "", direction: "none" });
-  const [sortClickCount, setSortClickCount] = useState<{
-    [key: string]: number;
-  }>({});
+    clickCount: number;
+  }>({ key: "", direction: "none", clickCount: 0 });
   const [filterValue, setFilterValue] = useState("");
   const [viewMode, setViewMode] = useState<
     "all" | "today" | "upcoming" | "past"
   >("all");
-  const [loading, setLoading] = useState(true);
-  const [editingAppointment, setEditingAppointment] =
-    useState<Appointment | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const onOpen = () => setIsOpen(true);
-  const onClose = () => setIsOpen(false);
-
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
-
-  useEffect(() => {
-    filterAndSortAppointments();
-  }, [appointments, filterValue, viewMode, sortConfig]);
 
   const fetchAppointments = async () => {
     try {
       setLoading(true);
       const response = await fetch("http://localhost:8080/api/appointments");
-      if (!response.ok) throw new Error("Failed to fetch appointments");
-
+      if (!response.ok) {
+        throw new Error("Failed to fetch appointments");
+      }
       const data = await response.json();
       setAppointments(data);
-      setLoading(false);
     } catch (err) {
-      console.error("Error fetching appointments:", err);
       toast.error("An error occurred while fetching appointment data.");
+    } finally {
       setLoading(false);
     }
   };
 
-  const filterAndSortAppointments = () => {
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const filteredAppointments = useMemo(() => {
     let filtered = [...appointments];
     const today = new Date().toISOString().split("T")[0];
 
@@ -163,43 +152,49 @@ export default function AppointmentManager() {
       });
     }
 
-    setFilteredAppointments(filtered);
-  };
+    return filtered;
+  }, [appointments, filterValue, viewMode, sortConfig]);
 
-  const handleSort = (key: string) => {
-    const clickCount = (sortClickCount[key] || 0) + 1;
-    setSortClickCount({ ...sortClickCount, [key]: clickCount });
-
-    if (clickCount === 3) {
-      setSortConfig({ key, direction: "none" });
-      setSortClickCount({ ...sortClickCount, [key]: 0 });
-    } else if (sortConfig.key === key) {
-      setSortConfig({
-        key,
-        direction:
-          sortConfig.direction === "ascending" ? "descending" : "ascending",
-      });
-    } else {
-      setSortConfig({ key, direction: "ascending" });
-    }
-  };
-
-  const renderSortIcon = (columnKey: string) => {
-    if (sortConfig.key !== columnKey || sortConfig.direction === "none")
-      return null;
-    return sortConfig.direction === "ascending" ? (
-      <ChevronUp className="inline-block ml-1" />
-    ) : (
-      <ChevronDown className="inline-block ml-1" />
-    );
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentAppointment((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
   const handleEdit = (appointment: Appointment) => {
-    setEditingAppointment(appointment);
+    setCurrentAppointment(appointment);
     onOpen();
   };
 
-  const handleDelete = async (appointmentID: number) => {
+  const handleDelete = (appointmentID: number) => {
+    toast(
+      (t) => (
+        <div>
+          <p>Are you sure you want to delete this appointment?</p>
+          <div className="mt-2 flex justify-end space-x-2">
+            <Button
+              size="sm"
+              variant="light"
+              color="default"
+              onPress={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              variant="light"
+              color="danger"
+              onPress={() => confirmDelete(appointmentID, t.id)}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity }
+    );
+  };
+
+  const confirmDelete = async (appointmentID: number, toastId: string) => {
     try {
       const response = await fetch(
         `http://localhost:8080/api/appointments/delete/${appointmentID}`,
@@ -212,37 +207,69 @@ export default function AppointmentManager() {
       }
       toast.success("Appointment deleted successfully");
       fetchAppointments();
-    } catch (error) {
-      console.error("Error deleting appointment:", error);
+    } catch (err) {
       toast.error("An error occurred while deleting the appointment");
+    } finally {
+      toast.dismiss(toastId);
     }
   };
 
-  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleUpdateAppointment = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
-    if (!editingAppointment) return;
+    if (!currentAppointment) return;
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/appointments/update/${editingAppointment.appointmentID}`,
+        `http://localhost:8080/api/appointments/update/${currentAppointment.appointmentID}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(editingAppointment),
+          body: JSON.stringify(currentAppointment),
         }
       );
+
       if (!response.ok) {
         throw new Error("Failed to update appointment");
       }
+
       toast.success("Appointment updated successfully");
-      onClose();
       fetchAppointments();
-    } catch (error) {
-      console.error("Error updating appointment:", error);
+      onClose();
+      setCurrentAppointment(null);
+    } catch (err) {
       toast.error("An error occurred while updating the appointment");
     }
+  };
+
+  const handleSort = (key: string) => {
+    setSortConfig((prevConfig) => {
+      if (prevConfig.key === key) {
+        const clickCount = prevConfig.clickCount + 1;
+        if (clickCount === 3) {
+          return { key: "", direction: "none", clickCount: 0 };
+        }
+        return {
+          key,
+          direction:
+            prevConfig.direction === "ascending" ? "descending" : "ascending",
+          clickCount,
+        };
+      }
+      return { key, direction: "ascending", clickCount: 1 };
+    });
+  };
+
+  const renderSortIcon = (columnKey: string) => {
+    if (sortConfig.key !== columnKey) return null;
+    return sortConfig.direction === "ascending" ? (
+      <ChevronUp className="inline-block ml-1" />
+    ) : (
+      <ChevronDown className="inline-block ml-1" />
+    );
   };
 
   const handleStatusChange = async (
@@ -289,16 +316,24 @@ export default function AppointmentManager() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner label="Loading appointment data..." color="primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end items-center space-x-4">
+    <div className=" text-foreground rounded-xl w-full">
+      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
         <Dropdown>
-          <DropdownTrigger>
+          <DropdownTrigger className="w-full sm:w-[200px]">
             <Button
               radius="full"
               startContent={<Filter className="h-4 w-4" />}
               endContent={<ChevronDown className="h-4 w-4" />}
-              className="px-5 py-1 text-sm bg-white border w-[200px] flex justify-between items-center"
+              className="px-5 py-1 text-sm bg-white border w-full flex justify-between items-center"
             >
               {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
               Appointments
@@ -321,121 +356,141 @@ export default function AppointmentManager() {
           onChange={(e) => setFilterValue(e.target.value)}
           radius="full"
           startContent={<Search className="h-4 w-4" />}
-          className="w-[300px]"
+          className="w-full sm:w-[300px]"
         />
       </div>
-      <Table aria-label="Appointments table">
-        <TableHeader>
-          {columns.map((column) => (
-            <TableColumn
-              key={column.key}
-              onClick={() => column.key !== "actions" && handleSort(column.key)}
-              style={{
-                cursor: column.key !== "actions" ? "pointer" : "default",
-              }}
-            >
-              {column.label}
-              {renderSortIcon(column.key)}
-            </TableColumn>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {filteredAppointments.map((item) => (
-            <TableRow key={item.appointmentID}>
-              <TableCell>
-                {item.formattedAppointmentID || item.appointmentID}
-              </TableCell>
-              <TableCell>{`${item.patient.firstName} ${item.patient.lastName}`}</TableCell>
-              <TableCell>{item.appointmentDate}</TableCell>
-              <TableCell>{item.appointmentTime}</TableCell>
-              <TableCell>{item.reason}</TableCell>
-              <TableCell>
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button
-                      variant="bordered"
-                      className="capitalize"
-                      color={item.status === "Treated" ? "success" : "primary"}
-                    >
-                      {item.status}
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    aria-label="Status options"
-                    onAction={(key) =>
-                      handleStatusChange(item.appointmentID, key as string)
-                    }
-                    selectedKeys={new Set([item.status])}
-                    selectionMode="single"
-                  >
-                    {statusOptions.map((status) => (
-                      <DropdownItem key={status}>{status}</DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    variant="light"
-                    onPress={() => handleEdit(item)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    variant="light"
-                    color="danger"
-                    onPress={() => handleDelete(item.appointmentID)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="py-4 px-6">
+        <div
+          className="border border-gray-200 rounded-lg overflow-hidden"
+          style={{ maxHeight: "600px", overflowY: "auto" }}
+        >
+          <Table aria-label="Appointment Records">
+            <TableHeader>
+              {columns.map((column) => (
+                <TableColumn
+                  key={column.key}
+                  onClick={() =>
+                    column.key !== "actions" && handleSort(column.key)
+                  }
+                  style={{
+                    cursor: column.key !== "actions" ? "pointer" : "default",
+                  }}
+                >
+                  {column.label}
+                  {renderSortIcon(column.key)}
+                </TableColumn>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {filteredAppointments.map((appointment) => (
+                <TableRow key={appointment.appointmentID}>
+                  <TableCell>
+                    {appointment.formattedAppointmentID ||
+                      appointment.appointmentID}
+                  </TableCell>
+                  <TableCell>{`${appointment.patient.firstName} ${appointment.patient.lastName}`}</TableCell>
+                  <TableCell>{appointment.appointmentDate}</TableCell>
+                  <TableCell>{appointment.appointmentTime}</TableCell>
+                  <TableCell>{appointment.reason}</TableCell>
+                  <TableCell>
+                    <Dropdown>
+                      <DropdownTrigger>
+                        <Button
+                          variant="bordered"
+                          className="capitalize"
+                          color={
+                            appointment.status === "Treated"
+                              ? "success"
+                              : "primary"
+                          }
+                        >
+                          {appointment.status}
+                        </Button>
+                      </DropdownTrigger>
+                      <DropdownMenu
+                        aria-label="Status options"
+                        onAction={(key) =>
+                          handleStatusChange(
+                            appointment.appointmentID,
+                            key as string
+                          )
+                        }
+                        selectedKeys={new Set([appointment.status])}
+                        selectionMode="single"
+                      >
+                        {statusOptions.map((status) => (
+                          <DropdownItem key={status}>{status}</DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        isIconOnly
+                        className="text-warning-500 bg-warning-100"
+                        variant="light"
+                        aria-label="Edit"
+                        onClick={() => handleEdit(appointment)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        isIconOnly
+                        className="text-danger-500 bg-danger-100"
+                        variant="light"
+                        aria-label="Delete"
+                        onClick={() => handleDelete(appointment.appointmentID)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          onClose();
+          setCurrentAppointment(null);
+        }}
+        size="2xl"
+        hideCloseButton
+      >
         <ModalContent>
           {(onClose) => (
-            <form onSubmit={handleUpdate}>
-              <ModalHeader className="flex flex-col gap-1">
+            <form onSubmit={handleUpdateAppointment}>
+              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
                 Edit Appointment
               </ModalHeader>
               <ModalBody>
                 <Input
                   label="Date"
+                  name="appointmentDate"
                   type="date"
-                  value={editingAppointment?.appointmentDate || ""}
-                  onChange={(e) =>
-                    setEditingAppointment((prev) =>
-                      prev ? { ...prev, appointmentDate: e.target.value } : null
-                    )
-                  }
+                  value={currentAppointment?.appointmentDate || ""}
+                  onChange={handleInputChange}
+                  required
                 />
                 <Input
                   label="Time"
+                  name="appointmentTime"
                   type="time"
-                  value={editingAppointment?.appointmentTime || ""}
-                  onChange={(e) =>
-                    setEditingAppointment((prev) =>
-                      prev ? { ...prev, appointmentTime: e.target.value } : null
-                    )
-                  }
+                  value={currentAppointment?.appointmentTime || ""}
+                  onChange={handleInputChange}
+                  required
                 />
                 <Input
                   label="Reason"
-                  value={editingAppointment?.reason || ""}
-                  onChange={(e) =>
-                    setEditingAppointment((prev) =>
-                      prev ? { ...prev, reason: e.target.value } : null
-                    )
-                  }
+                  name="reason"
+                  value={currentAppointment?.reason || ""}
+                  onChange={handleInputChange}
+                  required
                 />
                 <Dropdown>
                   <DropdownTrigger>
@@ -443,24 +498,24 @@ export default function AppointmentManager() {
                       variant="bordered"
                       className="capitalize"
                       color={
-                        editingAppointment?.status === "Treated"
+                        currentAppointment?.status === "Treated"
                           ? "success"
                           : "primary"
                       }
                     >
-                      {editingAppointment?.status || "Select Status"}
+                      {currentAppointment?.status || "Select Status"}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
                     aria-label="Status options"
                     onAction={(key) =>
-                      setEditingAppointment((prev) =>
+                      setCurrentAppointment((prev) =>
                         prev ? { ...prev, status: key as string } : null
                       )
                     }
                     selectedKeys={
-                      editingAppointment
-                        ? new Set([editingAppointment.status])
+                      currentAppointment
+                        ? new Set([currentAppointment.status])
                         : new Set()
                     }
                     selectionMode="single"
@@ -475,8 +530,12 @@ export default function AppointmentManager() {
                 <Button color="danger" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color="primary" type="submit">
-                  Save
+                <Button
+                  variant="light"
+                  type="submit"
+                  className="text-success-600"
+                >
+                  Update Appointment
                 </Button>
               </ModalFooter>
             </form>

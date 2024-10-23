@@ -131,7 +131,7 @@ export default function NewAppointmentButton({
         className="bg-primary-200 text-primary-600"
         onPress={onOpen}
         radius="full"
-        startContent={<CalendarPlus />}
+        startContent={<CalendarPlus className="w-4 h-4" />}
       >
         New Appointment
       </Button>
@@ -152,6 +152,7 @@ export default function NewAppointmentButton({
                 >
                   {patients.map((patient) => (
                     <SelectItem
+                      className="text-foreground-light"
                       key={patient.patientID}
                       value={patient.patientID}
                     >
@@ -174,7 +175,6 @@ export default function NewAppointmentButton({
                   value={newAppointment.appointmentTime}
                   onChange={handleInputChange}
                   required
-                  endContent={<Clock className="text-primary-600" />}
                 />
                 <Input
                   label="Reason"
@@ -185,11 +185,22 @@ export default function NewAppointmentButton({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button
+                  variant="solid"
+                  radius="full"
+                  color="danger"
+                  onPress={onClose}
+                  className="text-danger-500 bg-danger-100"
+                >
                   Cancel
                 </Button>
-                <Button color="primary" type="submit">
-                  Add Appointment
+                <Button
+                  variant="solid"
+                  radius="full"
+                  className="text-success-600 bg-success-100"
+                  type="submit"
+                >
+                  Add
                 </Button>
               </ModalFooter>
             </form>

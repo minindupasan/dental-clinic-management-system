@@ -1,3 +1,6 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -5,17 +8,15 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  getKeyValue,
   Button,
   Card,
   CardHeader,
-  CardFooter,
   CardBody,
   Spinner,
 } from "@nextui-org/react";
-import { CirclePlus, GalleryVerticalEnd } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { RefreshCw, List } from "lucide-react";
 import toast from "react-hot-toast";
+import AddPatientButton from "./NewPatientButton";
 
 type Patient = {
   patientID: string;
@@ -41,19 +42,26 @@ const columns = [
 export default function PatientTableCard() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<"all" | "filtered">("all");
 
-  const fetchPatients = async () => {
+  const fetchPatients = async (mode: "all" | "filtered" = "all") => {
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/patients");
+      const url =
+        mode === "all"
+          ? "http://localhost:8080/api/patients"
+          : "http://localhost:8080/api/patients/filtered";
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
       }
       const data = await response.json();
-      console.log("Fetched patient data:", data);
+      console.log(`Fetched ${mode} patient data:`, data);
       setPatients(data);
-      setLoading(false);
+      setViewMode(mode);
     } catch (err) {
-      toast.error("An error occurred while fetching patient data.");
+      toast.error(`An error occurred while fetching ${mode} patient data.`);
+    } finally {
       setLoading(false);
     }
   };
@@ -61,69 +69,83 @@ export default function PatientTableCard() {
   useEffect(() => {
     fetchPatients();
   }, []);
-  if (loading) {
-    <div className="flex justify-center items-center h-64">
-      <Spinner label="Loading Patient Data..." color="primary" />
-    </div>;
-  }
+
+  const handleRefresh = () => {
+    fetchPatients(viewMode);
+  };
+
+  const handleViewAll = () => {
+    fetchPatients("all");
+  };
 
   return (
-    <Card className="bg-background-light text-foreground-light rounded-xl w-full">
-      <CardHeader>
-        <div className="w-full pt-3 flex justify-between items-center mx-6">
+    <Card className="bg-white text-foreground rounded-xl w-full shadow-md">
+      <CardHeader className="pb-0 pt-6 px-6">
+        <div className="w-full flex justify-between items-center">
           <h1 className="font-semibold text-xl">Patient Records</h1>
 
-          <div className="space-x-5">
+          <div className="flex items-center space-x-4">
             <Button
-              className="bg-secondary-200"
+              className="bg-primary-100 text-primary-800 hover:bg-primary-200"
               radius="full"
-              startContent={<GalleryVerticalEnd />}
+              startContent={<RefreshCw className="h-4 w-4" />}
+              onPress={handleRefresh}
+            >
+              Refresh
+            </Button>
+            <Button
+              className="bg-secondary-100 text-secondary-800 hover:bg-secondary-200"
+              radius="full"
+              startContent={<List className="h-4 w-4" />}
+              onPress={handleViewAll}
             >
               View All
             </Button>
-            <Button
-              className="bg-secondary-200"
-              radius="full"
-              startContent={<CirclePlus />}
-            >
-              New Patient
-            </Button>
+            <AddPatientButton onPatientAdded={handleRefresh} />
           </div>
         </div>
       </CardHeader>
-      <CardBody>
-        {/* Scrollable Table Container */}
-        <div
-          className="px-10"
-          style={{ maxHeight: "300px", overflowY: "auto" }}
-        >
-          <Table aria-label="Patient Records">
-            <TableHeader>
-              {columns.map((column) => (
-                <TableColumn key={column.key}>{column.label}</TableColumn>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {patients.map((patient) => (
-                <TableRow key={patient.patientID}>
-                  {columns.map((column) => (
-                    <TableCell key={`${patient.patientID}-${column.key}`}>
-                      {column.key === "fullName"
-                        ? `${patient.firstName} ${patient.lastName}`
-                        : column.key === "dob" || column.key === "createdDate"
-                          ? new Date(
-                              patient[column.key as keyof Patient]
-                            ).toLocaleDateString()
-                          : patient[column.key as keyof Patient]}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+      <CardBody className="py-4 px-6">
+        {loading ? (
+          <div className="flex justify-center items-center h-[400px]">
+            <Spinner
+              size="md"
+              label="Loading Patient Data..."
+              className="text-primary-600"
+            />
+          </div>
+        ) : (
+          <div
+            className="overflow-hidden"
+            style={{ maxHeight: "400px", overflowY: "auto" }}
+          >
+            <Table aria-label="Patient Records">
+              <TableHeader>
+                {columns.map((column) => (
+                  <TableColumn key={column.key}>{column.label}</TableColumn>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {patients.map((patient) => (
+                  <TableRow key={patient.patientID}>
+                    {columns.map((column) => (
+                      <TableCell key={`${patient.patientID}-${column.key}`}>
+                        {column.key === "fullName"
+                          ? `${patient.firstName} ${patient.lastName}`
+                          : column.key === "dob" || column.key === "createdDate"
+                            ? new Date(
+                                patient[column.key as keyof Patient]
+                              ).toLocaleDateString()
+                            : patient[column.key as keyof Patient]}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </CardBody>
-      <CardFooter className="p-2"></CardFooter>
     </Card>
   );
 }
