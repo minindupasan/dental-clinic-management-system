@@ -1,68 +1,176 @@
 "use client";
 
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Button,
-} from "@nextui-org/react";
-import { CirclePlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
+import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryModal from "./MedicalHistoryModal";
-import todaysAppointment from "../app/data/TodaysAppointmentsData";
+
+type Patient = {
+  patientID: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactNo: string;
+  gender: string;
+  medicalRecords: string;
+  dob: string;
+  createdDate: string;
+  bloodType: string;
+  surgeries: string;
+  chronicConditions: string;
+  previousIllnesses: string;
+  currentMedications: string;
+  previousMedications: string;
+  drugAllergies: string;
+  cardiovascularIssues: string;
+};
+
+type Appointment = {
+  appointmentID: number;
+  patient: Patient;
+  appointmentDate: string;
+  appointmentTime: string;
+  reason: string;
+  status: string;
+  treatment: string;
+};
+
 export default function TodayAppointmentsCard() {
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/appointments");
+      if (!response.ok) {
+        throw new Error("Failed to fetch appointments");
+      }
+      const data: Appointment[] = await response.json();
+      const today = new Date().toISOString().split("T")[0];
+      const todayAppointments = data.filter(
+        (appointment) => appointment.appointmentDate === today
+      );
+      setAppointments(todayAppointments);
+      setIsLoading(false);
+    } catch (err) {
+      setError("Failed to load appointments");
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(":");
+    const date = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes));
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "short", day: "2-digit" });
+  };
+
+  const calculateAge = (dob: string) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  };
+
   return (
-    <div>
-      <Card className="lg:h-60 max-h-96 w-full bg-background-light">
-        <CardHeader>
-          <div className="w-full pt-3 flex justify-between items-center mx-6">
-            <h2 className="text-xl font-semibold ">Today's Appointments</h2>
-            <Button
-              className="bg-secondary-200 text-foreground-light"
-              radius="full"
-              startContent={<CirclePlus />}
-            >
-              New Patient
-            </Button>
+    <Card className="w-full max-w-3xl mx-auto h-60">
+      <CardHeader className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Today's Appointments</h2>
+        <NewAppointmentButton onAppointmentAdded={fetchAppointments} />
+      </CardHeader>
+      <CardBody className="max-h-[calc(100vh-200px)] overflow-y-auto">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <Spinner label="Loading appointments..." />
           </div>
-        </CardHeader>
-        <CardBody className="max-h-96 overflow-y-auto">
-          {todaysAppointment.map((appointment, index) => (
-            <div
-              key={index}
-              className="bg-default-100 p-4 rounded-lg flex items-center gap-4 mb-2 last:mb-0"
-            >
-              <div className="flex flex-col justify-center items-center min-w-[80px]">
-                <div className="rounded-xl p-5 bg-white text-center">
-                  <div className="font-semibold text-lg md:text-xl lg:text-3xl">
-                    {appointment.time}
+        ) : error ? (
+          <p className="text-center text-danger">{error}</p>
+        ) : appointments.length === 0 ? (
+          <p className="text-center">No appointments scheduled for today.</p>
+        ) : (
+          <div className="space-y-4">
+            {appointments.map((appointment) => (
+              <div
+                key={appointment.appointmentID}
+                className="bg-content2 rounded-xl p-4 flex items-center space-x-4"
+              >
+                <div className="bg-content1 rounded-xl p-4 text-center min-w-[120px]">
+                  <div className="text-3xl font-semibold">
+                    {formatTime(appointment.appointmentTime)}
                   </div>
-                  <div className="font-semibold text-md md:text-lg lg:text-xl">
-                    {new Date(appointment.date).toLocaleDateString("en-US", {
-                      day: "2-digit",
-                      month: "short",
-                    })}
+                  <div className="text-default-500">
+                    {formatDate(appointment.appointmentDate)}
                   </div>
                 </div>
+                <div className="flex-grow">
+                  <p>
+                    <span className="font-semibold mr-2">Name:</span>
+                    {appointment.patient.firstName}{" "}
+                    {appointment.patient.lastName}
+                  </p>
+                  <p>
+                    <span className="font-semibold mr-2">Age:</span>
+                    {calculateAge(appointment.patient.dob)}
+                  </p>
+                  <p>
+                    <span className="font-semibold mr-2">Reason:</span>
+                    {appointment.reason}
+                  </p>
+                  <MedicalHistoryModal
+                    patient={{
+                      patientID: appointment.patient.patientID,
+                      firstName: appointment.patient.firstName,
+                      lastName: appointment.patient.lastName,
+                      email: appointment.patient.email,
+                      contactNo: appointment.patient.contactNo,
+                      gender: appointment.patient.gender,
+                      medicalRecords: appointment.patient.medicalRecords,
+                      dob: appointment.patient.dob,
+                      createdDate: appointment.patient.createdDate,
+                      bloodType: appointment.patient.bloodType || "",
+                      surgeries: appointment.patient.surgeries || "",
+                      chronicConditions:
+                        appointment.patient.chronicConditions || "",
+                      previousIllnesses:
+                        appointment.patient.previousIllnesses || "",
+                      currentMedications:
+                        appointment.patient.currentMedications || "",
+                      previousMedications:
+                        appointment.patient.previousMedications || "",
+                      drugAllergies: appointment.patient.drugAllergies || "",
+                      cardiovascularIssues:
+                        appointment.patient.cardiovascularIssues || "",
+                    }}
+                    appointmentDate={appointment.appointmentDate}
+                    appointmentTime={appointment.appointmentTime}
+                    treatment={appointment.treatment || ""}
+                  />
+                </div>
               </div>
-              <div>
-                <p>
-                  <span className="font-medium">Name:</span> {appointment.name}
-                </p>
-                <p>
-                  <span className="font-medium">Age:</span> {appointment.age}
-                </p>
-                <p>
-                  <span className="font-medium">Treatment:</span>{" "}
-                  {appointment.treatment}
-                </p>
-                {/* <MedicalHistoryModal /> */}
-              </div>
-            </div>
-          ))}
-        </CardBody>
-        <CardFooter className="p-2"></CardFooter>
-      </Card>
-    </div>
+            ))}
+          </div>
+        )}
+      </CardBody>
+    </Card>
   );
 }

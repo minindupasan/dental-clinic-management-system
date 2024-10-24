@@ -65,7 +65,7 @@ const dentures = [
 export default function DentureCard() {
   return (
     <div>
-      <Card className="bg-white">
+      <Card className="bg-white ">
         <CardHeader className="mb-3 py-0 pt-5 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Dentures</h2>
         </CardHeader>
@@ -77,9 +77,9 @@ export default function DentureCard() {
                 <div className="mx-12">
                   <div className="flex-shrink-0 mr-4 flex justify-center items-center">
                     {denture.status === "Completed" ? (
-                      <ClipboardCheck size={"48px"} />
+                      <ClipboardCheck size={48} />
                     ) : (
-                      <ClipboardCopy size={"48px"} />
+                      <ClipboardCopy size={48} />
                     )}
                   </div>
                 </div>
