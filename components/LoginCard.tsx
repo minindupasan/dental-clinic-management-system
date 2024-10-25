@@ -76,9 +76,9 @@ export default function LoginCard() {
 
   return (
     <div className="lg:col-span-1 lg:row-span-1 lg:col-start-2 lg:h-full">
-      <Card className="bg-default-900 h-full ">
-        <CardHeader>
-          <h3 className="text-2xl font-semibold mt-5 mx-3">Login</h3>
+      <Card className="h-full ">
+        <CardHeader className="text-foreground text-2xl font-semibold mt-5 mx-3">
+          Login
         </CardHeader>
         <CardBody className="justify-center">
           <form onSubmit={handleLogin} className="space-y-4">
@@ -90,10 +90,7 @@ export default function LoginCard() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                labelPlacement="outside"
-                startContent={
-                  <AtSign className="text-default-900 pointer-events-none flex-shrink-0" />
-                }
+                startContent={<AtSign size={18} />}
               />
               <Input
                 isRequired
@@ -102,8 +99,7 @@ export default function LoginCard() {
                 placeholder="Include at least 8 characters"
                 value={password}
                 onChange={handlePasswordChange}
-                labelPlacement="outside"
-                startContent={<Key className="text-default-900" />}
+                startContent={<Key size={18} />}
                 endContent={
                   <button
                     className="focus:outline-none"
@@ -111,19 +107,14 @@ export default function LoginCard() {
                     onClick={toggleVisibility}
                     aria-label="toggle password visibility"
                   >
-                    {isVisible ? (
-                      <EyeClosed className="text-default-900 pointer-events-none" />
-                    ) : (
-                      <Eye className="text-default-900 pointer-events-none" />
-                    )}
+                    {isVisible ? <Eye size={24} /> : <EyeClosed size={24} />}
                   </button>
                 }
               />
-              {error && <p className=" text-red-500 text-sm">{error}</p>}
+              {error && <p className="text-danger text-sm">{error}</p>}
             </div>
             <div className="flex flex-col justify-between items-center space-y-4">
               <Button
-                className="bg-background-dark text-foreground-dark"
                 type="submit"
                 color={email && password && !error ? "primary" : "default"}
                 startContent={<LogIn />}
@@ -136,8 +127,8 @@ export default function LoginCard() {
               </Link>
             </div>
           </form>
-          <div className="my-2 text-center">
-            <span className="text-default-500">Not a member?</span>{" "}
+          <div className="my-2 text-center text-sm">
+            <span className="text-foreground">Not a member?</span>{" "}
             <Link href="../app/SignUp" size="sm">
               Sign up
             </Link>

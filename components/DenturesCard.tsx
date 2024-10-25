@@ -65,7 +65,7 @@ const dentures = [
 export default function DentureCard() {
   return (
     <div>
-      <Card className="bg-white ">
+      <Card className="bg-default-900 ">
         <CardHeader className="mb-3 py-0 pt-5 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Dentures</h2>
         </CardHeader>

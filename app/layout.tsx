@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import React from "react";
+import { Providers } from "./provider";
 
 import { fontSans } from "@/config/fonts";
 import NavBar from "../components/NavBar";
@@ -24,17 +25,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head />
       <body
         className={clsx(
-          "bg-background-dark text-foreground-dark min-h-screen bg-foreground font-sans antialiased",
+          "min-h-screen font-sans antialiased",
           fontSans.variable
         )}
       >
-        {" "}
-        <NavBar />
-        <main className={clsx("mx-4 md:mx-6 lg:mx-10")}>{children}</main>
+        <Providers>
+          <div className="relative flex flex-col h-screen">
+            <NavBar />
+            <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
+              {children}
+            </main>
+          </div>
+        </Providers>
       </body>
     </html>
   );

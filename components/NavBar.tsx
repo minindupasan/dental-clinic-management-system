@@ -13,6 +13,7 @@ import NavBarTabs from "./NavBarTabs";
 import MenuBar from "./MenuBar";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { SunIcon, MoonIcon } from "lucide-react";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -27,10 +28,6 @@ export default function NavBar() {
     console.log(`Tab clicked: ${path}`);
   };
 
-  const handleThemeChange = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
-
   if (!mounted) return null;
 
   return (
@@ -42,7 +39,16 @@ export default function NavBar() {
         <NavBarTabs onTabClick={handleTabClick} currentPath={pathname} />
       </NavbarContent>
       <NavbarContent className="justify-end">
-        {/* Hidden on medium and larger screens, visible only on small screens */}
+        <Button
+          isIconOnly
+          variant="light"
+          aria-label="Toggle theme"
+          className="mr-2"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+        </Button>
+
         <div className="md:hidden flex items-center space-x-2">
           <Button
             radius="full"
