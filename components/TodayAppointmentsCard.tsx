@@ -112,7 +112,7 @@ export default function TodayAppointmentsCard() {
             {appointments.map((appointment) => (
               <div
                 key={appointment.appointmentID}
-                className="bg-content2 rounded-xl p-4 flex items-center space-x-4"
+                className="bg-default-100 rounded-xl p-4 flex items-start space-x-4 items-center"
               >
                 <div className="bg-content1 rounded-xl p-4 text-center min-w-[120px]">
                   <div className="text-3xl font-semibold">

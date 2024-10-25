@@ -79,14 +79,14 @@ export default function PatientTableCard() {
   };
 
   return (
-    <Card className="bg-white text-foreground rounded-xl w-full shadow-md">
+    <Card className="  rounded-xl w-full shadow-md">
       <CardHeader className="pb-0 pt-6 px-6">
         <div className="w-full flex justify-between items-center">
           <h1 className="font-semibold text-xl">Patient Records</h1>
 
           <div className="flex items-center space-x-4">
             <Button
-              className="bg-primary-100 text-primary-800 hover:bg-primary-200"
+              color="primary"
               radius="full"
               startContent={<RefreshCw className="h-4 w-4" />}
               onPress={handleRefresh}
@@ -94,7 +94,7 @@ export default function PatientTableCard() {
               Refresh
             </Button>
             <Button
-              className="bg-secondary-100 text-secondary-800 hover:bg-secondary-200"
+              color="secondary"
               radius="full"
               startContent={<List className="h-4 w-4" />}
               onPress={handleViewAll}
@@ -111,7 +111,7 @@ export default function PatientTableCard() {
             <Spinner
               size="md"
               label="Loading Patient Data..."
-              className="text-foreground-light"
+              color="primary"
             />
           </div>
         ) : (

@@ -127,7 +127,7 @@ export default function AddPatientButton({
   return (
     <>
       <Button
-        className="bg-primary-200 text-primary-600"
+        color="primary"
         onPress={onOpen}
         radius="full"
         startContent={<CirclePlus className="h-4 w-4" />}

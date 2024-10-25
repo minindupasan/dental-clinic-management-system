@@ -11,7 +11,7 @@ import {
   useDisclosure,
   Spinner,
 } from "@nextui-org/react";
-import { FileText, HeartPulse } from "lucide-react";
+import { HeartPulse } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 type Patient = {

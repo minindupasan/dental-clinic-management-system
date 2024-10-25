@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardBody, Button, Spinner } from "@nextui-org/react";
-import { CirclePlus } from "lucide-react";
+import { Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import MedicalHistoryModal from "./MedicalHistoryModal";
-import NewAppointmentButton from "./NewAppointmentButton";
 
 type Patient = {
   patientID: number;
@@ -121,13 +119,13 @@ export default function UpcomingAppointmentsCard() {
             {appointments.map((appointment) => (
               <div
                 key={appointment.appointmentID}
-                className="bg-primary-100 rounded-xl p-4 flex items-start space-x-4"
+                className="bg-default-100 rounded-xl p-4 flex items-start space-x-4 items-center"
               >
-                <div className="bg-content1 rounded-xl p-4 text-center min-w-[120px]">
+                <div className="p-4 text-center min-w-[120px]">
                   <div className="text-3xl font-semibold">
                     {formatTime(appointment.appointmentTime)}
                   </div>
-                  <div className="text-default-500">
+                  <div className="text-default-600">
                     {formatDate(appointment.appointmentDate)}
                   </div>
                 </div>

@@ -33,7 +33,6 @@ import {
   Search,
   Filter,
   RefreshCw,
-  FileText,
 } from "lucide-react";
 import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryViewModal from "./MedicalHistoryViewModal";

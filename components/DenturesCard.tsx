@@ -65,7 +65,7 @@ const dentures = [
 export default function DentureCard() {
   return (
     <div>
-      <Card className="bg-default-900 ">
+      <Card>
         <CardHeader className="mb-3 py-0 pt-5 flex justify-between items-center">
           <h2 className="text-xl font-semibold">Dentures</h2>
         </CardHeader>
@@ -107,11 +107,8 @@ export default function DentureCard() {
                   <div>
                     <span className="font-bold pr-4">Status:</span>
                     <Chip
-                      className={`ml-2 px-2 py-1 ${
-                        denture.status === "Completed"
-                          ? "bg-green-500 text-white"
-                          : "bg-yellow-500 text-black"
-                      }`}
+                      className={"ml-2 px-2 py-1 "}
+                      color={denture.status === "Completed" ? "success" : "warning"}
                     >
                       {denture.status === "Completed" ? "Completed" : "Pending"}
                     </Chip>
