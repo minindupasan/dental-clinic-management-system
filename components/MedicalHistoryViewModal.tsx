@@ -101,8 +101,9 @@ export default function MedicalHistoryViewModal({
         variant="flat"
         onClick={handleOpen}
         startContent={<HeartPulse size={16} />}
-        isIconOnly
-      />
+      >
+        View Medical Record
+      </Button>
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalContent>
           {(onClose) => (
@@ -122,7 +123,7 @@ export default function MedicalHistoryViewModal({
                   <div className="text-center text-danger">
                     <p>{error}</p>
                     <Button
-                      color="primary"
+                      color="danger"
                       variant="light"
                       onClick={fetchMedicalHistory}
                       className="mt-4"
