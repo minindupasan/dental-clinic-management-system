@@ -40,8 +40,9 @@ export default function NavBar() {
       </NavbarContent>
       <NavbarContent className="justify-end">
         <Button
+          color="primary"
           isIconOnly
-          variant="light"
+          variant="ghost"
           aria-label="Toggle theme"
           className="mr-2"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -49,44 +50,24 @@ export default function NavBar() {
           {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
         </Button>
 
-        <div className="md:hidden flex items-center space-x-2">
-          <Button
-            radius="full"
-            as={Link}
-            href="/Login"
-            variant="bordered"
-            size="sm" // Small size for mobile
-          >
-            Login
-          </Button>
-          <Button
-            radius="full"
-            as={Link}
-            href="/SignUp"
-            variant="solid"
-            size="sm" // Small size for mobile
-          >
-            Sign Up
-          </Button>
-        </div>
-
-        {/* Visible only on medium and larger screens */}
         <div className="hidden md:flex items-center space-x-4">
           <Button
+            color="primary"
             radius="full"
             as={Link}
             href="/Login"
-            variant="bordered"
-            size="lg"
+            variant="ghost"
+            size="md"
           >
             Login
           </Button>
           <Button
+            color="primary"
             radius="full"
             as={Link}
             href="/SignUp"
             variant="solid"
-            size="lg"
+            size="md"
           >
             Sign Up
           </Button>

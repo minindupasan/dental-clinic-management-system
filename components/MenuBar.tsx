@@ -26,18 +26,18 @@ export default function App() {
   ];
 
   return (
-    <Navbar isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
+    <Navbar isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className="">
       <NavbarMenuToggle
-        className="md:hidden text-white " // Change 'text-white' to the desired color (e.g., 'text-red-500')
+        className="md:hidden text-foreground "
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
       />
       <NavbarContent>
         <NavbarBrand>
           <Link href="/">
-            <DentCareLogo />
+            <DentCareLogo fill="text-background" />
             <div
               className={clsx(
-                "hidden lg:block lg:font-bold text-white lg:ml-3 lg:text-xl lg:font-serif ",
+                "hidden lg:block lg:font-bold text-foreground lg:ml-3 lg:text-xl lg:font-serif ",
                 fontSerif.className
               )}
             >
