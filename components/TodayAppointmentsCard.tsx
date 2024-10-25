@@ -136,35 +136,7 @@ export default function TodayAppointmentsCard() {
                     <span className="font-semibold mr-2">Reason:</span>
                     {appointment.reason}
                   </p>
-                  <MedicalHistoryModal
-                    patient={{
-                      patientID: appointment.patient.patientID,
-                      firstName: appointment.patient.firstName,
-                      lastName: appointment.patient.lastName,
-                      email: appointment.patient.email,
-                      contactNo: appointment.patient.contactNo,
-                      gender: appointment.patient.gender,
-                      medicalRecords: appointment.patient.medicalRecords,
-                      dob: appointment.patient.dob,
-                      createdDate: appointment.patient.createdDate,
-                      bloodType: appointment.patient.bloodType || "",
-                      surgeries: appointment.patient.surgeries || "",
-                      chronicConditions:
-                        appointment.patient.chronicConditions || "",
-                      previousIllnesses:
-                        appointment.patient.previousIllnesses || "",
-                      currentMedications:
-                        appointment.patient.currentMedications || "",
-                      previousMedications:
-                        appointment.patient.previousMedications || "",
-                      drugAllergies: appointment.patient.drugAllergies || "",
-                      cardiovascularIssues:
-                        appointment.patient.cardiovascularIssues || "",
-                    }}
-                    appointmentDate={appointment.appointmentDate}
-                    appointmentTime={appointment.appointmentTime}
-                    treatment={appointment.treatment || ""}
-                  />
+                  <MedicalHistoryModal patientId={""} />
                 </div>
               </div>
             ))}

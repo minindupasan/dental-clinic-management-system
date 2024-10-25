@@ -145,12 +145,7 @@ export default function UpcomingAppointmentsCard() {
                     <span className="font-semibold mr-2">Reason:</span>{" "}
                     {appointment.reason}
                   </p>
-                  <MedicalHistoryModal
-                    patient={appointment.patient}
-                    appointmentDate={appointment.appointmentDate}
-                    appointmentTime={appointment.appointmentTime}
-                    treatment={appointment.treatment}
-                  />
+                  <MedicalHistoryModal patientId={""} />
                 </div>
               </div>
             ))}
