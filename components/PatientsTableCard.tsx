@@ -53,8 +53,6 @@ export default function PatientTableCard() {
         mode === "all"
           ? `${API_URL}/api/patients`
           : `${API_URL}/api/patients/filtered`;
-          ? `${API_URL}/api/patients`
-          : `${API_URL}/api/patients/filtered`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
