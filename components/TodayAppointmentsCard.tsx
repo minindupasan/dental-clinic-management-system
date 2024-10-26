@@ -45,7 +45,6 @@ export default function TodayAppointmentsCard() {
   const fetchAppointments = async () => {
     try {
       const response = await fetch(`${API_URL}/api/appointments`);
-      const response = await fetch(`${API_URL}/api/appointments`);
       if (!response.ok) {
         throw new Error("Failed to fetch appointments");
       }

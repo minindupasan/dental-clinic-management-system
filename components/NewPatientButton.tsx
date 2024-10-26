@@ -125,10 +125,8 @@ export default function AddPatientButton({
       <Button
         color="primary"
         variant="ghost"
-        variant="ghost"
         onPress={onOpen}
         radius="full"
-        startContent={<CirclePlus size={16} />}
         startContent={<CirclePlus size={16} />}
       >
         Add New Patient

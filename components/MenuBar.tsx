@@ -26,7 +26,11 @@ export default function App() {
   ];
 
   return (
-    <Navbar isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className="">
+    <Navbar
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setIsMenuOpen}
+      className=""
+    >
       <NavbarMenuToggle
         className="md:hidden text-foreground "
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
