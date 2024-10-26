@@ -38,7 +38,7 @@ export default function FinancialSummaryCard() {
 
   return (
     <div>
-      <Card className="min-h-72 h-auto bg-white text-foreground-light">
+      <Card className="min-h-72 h-auto">
         <CardHeader>
           <div className="w-full pt-3 flex justify-between items-center mx-6">
             <h2 className="text-xl font-semibold">Summary</h2>
@@ -62,11 +62,11 @@ export default function FinancialSummaryCard() {
           <h3 className="text-3xl font-bold mb-1">
             {summaryData[activeTab as keyof typeof summaryData].earned}
           </h3>
-          <p className="text-gray-600 mb-4">Earned</p>
+          <p className="text-default-400 mb-4">Earned</p>
           <h3 className="text-3xl font-bold mb-1">
             {summaryData[activeTab as keyof typeof summaryData].patientsTreated}
           </h3>
-          <p className="text-gray-600">No. of Patients Treated</p>
+          <p className="text-default-400">No. of Patients Treated</p>
         </CardBody>
       </Card>
     </div>

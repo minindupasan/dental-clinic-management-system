@@ -1,147 +1,155 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Input,
-  useDisclosure,
-} from "@nextui-org/react";
-import { CirclePlus } from "lucide-react";
-import MedicalHistoryPopover from "./MedicalHistoryModal";
-import { patients, Patient } from "../app/data/PatientData";
+import React, { useState, useEffect } from "react";
+import { Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
+import MedicalHistoryModal from "./MedicalHistoryModal";
+
+type Patient = {
+  patientID: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactNo: string;
+  gender: string;
+  medicalRecords: string;
+  dob: string;
+  createdDate: string;
+  bloodType: string;
+  surgeries: string;
+  chronicConditions: string;
+  previousIllnesses: string;
+  currentMedications: string;
+  previousMedications: string;
+  drugAllergies: string;
+  cardiovascularIssues: string;
+};
+
+type Appointment = {
+  appointmentID: number;
+  patient: Patient;
+  appointmentDate: string;
+  appointmentTime: string;
+  reason: string;
+  status: string;
+  treatment: string;
+};
 
 export default function UpcomingAppointmentsCard() {
-  const [appointments, setAppointments] = useState<Patient[]>(() =>
-    [...patients].sort((a, b) => {
-      const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
-      const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
-      return dateA.getTime() - dateB.getTime();
-    })
-  );
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [newAppointment, setNewAppointment] = useState<Partial<Patient>>({});
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      setNewAppointment((prev) => ({ ...prev, [name]: value }));
-    },
-    []
-  );
+  const fetchAppointments = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/appointments");
+      if (!response.ok) {
+        throw new Error("Failed to fetch appointments");
+      }
+      const data: Appointment[] = await response.json();
+      const now = new Date();
+      const upcomingAppointments = data
+        .filter((appointment) => {
+          const appointmentDate = new Date(
+            `${appointment.appointmentDate}T${appointment.appointmentTime}`
+          );
+          return appointmentDate > now;
+        })
+        .sort((a, b) => {
+          const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
+          const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
+          return dateA.getTime() - dateB.getTime();
+        });
+      setAppointments(upcomingAppointments);
+      setIsLoading(false);
+    } catch (err) {
+      setError("Failed to load appointments");
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(":");
+    const date = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes));
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "short", day: "2-digit" });
+  };
+
+  const calculateAge = (dob: string) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  };
 
   return (
-    <div>
-      <Card className="lg:h-60 max-h-96 w-full bg-background-light">
-        <CardHeader>
-          <div className="w-full pt-3 flex justify-between items-center mx-6">
-            <h2 className="text-xl font-semibold">Upcoming Appointments</h2>
-            <Button
-              className="bg-secondary-200 text-foreground-light"
-              radius="full"
-              startContent={<CirclePlus />}
-              onPress={onOpen}
-            >
-              New Patient
-            </Button>
+    <Card className="w-full max-w-3xl mx-auto h-60">
+      <CardHeader className="flex justify-between items-center px-6 py-4">
+        <h2 className="text-xl font-bold">Today's Appointments</h2>
+      </CardHeader>
+      <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <Spinner label="Loading appointments..." />
           </div>
-        </CardHeader>
-        <CardBody className="max-h-96 overflow-y-auto">
-          {appointments.map((appointment) => (
-            <div
-              key={appointment.id}
-              className="bg-default-100 p-4 rounded-lg flex items-center gap-4 mb-2 last:mb-0"
-            >
-              <div className="flex flex-col justify-center items-center min-w-[80px]">
-                <div className="rounded-xl p-5 bg-white text-center">
-                  <div className="font-semibold text-lg md:text-xl lg:text-3xl">
-                    {appointment.appointmentTime}
+        ) : error ? (
+          <p className="text-center text-danger">{error}</p>
+        ) : appointments.length === 0 ? (
+          <p className="text-center">No upcoming appointments scheduled.</p>
+        ) : (
+          <div className="space-y-4">
+            {appointments.map((appointment) => (
+              <div
+                key={appointment.appointmentID}
+                className="bg-default-100 rounded-xl p-4 flex items-start space-x-4 items-center"
+              >
+                <div className="p-4 text-center min-w-[120px]">
+                  <div className="text-3xl font-semibold">
+                    {formatTime(appointment.appointmentTime)}
                   </div>
-                  <div className="font-semibold text-md md:text-lg lg:text-xl">
-                    {new Date(appointment.appointmentDate).toLocaleDateString(
-                      "en-US",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )}
+                  <div className="text-default-600">
+                    {formatDate(appointment.appointmentDate)}
                   </div>
                 </div>
+                <div className="flex-grow">
+                  <p>
+                    <span className="font-semibold mr-2">Name:</span>
+                    Name: {appointment.patient.firstName}{" "}
+                    {appointment.patient.lastName}
+                  </p>
+                  <p>
+                    <span className="font-semibold mr-2">Age:</span>{" "}
+                    {calculateAge(appointment.patient.dob)}
+                  </p>
+                  <p>
+                    <span className="font-semibold mr-2">Reason:</span>{" "}
+                    {appointment.reason}
+                  </p>
+                  <MedicalHistoryModal patientId={""} />
+                </div>
               </div>
-              <div>
-                <p>
-                  <span className="font-medium">Name:</span> {appointment.name}
-                </p>
-                <p>
-                  <span className="font-medium">Age:</span> {appointment.age}
-                </p>
-                <p>
-                  <span className="font-medium">Treatment:</span>{" "}
-                  {appointment.treatment}
-                </p>
-                <MedicalHistoryPopover patient={appointment} />
-              </div>
-            </div>
-          ))}
-        </CardBody>
-        <CardFooter className="p-2"></CardFooter>
-      </Card>
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            Add New Appointment
-          </ModalHeader>
-          <ModalBody>
-            <Input
-              label="Name"
-              name="name"
-              value={newAppointment.name || ""}
-              onChange={handleInputChange}
-            />
-            <Input
-              label="Age"
-              name="age"
-              value={newAppointment.age || ""}
-              onChange={handleInputChange}
-            />
-            <Input
-              label="Treatment"
-              name="treatment"
-              value={newAppointment.treatment || ""}
-              onChange={handleInputChange}
-            />
-            <Input
-              label="Date"
-              name="appointmentDate"
-              type="date"
-              value={newAppointment.appointmentDate || ""}
-              onChange={handleInputChange}
-            />
-            <Input
-              label="Time"
-              name="appointmentTime"
-              type="time"
-              value={newAppointment.appointmentTime || ""}
-              onChange={handleInputChange}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button color="danger" variant="light" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button color="primary">Add Appointment</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </div>
+            ))}
+          </div>
+        )}
+      </CardBody>
+    </Card>
   );
 }

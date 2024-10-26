@@ -50,7 +50,7 @@ const pendingPayments = [
 export default function PendingPayments() {
   return (
     <div>
-      <Card className="w-full h-auto max-h-72 bg-white text-foreground-light">
+      <Card className="w-full h-auto max-h-72  ">
         <CardHeader>
           <div className="w-full pt-3 flex justify-between items-center mx-6">
             <h2 className="text-xl font-semibold">Pending Payments</h2>
@@ -60,7 +60,7 @@ export default function PendingPayments() {
           {pendingPayments.map((payment, index) => (
             <div
               key={index}
-              className="flex items-center gap-4 bg-gray-100 p-4 rounded-lg mb-2 last:mb-0"
+              className="flex items-center gap-4 bg-default-100 p-4 rounded-lg mb-2 last:mb-0"
             >
               <div className=" m-5">
                 <UserRound size={32} />

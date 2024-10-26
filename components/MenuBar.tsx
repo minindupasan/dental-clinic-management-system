@@ -26,18 +26,18 @@ export default function App() {
   ];
 
   return (
-    <Navbar isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
+    <Navbar isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen} className="">
       <NavbarMenuToggle
-        className="md:hidden text-white" // Change 'text-white' to the desired color (e.g., 'text-red-500')
+        className="md:hidden text-foreground "
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
       />
       <NavbarContent>
         <NavbarBrand>
-          <Link color="foreground" href="/">
-            <DentCareLogo />
+          <Link href="/">
+            <DentCareLogo fill="text-background" />
             <div
               className={clsx(
-                "hidden lg:block lg:font-bold lg:text-white lg:ml-3 lg:text-xl lg:font-serif ",
+                "hidden lg:block lg:font-bold text-foreground lg:ml-3 lg:text-xl lg:font-serif ",
                 fontSerif.className
               )}
             >
@@ -46,7 +46,7 @@ export default function App() {
           </Link>
         </NavbarBrand>
       </NavbarContent>
-      <NavbarMenu className="bg-background-dark backdrop-blur-md bg-opacity-50">
+      <NavbarMenu className=" bg-background backdrop-blur-md bg-opacity-50">
         {menuItems.map(({ itemName, itemPath }, index) => (
           <NavbarMenuItem key={`${itemName}-${index}`}>
             <Link
@@ -54,7 +54,7 @@ export default function App() {
                 "w-full",
                 index === menuItems.length - 1
                   ? "text-danger-500"
-                  : "text-foreground-dark"
+                  : "text-foreground"
               )}
               href={itemPath}
               size="lg"

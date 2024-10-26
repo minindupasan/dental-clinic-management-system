@@ -27,9 +27,9 @@ export default function DentalTreatments() {
     treatments.find((treatment) => treatment.key === selected) || treatments[0];
 
   return (
-    <Card className="w-full mx-auto bg-white shadow-md rounded-3xl">
+    <Card className="w-full mx-auto">
       <CardHeader className="flex flex-col items-start pb-0 pt-6 px-6">
-        <h2 className="text-2xl font-bold text-gray-800">Ongoing treatments</h2>
+        <h2 className="text-2xl font-bold">Ongoing treatments</h2>
       </CardHeader>
       <CardBody className="px-6 py-4">
         <div className="space-y-6">
@@ -43,7 +43,7 @@ export default function DentalTreatments() {
               setSelected(Array.from(keys)[0] as string)
             }
             radius="full"
-            selectorIcon={<ChevronDown className="text-gray-400" />}
+            selectorIcon={<ChevronDown />}
           >
             {treatments.map((treatment) => (
               <SelectItem key={treatment.key} value={treatment.key}>
@@ -55,16 +55,12 @@ export default function DentalTreatments() {
           {/* Treatment summary */}
           <div className="flex justify-between items-start">
             <div className="space-y-1">
-              <p className="text-4xl font-bold text-gray-800">
-                {selectedTreatment.ongoing}
-              </p>
-              <p className="text-lg text-gray-600">Ongoing treatments</p>
+              <p className="text-4xl font-bold ">{selectedTreatment.ongoing}</p>
+              <p className="text-lg text-default-400">Ongoing treatments</p>
             </div>
             <div className="space-y-1">
-              <p className="text-4xl font-bold text-gray-800">
-                {selectedTreatment.pending}
-              </p>
-              <p className="text-lg text-gray-600">Pending treatments</p>
+              <p className="text-4xl font-bold ">{selectedTreatment.pending}</p>
+              <p className="text-lg text-default-400">Pending treatments</p>
             </div>
           </div>
         </div>

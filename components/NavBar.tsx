@@ -13,6 +13,7 @@ import NavBarTabs from "./NavBarTabs";
 import MenuBar from "./MenuBar";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { SunIcon, MoonIcon } from "lucide-react";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -27,10 +28,6 @@ export default function NavBar() {
     console.log(`Tab clicked: ${path}`);
   };
 
-  const handleThemeChange = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
-
   if (!mounted) return null;
 
   return (
@@ -42,45 +39,35 @@ export default function NavBar() {
         <NavBarTabs onTabClick={handleTabClick} currentPath={pathname} />
       </NavbarContent>
       <NavbarContent className="justify-end">
-        {/* Hidden on medium and larger screens, visible only on small screens */}
-        <div className="md:hidden flex items-center space-x-2">
-          <Button
-            radius="full"
-            as={Link}
-            href="/Login"
-            variant="bordered"
-            size="sm" // Small size for mobile
-          >
-            Login
-          </Button>
-          <Button
-            radius="full"
-            as={Link}
-            href="/SignUp"
-            variant="solid"
-            size="sm" // Small size for mobile
-          >
-            Sign Up
-          </Button>
-        </div>
+        <Button
+          color="primary"
+          isIconOnly
+          variant="ghost"
+          aria-label="Toggle theme"
+          className="mr-2"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+        </Button>
 
-        {/* Visible only on medium and larger screens */}
         <div className="hidden md:flex items-center space-x-4">
           <Button
+            color="primary"
             radius="full"
             as={Link}
             href="/Login"
-            variant="bordered"
-            size="lg"
+            variant="ghost"
+            size="md"
           >
             Login
           </Button>
           <Button
+            color="primary"
             radius="full"
             as={Link}
             href="/SignUp"
             variant="solid"
-            size="lg"
+            size="md"
           >
             Sign Up
           </Button>

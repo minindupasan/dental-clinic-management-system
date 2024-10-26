@@ -149,7 +149,8 @@ export default function NewAppointmentButton({
   return (
     <>
       <Button
-        className="bg-primary-200 text-primary-600"
+        color="primary"
+        variant="ghost"
         onClick={onOpen}
         radius="full"
         startContent={<CalendarPlus className="w-4 h-4" />}
@@ -210,7 +211,7 @@ export default function NewAppointmentButton({
               </ModalBody>
               <ModalFooter>
                 <Button
-                  variant="light"
+                  variant="ghost"
                   radius="full"
                   color="danger"
                   onClick={onClose}
@@ -218,9 +219,9 @@ export default function NewAppointmentButton({
                   Cancel
                 </Button>
                 <Button
-                  variant="light"
+                  variant="ghost"
                   radius="full"
-                  className="text-success-600"
+                  color="success"
                   type="submit"
                 >
                   Add
