@@ -13,7 +13,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { AtSign, CirclePlus, Phone } from "lucide-react";
+import { CirclePlus } from "lucide-react";
 import toast from "react-hot-toast";
 
 const API_URL = process.env.API_URL;
