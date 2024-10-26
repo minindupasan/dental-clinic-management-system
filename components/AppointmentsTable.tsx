@@ -37,6 +37,8 @@ import {
 import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryViewModal from "./MedicalHistoryViewModal";
 
+const API_URL = process.env.API_URL;
+
 type Patient = {
   patientID: number;
   firstName: string;
@@ -58,8 +60,6 @@ type Appointment = {
   reason: string;
   status: string;
 };
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 const columns = [
   { key: "appointmentID", label: "ID" },
@@ -233,7 +233,7 @@ export default function AppointmentManager() {
 
     try {
       const response = await fetch(
-        `https://dent-care-plus-springboot.onrender.com/api/appointments/update/${currentAppointment.appointmentID}`,
+        `${API_URL}/api/appointments/update/${currentAppointment}.appointmentID}`,
         {
           method: "PUT",
           headers: {

@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryModal from "./MedicalHistoryModal";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.API_URL;
 
 type Patient = {
   patientID: number;
@@ -44,6 +44,7 @@ export default function TodayAppointmentsCard() {
 
   const fetchAppointments = async () => {
     try {
+      const response = await fetch(`${API_URL}/api/appointments`);
       const response = await fetch(`${API_URL}/api/appointments`);
       if (!response.ok) {
         throw new Error("Failed to fetch appointments");

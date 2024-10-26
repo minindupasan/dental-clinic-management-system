@@ -16,6 +16,8 @@ import {
 import { AtSign, CirclePlus, Phone } from "lucide-react";
 import toast from "react-hot-toast";
 
+const API_URL = process.env.API_URL;
+
 type Patient = {
   patientID: number;
   firstName: string;
@@ -80,16 +82,13 @@ export default function AddPatientButton({
         ...newPatient,
         createdDate: new Date().toISOString().split("T")[0],
       };
-      const response = await fetch(
-        "https://dent-care-plus-springboot.onrender.com/api/patients/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(patientWithDate),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/patients/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(patientWithDate),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -126,8 +125,10 @@ export default function AddPatientButton({
       <Button
         color="primary"
         variant="ghost"
+        variant="ghost"
         onPress={onOpen}
         radius="full"
+        startContent={<CirclePlus size={16} />}
         startContent={<CirclePlus size={16} />}
       >
         Add New Patient
