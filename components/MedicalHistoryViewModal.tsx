@@ -14,7 +14,7 @@ import {
 import { HeartPulse } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.API_URL;
 
 type Patient = {
   patientID: number;

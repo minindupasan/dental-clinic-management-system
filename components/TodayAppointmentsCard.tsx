@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryModal from "./MedicalHistoryModal";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.API_URL;
 
 type Patient = {
   patientID: number;
