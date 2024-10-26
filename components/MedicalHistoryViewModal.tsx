@@ -14,6 +14,8 @@ import {
 import { HeartPulse } from "lucide-react";
 import { toast } from "react-hot-toast";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 type Patient = {
   patientID: number;
   firstName: string;
@@ -71,7 +73,7 @@ export default function MedicalHistoryViewModal({
     setError(null);
     try {
       const response = await fetch(
-        `http://localhost:8080/api/medical-records/${patientId}`
+        `${API_URL}/api/medical-records/${patientId}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

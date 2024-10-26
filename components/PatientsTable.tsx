@@ -40,6 +40,8 @@ import {
 import MedicalHistoryModal from "./MedicalHistoryModal";
 import AddPatientButton from "./NewPatientButton";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 type Patient = {
   patientID: string;
   firstName: string;
@@ -99,7 +101,7 @@ export default function PatientTable() {
     try {
       setIsRefreshing(true);
       setLoading(true);
-      const response = await fetch("http://localhost:8080/api/patients");
+      const response = await fetch(`${API_URL}/api/patients`);
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
       }
@@ -217,7 +219,7 @@ export default function PatientTable() {
   const confirmDelete = async (patientID: string, toastId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/patients/delete/${patientID}`,
+        `${API_URL}/api/patients/delete/${patientID}`,
         {
           method: "DELETE",
         }
@@ -238,7 +240,7 @@ export default function PatientTable() {
     e.preventDefault();
     try {
       const response = await fetch(
-        `http://localhost:8080/api/patients/update/${currentPatient.patientID}`,
+        `${API_URL}/api/patients/update/${currentPatient.patientID}`,
         {
           method: "PUT",
           headers: {

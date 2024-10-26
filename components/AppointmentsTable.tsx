@@ -59,6 +59,8 @@ type Appointment = {
   status: string;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 const columns = [
   { key: "appointmentID", label: "ID" },
   { key: "patientName", label: "PATIENT NAME" },
@@ -93,7 +95,7 @@ export default function AppointmentManager() {
     try {
       setIsRefreshing(true);
       setLoading(true);
-      const response = await fetch("http://localhost:8080/api/appointments");
+      const response = await fetch(`${API_URL}/api/appointments`);
       if (!response.ok) {
         throw new Error("Failed to fetch appointments");
       }
@@ -206,7 +208,7 @@ export default function AppointmentManager() {
   const confirmDelete = async (appointmentID: number, toastId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/appointments/delete/${appointmentID}`,
+        `https://dent-care-plus-springboot.onrender.com/api/appointments/delete/${appointmentID}`,
         {
           method: "DELETE",
         }
@@ -231,7 +233,7 @@ export default function AppointmentManager() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/appointments/update/${currentAppointment.appointmentID}`,
+        `https://dent-care-plus-springboot.onrender.com/api/appointments/update/${currentAppointment.appointmentID}`,
         {
           method: "PUT",
           headers: {
@@ -296,7 +298,7 @@ export default function AppointmentManager() {
       const updatedAppointment = { ...appointmentToUpdate, status: newStatus };
 
       const response = await fetch(
-        `http://localhost:8080/api/appointments/update/${appointmentID}`,
+        `https://dent-care-plus-springboot.onrender.com/api/appointments/update/${appointmentID}`,
         {
           method: "PUT",
           headers: {
