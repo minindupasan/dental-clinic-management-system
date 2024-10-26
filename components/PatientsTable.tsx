@@ -10,15 +10,8 @@ import {
   TableCell,
   Spinner,
   Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   useDisclosure,
   Input,
-  Select,
-  SelectItem,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
@@ -35,7 +28,6 @@ import {
   Search,
   Filter,
   RefreshCw,
-  FileText,
 } from "lucide-react";
 import MedicalHistoryModal from "./MedicalHistoryModal";
 import AddPatientButton from "./NewPatientButton";
@@ -63,12 +55,6 @@ const columns = [
   { key: "dob", label: "DATE OF BIRTH" },
   { key: "createdDate", label: "CREATED DATE" },
   { key: "actions", label: "ACTIONS" },
-];
-
-const genderOptions = [
-  { label: "Male", value: "Male" },
-  { label: "Female", value: "Female" },
-  { label: "Other", value: "Other" },
 ];
 
 const initialPatientState: Patient = {
@@ -169,15 +155,6 @@ export default function PatientTable() {
 
     return filtered;
   }, [patients, filterValue, viewMode, sortConfig]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCurrentPatient((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCurrentPatient((prev) => ({ ...prev, gender: e.target.value }));
-  };
 
   const handleEdit = (patient: Patient) => {
     setCurrentPatient({
