@@ -45,6 +45,8 @@ import {
 import MedicalHistoryModal from "./MedicalHistoryModal";
 import AddPatientButton from "./NewPatientButton";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 type Patient = {
   patientID: string;
   firstName: string;
