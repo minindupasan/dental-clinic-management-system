@@ -233,11 +233,7 @@ export default function AppointmentManager() {
 
     try {
       const response = await fetch(
-<<<<<<< HEAD
-        `https://dent-care-plus-springboot.onrender.com/api/appointments/update/${currentAppointment.appointmentID}`,
-=======
         `${API_URL}/api/appointments/update/${currentAppointment}.appointmentID}`,
->>>>>>> a29effc (Refactor API URLs to use environment variable)
         {
           method: "PUT",
           headers: {
