@@ -80,7 +80,7 @@ export default function MedicalHistoryModal({
     setError(null);
     try {
       const response = await fetch(
-        `http://localhost:8080/api/medical-records/${patientId}`
+        `https://dent-care-plus-springboot.onrender.com/api/medical-records/${patientId}`
       );
       if (!response.ok) {
         if (response.status === 404) {
@@ -129,7 +129,7 @@ export default function MedicalHistoryModal({
       };
 
       const response = await fetch(
-        "http://localhost:8080/api/medical-records/create",
+        "https://dent-care-plus-springboot.onrender.com/api/medical-records/create",
         {
           method: "POST",
           headers: {
@@ -182,7 +182,7 @@ export default function MedicalHistoryModal({
     setSuccessMessage(null);
     try {
       const response = await fetch(
-        `http://localhost:8080/api/medical-records/update/${medicalHistory.recordID}`,
+        `https://dent-care-plus-springboot.onrender.com/api/medical-records/update/${medicalHistory.recordID}`,
         {
           method: "PUT",
           headers: {
