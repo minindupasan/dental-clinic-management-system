@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Table,
   TableHeader,
@@ -26,10 +25,7 @@ import {
   DropdownItem,
   CardHeader,
   Card,
-  CardHeader,
-  Card,
 } from "@nextui-org/react";
-import { toast, Toaster } from "react-hot-toast";
 import { toast, Toaster } from "react-hot-toast";
 import {
   Pencil,
@@ -39,7 +35,6 @@ import {
   Search,
   Filter,
   RefreshCw,
-  FileText,
   FileText,
 } from "lucide-react";
 import MedicalHistoryModal from "./MedicalHistoryModal";
@@ -93,7 +88,6 @@ export default function PatientTable() {
   const [currentPatient, setCurrentPatient] =
     useState<Patient>(initialPatientState);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending" | "none";
@@ -103,7 +97,6 @@ export default function PatientTable() {
   const [viewMode, setViewMode] = useState<"all" | "recent" | "older">("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchPatients = useCallback(async () => {
   const fetchPatients = useCallback(async () => {
     try {
       setIsRefreshing(true);
@@ -121,11 +114,9 @@ export default function PatientTable() {
       setIsRefreshing(false);
     }
   }, []);
-  }, []);
 
   useEffect(() => {
     fetchPatients();
-  }, [fetchPatients]);
   }, [fetchPatients]);
 
   const filteredPatients = useMemo(() => {
@@ -193,7 +184,6 @@ export default function PatientTable() {
       ...patient,
       dob: patient.dob.split("T")[0],
     });
-    onOpen();
     onOpen();
   };
 
@@ -267,7 +257,6 @@ export default function PatientTable() {
       toast.success("Patient updated successfully");
       fetchPatients();
       onClose();
-      onClose();
       setCurrentPatient(initialPatientState);
     } catch (err) {
       toast.error("An error occurred while updating the patient");
@@ -304,154 +293,8 @@ export default function PatientTable() {
   const handlePatientAdded = () => {
     fetchPatients();
   };
-  const handlePatientAdded = () => {
-    fetchPatients();
-  };
 
   return (
-    <Card className="w-full">
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Spinner label="Loading patient data..." color="primary" />
-        </div>
-      ) : (
-        <>
-          <Toaster position="top-right" />
-          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h1 className="text-2xl font-bold">Patients</h1>
-              <AddPatientButton onPatientAdded={handlePatientAdded} />
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Dropdown>
-                <DropdownTrigger className="w-full sm:w-[200px]">
-                  <Button
-                    color="primary"
-                    variant="ghost"
-                    radius="full"
-                    startContent={<Filter className="h-4 w-4" />}
-                    endContent={<ChevronDown className="h-4 w-4" />}
-                    className="flex justify-between"
-                  >
-                    {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
-                    Patients
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="View options"
-                  onAction={(key) => setViewMode(key as any)}
-                  className="w-[200px]"
-                >
-                  <DropdownItem key="all">All Patients</DropdownItem>
-                  <DropdownItem key="recent">
-                    Recent Patients (30 days)
-                  </DropdownItem>
-                  <DropdownItem key="older">Older Patients</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-              <Input
-                placeholder="Search patients..."
-                value={filterValue}
-                onChange={(e) => setFilterValue(e.target.value)}
-                radius="full"
-                startContent={<Search className="h-4 w-4" />}
-                className="w-full sm:w-[300px]"
-              />
-              <Button
-                isIconOnly
-                color="primary"
-                variant="ghost"
-                aria-label="Refresh"
-                onClick={fetchPatients}
-                isLoading={isRefreshing}
-              >
-                {isRefreshing ? (
-                  <Spinner size="sm" color="current" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </CardHeader>
-
-          <Table aria-label="Patient data table">
-            <TableHeader>
-              {columns.map((column) => (
-                <TableColumn
-                  key={column.key}
-                  onClick={() =>
-                    column.key !== "actions" &&
-                    column.key !== "medicalRecords" &&
-                    handleSort(column.key)
-                  }
-                  style={{
-                    cursor:
-                      column.key !== "actions" &&
-                      column.key !== "medicalRecords"
-                        ? "pointer"
-                        : "default",
-                    textAlign: "center",
-                  }}
-                >
-                  {column.label}
-                  {renderSortIcon(column.key)}
-                </TableColumn>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {filteredPatients.map((patient) => (
-                <TableRow key={patient.patientID}>
-                  {columns.map((column) => (
-                    <TableCell
-                      key={`${patient.patientID}-${column.key}`}
-                      className="text-center"
-                    >
-                      {column.key === "fullName" ? (
-                        `${patient.firstName} ${patient.lastName}`
-                      ) : column.key === "dob" ||
-                        column.key === "createdDate" ? (
-                        new Date(
-                          patient[column.key as keyof Patient]
-                        ).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })
-                      ) : column.key === "medicalRecords" ? (
-                        <MedicalHistoryModal patientId={patient.patientID} />
-                      ) : column.key === "actions" ? (
-                        <div className="flex justify-center space-x-2">
-                          <Button
-                            isIconOnly
-                            color="warning"
-                            variant="light"
-                            aria-label="Edit"
-                            onClick={() => handleEdit(patient)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            isIconOnly
-                            color="danger"
-                            variant="light"
-                            aria-label="Delete"
-                            onClick={() => handleDelete(patient.patientID)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        patient[column.key as keyof Patient]
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </>
-      )}
-    </Card>
     <Card className="w-full">
       {loading ? (
         <div className="flex justify-center items-center h-64">
