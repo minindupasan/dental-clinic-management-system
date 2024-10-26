@@ -74,6 +74,7 @@ export default function MedicalHistoryViewModal({
     try {
       const response = await fetch(
         `${API_URL}/api/medical-records/${patientId}`
+        `${API_URL}/api/medical-records/${patientId}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
