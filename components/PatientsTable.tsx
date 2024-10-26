@@ -40,11 +40,7 @@ import {
 import MedicalHistoryModal from "./MedicalHistoryModal";
 import AddPatientButton from "./NewPatientButton";
 
-<<<<<<< HEAD
 const API_URL = process.env.API_URL;
-=======
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
->>>>>>> origin/main
 
 type Patient = {
   patientID: string;
