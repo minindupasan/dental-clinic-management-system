@@ -18,6 +18,8 @@ import { RefreshCw, List } from "lucide-react";
 import toast from "react-hot-toast";
 import AddPatientButton from "./NewPatientButton";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 type Patient = {
   patientID: string;
   firstName: string;
@@ -49,8 +51,8 @@ export default function PatientTableCard() {
     try {
       const url =
         mode === "all"
-          ? "http://localhost:8080/api/patients"
-          : "http://localhost:8080/api/patients/filtered";
+          ? `${API_URL}/api/patients`
+          : `${API_URL}/api/patients/filtered`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to fetch patients");

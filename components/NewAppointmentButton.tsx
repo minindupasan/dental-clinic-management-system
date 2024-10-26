@@ -16,6 +16,8 @@ import {
 import { CalendarPlus } from "lucide-react";
 import { toast } from "react-hot-toast";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 type Appointment = {
   appointmentID: string;
   formattedAppointmentID: string;
@@ -56,7 +58,7 @@ export default function NewAppointmentButton({
 
   const fetchPatients = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/patients");
+      const response = await fetch(`${API_URL}/api/patients`);
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
       }
@@ -103,7 +105,7 @@ export default function NewAppointmentButton({
     const toastId = toast.loading("Adding new appointment...");
     try {
       const response = await fetch(
-        `http://localhost:8080/api/appointments/create/${newAppointment.patientID}`,
+        `${API_URL}/api/appointments/create/${newAppointment.patientID}`,
         {
           method: "POST",
           headers: {

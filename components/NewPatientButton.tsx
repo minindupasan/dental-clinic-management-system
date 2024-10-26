@@ -23,7 +23,6 @@ type Patient = {
   email: string;
   contactNo: string;
   gender: string;
-  medicalRecords: string;
   dob: string;
   createdDate: string;
 };
@@ -48,7 +47,6 @@ export default function AddPatientButton({
     email: "",
     gender: "",
     contactNo: "",
-    medicalRecords: "",
     dob: "",
   });
 
@@ -83,7 +81,7 @@ export default function AddPatientButton({
         createdDate: new Date().toISOString().split("T")[0],
       };
       const response = await fetch(
-        "http://localhost:8080/api/patients/create",
+        "https://dent-care-plus-springboot.onrender.com/api/patients/create",
         {
           method: "POST",
           headers: {
@@ -108,7 +106,6 @@ export default function AddPatientButton({
         email: "",
         contactNo: "",
         gender: "",
-        medicalRecords: "",
         dob: "",
       });
       onClose();
@@ -128,9 +125,10 @@ export default function AddPatientButton({
     <>
       <Button
         color="primary"
+        variant="ghost"
         onPress={onOpen}
         radius="full"
-        startContent={<CirclePlus className="h-4 w-4" />}
+        startContent={<CirclePlus size={16} />}
       >
         Add New Patient
       </Button>
@@ -190,12 +188,6 @@ export default function AddPatientButton({
                     </SelectItem>
                   ))}
                 </Select>
-                <Input
-                  label="Medical Records"
-                  name="medicalRecords"
-                  value={newPatient.medicalRecords}
-                  onChange={handleInputChange}
-                />
                 <Input
                   label="Date of Birth"
                   name="dob"
