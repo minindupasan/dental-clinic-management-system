@@ -18,6 +18,8 @@ import {
 } from "@nextui-org/react";
 import { HeartPulse } from "lucide-react";
 
+const API_URL = process.env.API_URL;
+
 type Patient = {
   patientID: number;
   firstName: string;
@@ -80,7 +82,7 @@ export default function MedicalHistoryModal({
     setError(null);
     try {
       const response = await fetch(
-        `https://dent-care-plus-springboot.onrender.com/api/medical-records/${patientId}`
+        `${API_URL}/api/medical-records/${patientId}`
       );
       if (!response.ok) {
         if (response.status === 404) {
@@ -128,16 +130,13 @@ export default function MedicalHistoryModal({
         emergencyContactNumber: "",
       };
 
-      const response = await fetch(
-        "https://dent-care-plus-springboot.onrender.com/api/medical-records/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newMedicalHistory),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/medical-records/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newMedicalHistory),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to create new medical history");
@@ -182,7 +181,7 @@ export default function MedicalHistoryModal({
     setSuccessMessage(null);
     try {
       const response = await fetch(
-        `https://dent-care-plus-springboot.onrender.com/api/medical-records/update/${medicalHistory.recordID}`,
+        `${API_URL}/api/medical-records/update/${medicalHistory.recordID}`,
         {
           method: "PUT",
           headers: {

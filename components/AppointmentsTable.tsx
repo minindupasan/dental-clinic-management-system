@@ -37,6 +37,8 @@ import {
 import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryViewModal from "./MedicalHistoryViewModal";
 
+const API_URL = process.env.API_URL;
+
 type Patient = {
   patientID: number;
   firstName: string;
@@ -59,7 +61,6 @@ type Appointment = {
   status: string;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 const columns = [
   { key: "appointmentID", label: "ID" },
