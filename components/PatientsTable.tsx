@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Table,
   TableHeader,
@@ -23,19 +23,22 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  CardHeader,
+  Card,
 } from "@nextui-org/react";
-import { toast } from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 import {
   Pencil,
   Trash2,
-  AtSign,
-  Phone,
   ChevronDown,
   ChevronUp,
   Search,
   Filter,
   RefreshCw,
+  FileText,
 } from "lucide-react";
+import MedicalHistoryModal from "./MedicalHistoryModal";
+import AddPatientButton from "./NewPatientButton";
 
 type Patient = {
   patientID: string;
@@ -44,7 +47,6 @@ type Patient = {
   email: string;
   contactNo: string;
   gender: string;
-  medicalRecords: string;
   dob: string;
   createdDate: string;
 };
@@ -74,7 +76,6 @@ const initialPatientState: Patient = {
   email: "",
   contactNo: "",
   gender: "",
-  medicalRecords: "",
   dob: "",
   createdDate: "",
 };
@@ -84,16 +85,7 @@ export default function PatientTable() {
   const [loading, setLoading] = useState(true);
   const [currentPatient, setCurrentPatient] =
     useState<Patient>(initialPatientState);
-  const {
-    isOpen: isAddOpen,
-    onOpen: onAddOpen,
-    onClose: onAddClose,
-  } = useDisclosure();
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending" | "none";
@@ -103,7 +95,7 @@ export default function PatientTable() {
   const [viewMode, setViewMode] = useState<"all" | "recent" | "older">("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchPatients = async () => {
+  const fetchPatients = useCallback(async () => {
     try {
       setIsRefreshing(true);
       setLoading(true);
@@ -119,11 +111,11 @@ export default function PatientTable() {
       setLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchPatients();
-  }, []);
+  }, [fetchPatients]);
 
   const filteredPatients = useMemo(() => {
     let filtered = [...patients];
@@ -190,7 +182,7 @@ export default function PatientTable() {
       ...patient,
       dob: patient.dob.split("T")[0],
     });
-    onEditOpen();
+    onOpen();
   };
 
   const handleDelete = (patientID: string) => {
@@ -262,7 +254,7 @@ export default function PatientTable() {
 
       toast.success("Patient updated successfully");
       fetchPatients();
-      onEditClose();
+      onClose();
       setCurrentPatient(initialPatientState);
     } catch (err) {
       toast.error("An error occurred while updating the patient");
@@ -296,233 +288,153 @@ export default function PatientTable() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64 text-foreground-light">
-        <Spinner label="Loading patient data..." />
-      </div>
-    );
-  }
+  const handlePatientAdded = () => {
+    fetchPatients();
+  };
 
   return (
-    <>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
-          <div className="flex items-center space-x-4">
-            <Dropdown>
-              <DropdownTrigger className="w-[200px]">
-                <Button
-                  radius="full"
-                  startContent={<Filter className="h-4 w-4" />}
-                  endContent={<ChevronDown className="h-4 w-4" />}
-                  className="px-5 py-1 text-sm bg-white border w-[200px] flex justify-between items-center"
-                  aria-label="Filter patients"
-                >
-                  {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
-                  Patients
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                aria-label="View options"
-                onAction={(key) => setViewMode(key as any)}
-                className="w-[200px] text-foreground-light"
-              >
-                <DropdownItem key="all">All Patients</DropdownItem>
-                <DropdownItem key="recent">
-                  Recent Patients (30 days)
-                </DropdownItem>
-                <DropdownItem key="older">Older Patients</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-            <Input
-              placeholder="Search patients..."
-              value={filterValue}
-              onChange={(e) => setFilterValue(e.target.value)}
-              radius="full"
-              startContent={<Search className="h-4 w-4" />}
-              className="w-[300px]"
-            />
-          </div>
-          <Button
-            isIconOnly
-            className="bg-primary-200 text-primary-600"
-            aria-label="Refresh"
-            onClick={fetchPatients}
-            isLoading={isRefreshing}
-          >
-            {isRefreshing ? (
-              <Spinner size="sm" color="current" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-          </Button>
+    <Card className="w-full">
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Spinner label="Loading patient data..." color="primary" />
         </div>
-      </div>
-      <Table aria-label="Patient data table">
-        <TableHeader>
-          {columns.map((column) => (
-            <TableColumn
-              className="text-center"
-              key={column.key}
-              onClick={() => column.key !== "actions" && handleSort(column.key)}
-              style={{
-                cursor: column.key !== "actions" ? "pointer" : "default",
-              }}
-            >
-              {column.label}
-              {renderSortIcon(column.key)}
-            </TableColumn>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {filteredPatients.map((patient) => (
-            <TableRow key={patient.patientID}>
+      ) : (
+        <>
+          <Toaster position="top-right" />
+          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h1 className="text-2xl font-bold">Patients</h1>
+              <AddPatientButton onPatientAdded={handlePatientAdded} />
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Dropdown>
+                <DropdownTrigger className="w-full sm:w-[200px]">
+                  <Button
+                    color="primary"
+                    variant="ghost"
+                    radius="full"
+                    startContent={<Filter className="h-4 w-4" />}
+                    endContent={<ChevronDown className="h-4 w-4" />}
+                    className="flex justify-between"
+                  >
+                    {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
+                    Patients
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  aria-label="View options"
+                  onAction={(key) => setViewMode(key as any)}
+                  className="w-[200px]"
+                >
+                  <DropdownItem key="all">All Patients</DropdownItem>
+                  <DropdownItem key="recent">
+                    Recent Patients (30 days)
+                  </DropdownItem>
+                  <DropdownItem key="older">Older Patients</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+              <Input
+                placeholder="Search patients..."
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+                radius="full"
+                startContent={<Search className="h-4 w-4" />}
+                className="w-full sm:w-[300px]"
+              />
+              <Button
+                isIconOnly
+                color="primary"
+                variant="ghost"
+                aria-label="Refresh"
+                onClick={fetchPatients}
+                isLoading={isRefreshing}
+              >
+                {isRefreshing ? (
+                  <Spinner size="sm" color="current" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </CardHeader>
+
+          <Table aria-label="Patient data table">
+            <TableHeader>
               {columns.map((column) => (
-                <TableCell
-                  key={`${patient.patientID}-${column.key}`}
-                  className="text-center"
+                <TableColumn
+                  key={column.key}
+                  onClick={() =>
+                    column.key !== "actions" &&
+                    column.key !== "medicalRecords" &&
+                    handleSort(column.key)
+                  }
+                  style={{
+                    cursor:
+                      column.key !== "actions" &&
+                      column.key !== "medicalRecords"
+                        ? "pointer"
+                        : "default",
+                    textAlign: "center",
+                  }}
                 >
-                  {column.key === "fullName" ? (
-                    `${patient.firstName} ${patient.lastName}`
-                  ) : column.key === "dob" || column.key === "createdDate" ? (
-                    new Date(
-                      patient[column.key as keyof Patient]
-                    ).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
-                  ) : column.key === "actions" ? (
-                    <div className="flex justify-center space-x-2">
-                      <Button
-                        isIconOnly
-                        className="text-warning-500 bg-warning-100"
-                        variant="light"
-                        aria-label="Edit"
-                        onClick={() => handleEdit(patient)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        className="text-danger-500 bg-danger-100"
-                        variant="light"
-                        aria-label="Delete"
-                        onClick={() => handleDelete(patient.patientID)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    patient[column.key as keyof Patient]
-                  )}
-                </TableCell>
+                  {column.label}
+                  {renderSortIcon(column.key)}
+                </TableColumn>
               ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Modal
-        isOpen={isEditOpen}
-        onClose={() => {
-          onEditClose();
-          setCurrentPatient(initialPatientState);
-        }}
-        size="lg"
-        hideCloseButton
-      >
-        <ModalContent>
-          {(onClose) => (
-            <form onSubmit={handleUpdatePatient}>
-              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
-                Edit Patient
-              </ModalHeader>
-              <ModalBody>
-                <Input
-                  label="First Name"
-                  name="firstName"
-                  value={currentPatient.firstName}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Last Name"
-                  name="lastName"
-                  value={currentPatient.lastName}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={currentPatient.email}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Contact No"
-                  name="contactNo"
-                  type="tel"
-                  value={currentPatient.contactNo}
-                  onChange={handleInputChange}
-                  required
-                  pattern="[0-9]{10}"
-                />
-                <Select
-                  label="Gender"
-                  placeholder="Select gender"
-                  selectedKeys={[currentPatient.gender]}
-                  onChange={handleGenderChange}
-                  required
-                >
-                  {genderOptions.map((option) => (
-                    <SelectItem
-                      className="text-foreground-light"
-                      key={option.value}
-                      value={option.value}
+            </TableHeader>
+            <TableBody>
+              {filteredPatients.map((patient) => (
+                <TableRow key={patient.patientID}>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={`${patient.patientID}-${column.key}`}
+                      className="text-center"
                     >
-                      {option.label}
-                    </SelectItem>
+                      {column.key === "fullName" ? (
+                        `${patient.firstName} ${patient.lastName}`
+                      ) : column.key === "dob" ||
+                        column.key === "createdDate" ? (
+                        new Date(
+                          patient[column.key as keyof Patient]
+                        ).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })
+                      ) : column.key === "medicalRecords" ? (
+                        <MedicalHistoryModal patientId={patient.patientID} />
+                      ) : column.key === "actions" ? (
+                        <div className="flex justify-center space-x-2">
+                          <Button
+                            isIconOnly
+                            color="warning"
+                            variant="light"
+                            aria-label="Edit"
+                            onClick={() => handleEdit(patient)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            isIconOnly
+                            color="danger"
+                            variant="light"
+                            aria-label="Delete"
+                            onClick={() => handleDelete(patient.patientID)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        patient[column.key as keyof Patient]
+                      )}
+                    </TableCell>
                   ))}
-                </Select>
-                <Input
-                  label="Medical Records"
-                  name="medicalRecords"
-                  value={currentPatient.medicalRecords}
-                  onChange={handleInputChange}
-                />
-                <Input
-                  label="Date of Birth"
-                  name="dob"
-                  type="date"
-                  value={currentPatient.dob}
-                  onChange={handleInputChange}
-                  required
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  radius="full"
-                  className="text-danger-500 bg-danger-100"
-                  variant="light"
-                  onPress={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  radius="full"
-                  variant="light"
-                  type="submit"
-                  className="text-success-600 bg-success-100"
-                >
-                  Update
-                </Button>
-              </ModalFooter>
-            </form>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
+    </Card>
   );
 }
