@@ -18,8 +18,6 @@ import {
 } from "@nextui-org/react";
 import { HeartPulse } from "lucide-react";
 
-const API_URL = process.env.API_URL;
-
 type Patient = {
   patientID: number;
   firstName: string;
@@ -81,74 +79,21 @@ export default function MedicalHistoryModal({
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `${API_URL}/api/medical-records/${patientId}`
-      );
+      const response = await fetch("http://localhost:8080/api/medical-records");
       if (!response.ok) {
-        if (response.status === 404) {
-          // If no record is found, create a new one
-          await createNewMedicalHistory();
-        } else {
-          throw new Error("Failed to fetch medical history");
-        }
+        throw new Error("Failed to fetch medical history");
+      }
+      const data = await response.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setMedicalHistory(data[0]);
       } else {
-        const data = await response.json();
-        setMedicalHistory(data);
+        throw new Error("No medical history found");
       }
     } catch (err) {
       setError("An error occurred while fetching data. Please try again.");
       console.error("Error fetching data:", err);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const createNewMedicalHistory = async () => {
-    try {
-      const newMedicalHistory: Partial<MedicalHistory> = {
-        patient: { patientID: parseInt(patientId) } as Patient,
-        bloodType: "O+",
-        diabetes: false,
-        hypertension: false,
-        heartDisease: false,
-        bleedingDisorders: false,
-        osteoporosis: false,
-        arthritis: false,
-        asthma: false,
-        epilepsy: false,
-        hivAids: false,
-        hepatitis: false,
-        thyroidDisorder: false,
-        pregnancy: null,
-        surgeries: "",
-        currentMedications: "",
-        drugAllergies: "",
-        allergies: "",
-        medications: "",
-        medicalConditions: "",
-        emergencyContactName: "",
-        emergencyContactNumber: "",
-      };
-
-      const response = await fetch(`${API_URL}/api/medical-records/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newMedicalHistory),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create new medical history");
-      }
-
-      const createdMedicalHistory = await response.json();
-      setMedicalHistory(createdMedicalHistory);
-    } catch (err) {
-      setError(
-        "An error occurred while creating a new medical history. Please try again."
-      );
-      console.error("Error creating new medical history:", err);
     }
   };
 
@@ -181,7 +126,7 @@ export default function MedicalHistoryModal({
     setSuccessMessage(null);
     try {
       const response = await fetch(
-        `${API_URL}/api/medical-records/update/${medicalHistory.recordID}`,
+        `http://localhost:8080/api/medical-records/update/${medicalHistory.recordID}`,
         {
           method: "PUT",
           headers: {
@@ -215,14 +160,12 @@ export default function MedicalHistoryModal({
   return (
     <>
       <Button
-        radius="full"
         variant="flat"
+        color="secondary"
         onPress={onOpen}
-        color="primary"
         startContent={<HeartPulse size={16} />}
-      >
-        Medical History
-      </Button>
+        isIconOnly
+      />
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}

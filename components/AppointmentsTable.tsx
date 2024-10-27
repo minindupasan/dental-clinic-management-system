@@ -21,10 +21,8 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  CardHeader,
-  Card,
 } from "@nextui-org/react";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import {
   Pencil,
   Trash2,
@@ -33,11 +31,12 @@ import {
   Search,
   Filter,
   RefreshCw,
+  FileText,
 } from "lucide-react";
 import NewAppointmentButton from "./NewAppointmentButton";
-import MedicalHistoryViewModal from "./MedicalHistoryViewModal";
+import MedicalHistoryViewModal from "./ViewMedicalHistory";
 
-const API_URL = process.env.API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Patient = {
   patientID: number;
@@ -92,19 +91,19 @@ export default function AppointmentManager() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchAppointments = useCallback(async () => {
+    setIsRefreshing(true);
     try {
-      setIsRefreshing(true);
-      setLoading(true);
-      const response = await fetch(`${API_URL}/api/appointments`);
+      const response = await fetch(`${API_BASE_URL}/api/appointments`);
       if (!response.ok) {
         throw new Error("Failed to fetch appointments");
       }
       const data = await response.json();
       setAppointments(data);
+      setLoading(false);
     } catch (err) {
       toast.error("An error occurred while fetching appointment data.");
-    } finally {
       setLoading(false);
+    } finally {
       setIsRefreshing(false);
     }
   }, []);
@@ -208,7 +207,7 @@ export default function AppointmentManager() {
   const confirmDelete = async (appointmentID: number, toastId: string) => {
     try {
       const response = await fetch(
-        `https://dent-care-plus-springboot.onrender.com/api/appointments/delete/${appointmentID}`,
+        `${API_BASE_URL}/api/appointments/delete/${appointmentID}`,
         {
           method: "DELETE",
         }
@@ -233,7 +232,7 @@ export default function AppointmentManager() {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/appointments/update/${currentAppointment}.appointmentID}`,
+        `${API_BASE_URL}/api/appointments/update/${currentAppointment.appointmentID}`,
         {
           method: "PUT",
           headers: {
@@ -298,7 +297,7 @@ export default function AppointmentManager() {
       const updatedAppointment = { ...appointmentToUpdate, status: newStatus };
 
       const response = await fetch(
-        `https://dent-care-plus-springboot.onrender.com/api/appointments/update/${appointmentID}`,
+        `${API_BASE_URL}/api/appointments/update/${appointmentID}`,
         {
           method: "PUT",
           headers: {
@@ -324,272 +323,264 @@ export default function AppointmentManager() {
     fetchAppointments();
   }, [fetchAppointments]);
 
-  return (
-    <Card className="w-full">
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Spinner label="Loading appointment data..." color="primary" />
-        </div>
-      ) : (
-        <>
-          <Toaster position="top-right" />
-          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h1 className="text-2xl font-bold">Appointments</h1>
-              <NewAppointmentButton
-                onAppointmentAdded={handleAppointmentAdded}
-              />
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Dropdown>
-                <DropdownTrigger className="w-full sm:w-[200px]">
-                  <Button
-                    color="primary"
-                    variant="ghost"
-                    radius="full"
-                    startContent={<Filter className="h-4 w-4" />}
-                    endContent={<ChevronDown className="h-4 w-4" />}
-                    className="flex justify-between"
-                  >
-                    {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  aria-label="View options"
-                  onAction={(key) => setViewMode(key as any)}
-                  className="w-[200px]"
-                >
-                  <DropdownItem key="all">All Appointments</DropdownItem>
-                  <DropdownItem key="today">Today's Appointments</DropdownItem>
-                  <DropdownItem key="upcoming">
-                    Upcoming Appointments
-                  </DropdownItem>
-                  <DropdownItem key="past">Past Appointments</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-              <Input
-                placeholder="Search appointments..."
-                value={filterValue}
-                onChange={(e) => setFilterValue(e.target.value)}
-                radius="full"
-                startContent={<Search className="h-4 w-4" />}
-                className="w-full sm:w-[300px]"
-              />
-              <Button
-                isIconOnly
-                color="primary"
-                variant="ghost"
-                aria-label="Refresh"
-                onClick={fetchAppointments}
-                isLoading={isRefreshing}
-              >
-                {isRefreshing ? (
-                  <Spinner size="sm" color="current" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </CardHeader>
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64 text-foreground-light">
+        <Spinner label="Loading appointment data..." />
+      </div>
+    );
+  }
 
-          <Table aria-label="Appointment Records">
-            <TableHeader>
-              {columns.map((column) => (
-                <TableColumn
-                  key={column.key}
-                  onClick={() =>
-                    column.key !== "actions" &&
-                    column.key !== "medicalRecords" &&
-                    handleSort(column.key)
-                  }
-                  style={{
-                    cursor:
-                      column.key !== "actions" &&
-                      column.key !== "medicalRecords"
-                        ? "pointer"
-                        : "default",
-                    textAlign: "center",
-                  }}
+  return (
+    <>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
+          <div className="flex items-center space-x-4">
+            <NewAppointmentButton onAppointmentAdded={handleAppointmentAdded} />
+            <Dropdown>
+              <DropdownTrigger className="w-[200px]">
+                <Button
+                  radius="full"
+                  color="primary"
+                  variant="ghost"
+                  startContent={<Filter className="h-4 w-4" />}
+                  endContent={<ChevronDown className="h-4 w-4" />}
+                  className="px-5 py-1 w-[200px] flex justify-between items-center"
+                  aria-label="Filter appointments"
                 >
-                  {column.label}
-                  {renderSortIcon(column.key)}
-                </TableColumn>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {filteredAppointments.map((appointment) => (
-                <TableRow key={appointment.appointmentID}>
-                  <TableCell className="text-center">
-                    {appointment.formattedAppointmentID ||
-                      appointment.appointmentID}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {`${appointment.patient.firstName} ${appointment.patient.lastName}`}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {appointment.appointmentDate}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {appointment.appointmentTime}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {appointment.reason}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Dropdown>
-                      <DropdownTrigger>
-                        <Button
-                          size="sm"
-                          radius="full"
-                          variant="light"
-                          className="bg-default-100"
-                          endContent={<ChevronDown className="h-4 w-4" />}
-                        >
-                          {appointment.status}
-                        </Button>
-                      </DropdownTrigger>
-                      <DropdownMenu
-                        aria-label="Status options"
-                        onAction={(key) =>
-                          handleStatusChange(
-                            appointment.appointmentID,
-                            key as string
-                          )
-                        }
-                        selectedKeys={new Set([appointment.status])}
-                        selectionMode="single"
-                      >
-                        {statusOptions.map((status) => (
-                          <DropdownItem key={status}>{status}</DropdownItem>
-                        ))}
-                      </DropdownMenu>
-                    </Dropdown>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <MedicalHistoryViewModal
-                      patientId={appointment.patient.patientID}
-                    />
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex justify-center space-x-2">
-                      <Button
-                        isIconOnly
-                        color="warning"
-                        variant="light"
-                        aria-label="Edit"
-                        onClick={() => handleEdit(appointment)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        color="danger"
-                        variant="light"
-                        aria-label="Delete"
-                        onClick={() => handleDelete(appointment.appointmentID)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <Modal
-            isOpen={isOpen}
-            onClose={() => {
-              onClose();
-              setCurrentAppointment(null);
-            }}
-            size="sm"
-            hideCloseButton
+                  {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
+                  Appointments
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="View options"
+                onAction={(key) => setViewMode(key as any)}
+                className="w-[200px] text-foreground-light"
+              >
+                <DropdownItem key="all">All Appointments</DropdownItem>
+                <DropdownItem key="today">Today's Appointments</DropdownItem>
+                <DropdownItem key="upcoming">
+                  Upcoming Appointments
+                </DropdownItem>
+                <DropdownItem key="past">Past Appointments</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+            <Input
+              placeholder="Search appointments..."
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+              radius="full"
+              startContent={<Search className="h-4 w-4" />}
+              className="w-[300px]"
+            />
+          </div>
+          <Button
+            isIconOnly
+            className="bg-primary-200 text-primary-600"
+            aria-label="Refresh"
+            onClick={fetchAppointments}
+            isLoading={isRefreshing}
           >
-            <ModalContent>
-              {(onClose) => (
-                <form onSubmit={handleUpdateAppointment}>
-                  <ModalHeader className="flex flex-col gap-1">
-                    Edit Appointment
-                  </ModalHeader>
-                  <ModalBody>
-                    <Input
-                      label="Date"
-                      name="appointmentDate"
-                      type="date"
-                      value={currentAppointment?.appointmentDate || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <Input
-                      label="Time"
-                      name="appointmentTime"
-                      type="time"
-                      value={currentAppointment?.appointmentTime || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <Input
-                      label="Reason"
-                      name="reason"
-                      value={currentAppointment?.reason || ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                    <Dropdown>
-                      <DropdownTrigger>
-                        <Button
-                          variant="light"
-                          className="bg-default-100"
-                          radius="full"
-                          endContent={<ChevronDown className="h-4 w-4" />}
-                        >
-                          {currentAppointment?.status || "Select Status"}
-                        </Button>
-                      </DropdownTrigger>
-                      <DropdownMenu
-                        aria-label="Status options"
-                        onAction={(key) =>
-                          setCurrentAppointment((prev) =>
-                            prev ? { ...prev, status: key as string } : null
-                          )
-                        }
-                        selectedKeys={
-                          currentAppointment
-                            ? new Set([currentAppointment.status])
-                            : new Set()
-                        }
-                        selectionMode="single"
-                      >
-                        {statusOptions.map((status) => (
-                          <DropdownItem key={status}>{status}</DropdownItem>
-                        ))}
-                      </DropdownMenu>
-                    </Dropdown>
-                  </ModalBody>
-                  <ModalFooter>
+            {isRefreshing ? (
+              <Spinner size="sm" color="current" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+      <Table aria-label="Appointment data table">
+        <TableHeader>
+          {columns.map((column) => (
+            <TableColumn
+              className="text-center"
+              key={column.key}
+              onClick={() =>
+                column.key !== "actions" &&
+                column.key !== "medicalRecords" &&
+                column.key !== "status" &&
+                handleSort(column.key)
+              }
+              style={{
+                cursor:
+                  column.key !== "actions" &&
+                  column.key !== "medicalRecords" &&
+                  column.key !== "status"
+                    ? "pointer"
+                    : "default",
+              }}
+            >
+              {column.label}
+              {renderSortIcon(column.key)}
+            </TableColumn>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {filteredAppointments.map((appointment) => (
+            <TableRow key={appointment.appointmentID}>
+              <TableCell className="text-center">
+                {appointment.formattedAppointmentID ||
+                  appointment.appointmentID}
+              </TableCell>
+              <TableCell className="text-center">
+                {`${appointment.patient.firstName} ${appointment.patient.lastName}`}
+              </TableCell>
+              <TableCell className="text-center">
+                {appointment.appointmentDate}
+              </TableCell>
+              <TableCell className="text-center">
+                {appointment.appointmentTime}
+              </TableCell>
+              <TableCell className="text-center">
+                {appointment.reason}
+              </TableCell>
+              <TableCell className="text-center">
+                <Dropdown>
+                  <DropdownTrigger>
                     <Button
+                      size="sm"
                       radius="full"
-                      color="danger"
-                      variant="ghost"
-                      onPress={onClose}
+                      variant="light"
+                      className="bg-default-100"
+                      endContent={<ChevronDown className="h-4 w-4" />}
                     >
-                      Cancel
+                      {appointment.status}
                     </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Status options"
+                    onAction={(key) =>
+                      handleStatusChange(
+                        appointment.appointmentID,
+                        key as string
+                      )
+                    }
+                    selectedKeys={new Set([appointment.status])}
+                    selectionMode="single"
+                  >
+                    {statusOptions.map((status) => (
+                      <DropdownItem key={status}>{status}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </TableCell>
+              <TableCell className="text-center">
+                <MedicalHistoryViewModal
+                  patientId={appointment.patient.patientID}
+                />
+              </TableCell>
+              <TableCell className="text-center">
+                <div className="flex justify-center space-x-2">
+                  <Button
+                    isIconOnly
+                    className="text-warning-500 bg-warning-100"
+                    variant="light"
+                    aria-label="Edit"
+                    onClick={() => handleEdit(appointment)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    className="text-danger-500 bg-danger-100"
+                    variant="light"
+                    aria-label="Delete"
+                    onClick={() => handleDelete(appointment.appointmentID)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          onClose();
+          setCurrentAppointment(null);
+        }}
+        size="lg"
+        hideCloseButton
+      >
+        <ModalContent>
+          {(onClose) => (
+            <form onSubmit={handleUpdateAppointment}>
+              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
+                Edit Appointment
+              </ModalHeader>
+              <ModalBody>
+                <Input
+                  label="Date"
+                  name="appointmentDate"
+                  type="date"
+                  value={currentAppointment?.appointmentDate || ""}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Time"
+                  name="appointmentTime"
+                  type="time"
+                  value={currentAppointment?.appointmentTime || ""}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Reason"
+                  name="reason"
+                  value={currentAppointment?.reason || ""}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Dropdown>
+                  <DropdownTrigger>
                     <Button
+                      variant="light"
+                      className="bg-default-100"
                       radius="full"
-                      variant="ghost"
-                      type="submit"
-                      color="success"
+                      endContent={<ChevronDown className="h-4 w-4" />}
                     >
-                      Update
+                      {currentAppointment?.status || "Select Status"}
                     </Button>
-                  </ModalFooter>
-                </form>
-              )}
-            </ModalContent>
-          </Modal>
-        </>
-      )}
-    </Card>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Status options"
+                    onAction={(key) =>
+                      setCurrentAppointment((prev) =>
+                        prev ? { ...prev, status: key as string } : null
+                      )
+                    }
+                    selectedKeys={
+                      currentAppointment
+                        ? new Set([currentAppointment.status])
+                        : new Set()
+                    }
+                    selectionMode="single"
+                  >
+                    {statusOptions.map((status) => (
+                      <DropdownItem key={status}>{status}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="light"
+                  type="submit"
+                  className="text-success-600"
+                >
+                  Update Appointment
+                </Button>
+              </ModalFooter>
+            </form>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
