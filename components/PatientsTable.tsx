@@ -328,11 +328,7 @@ export default function PatientTable() {
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
-            <NewPatientButton
-              onPatientAdded={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
+            <NewPatientButton />
             <Dropdown>
               <DropdownTrigger className="w-[200px]">
                 <Button

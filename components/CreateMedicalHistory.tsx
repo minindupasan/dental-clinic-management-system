@@ -27,7 +27,6 @@ type Patient = {
   email: string;
   contactNo: string;
   gender: string;
-  medicalRecords: string;
   dob: string;
   createdDate: string;
 };

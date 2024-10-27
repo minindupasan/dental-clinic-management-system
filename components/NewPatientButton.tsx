@@ -9,216 +9,188 @@ import {
   ModalBody,
   ModalFooter,
   Input,
-  useDisclosure,
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { CirclePlus } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
+import { UserPlus } from "lucide-react";
 
-const API_URL = process.env.API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-type Patient = {
-  patientID: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNo: string;
-  gender: string;
-  dob: string;
-  createdDate: string;
-};
-
-const genderOptions = [
-  { label: "Male", value: "Male" },
-  { label: "Female", value: "Female" },
-  { label: "Other", value: "Other" },
-];
-
-export default function AddPatientButton({
-  onPatientAdded,
-}: {
-  onPatientAdded: () => void;
-}) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [newPatient, setNewPatient] = useState<
-    Omit<Patient, "patientID" | "createdDate">
-  >({
+export default function Component() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [patientData, setPatientData] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    gender: "",
     contactNo: "",
+    gender: "",
     dob: "",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewPatient((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setPatientData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setNewPatient((prev) => ({
-      ...prev,
-      gender: e.target.value,
-    }));
-  };
-
-  const handleRegisteredChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setNewPatient((prev) => ({
-      ...prev,
-      isRegistered: e.target.value === "true",
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const toastId = toast.loading("Adding new patient...");
+    setIsLoading(true);
     try {
-      const patientWithDate = {
-        ...newPatient,
-        createdDate: new Date().toISOString().split("T")[0],
-      };
-      const response = await fetch(`${API_URL}/api/patients/create`, {
+      const response = await fetch(`${API_BASE_URL}/api/patients/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(patientWithDate),
+        body: JSON.stringify(patientData),
       });
-
-      if (!response.ok) {
+      if (response.ok) {
+        toast.success("Patient created successfully");
+        setIsOpen(false);
+        setPatientData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          contactNo: "",
+          gender: "",
+          dob: "",
+        });
+        // Auto refresh after 3 seconds
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add new patient");
+        toast.error(errorData.message || "Failed to create patient");
       }
-
-      const result = await response.json();
-      toast.success(`New patient added successfully! ID: ${result.patientID}`, {
-        id: toastId,
-      });
-      setNewPatient({
-        firstName: "",
-        lastName: "",
-        email: "",
-        contactNo: "",
-        gender: "",
-        dob: "",
-      });
-      onClose();
-      onPatientAdded();
     } catch (error) {
-      console.error("Error adding new patient:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to add new patient. Please try again.",
-        { id: toastId }
-      );
+      console.error("Error creating patient:", error);
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <>
+    <div>
+      <Toaster position="top-right" />
       <Button
+        onPress={() => setIsOpen(true)}
         color="primary"
         variant="ghost"
-        onPress={onOpen}
         radius="full"
-        startContent={<CirclePlus size={16} />}
+        startContent={<UserPlus size={16} />}
       >
-        Add New Patient
+        Create New Patient
       </Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="lg" hideCloseButton>
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        placement="center"
+        scrollBehavior="inside"
+      >
         <ModalContent>
           {(onClose) => (
-            <form onSubmit={handleSubmit}>
-              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
-                Add New Patient
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Create New Patient
               </ModalHeader>
               <ModalBody>
-                <Input
-                  label="First Name"
-                  name="firstName"
-                  value={newPatient.firstName}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Last Name"
-                  name="lastName"
-                  value={newPatient.lastName}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={newPatient.email}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Contact No"
-                  name="contactNo"
-                  type="tel"
-                  value={newPatient.contactNo}
-                  onChange={handleInputChange}
-                  required
-                  pattern="[0-9]{10}"
-                />
-                <Select
-                  label="Gender"
-                  placeholder="Select gender"
-                  selectedKeys={[newPatient.gender]}
-                  onChange={handleGenderChange}
-                  required
+                <form
+                  id="patientForm"
+                  onSubmit={handleSubmit}
+                  className="space-y-4"
                 >
-                  {genderOptions.map((option) => (
-                    <SelectItem
-                      className="text-foreground-light"
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      label="First Name"
+                      name="firstName"
+                      value={patientData.firstName}
+                      onChange={handleInputChange}
+                      isRequired
+                    />
+                    <Input
+                      label="Last Name"
+                      name="lastName"
+                      value={patientData.lastName}
+                      onChange={handleInputChange}
+                      isRequired
+                    />
+                  </div>
+                  <Input
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={patientData.email}
+                    onChange={handleInputChange}
+                    isRequired
+                  />
+                  <Input
+                    label="Contact Number"
+                    name="contactNo"
+                    value={patientData.contactNo}
+                    onChange={handleInputChange}
+                    isRequired
+                  />
+                  <Select
+                    label="Gender"
+                    name="gender"
+                    selectedKeys={
+                      patientData.gender ? [patientData.gender] : []
+                    }
+                    onSelectionChange={(keys) =>
+                      setPatientData((prev) => ({
+                        ...prev,
+                        gender: Array.from(keys)[0] as string,
+                      }))
+                    }
+                    isRequired
+                  >
+                    <SelectItem key="Male" value="Male">
+                      Male
                     </SelectItem>
-                  ))}
-                </Select>
-                <Input
-                  label="Date of Birth"
-                  name="dob"
-                  type="date"
-                  value={newPatient.dob}
-                  onChange={handleInputChange}
-                  required
-                />
+                    <SelectItem key="Female" value="Female">
+                      Female
+                    </SelectItem>
+                    <SelectItem key="Other" value="Other">
+                      Other
+                    </SelectItem>
+                  </Select>
+                  <Input
+                    label="Date of Birth"
+                    name="dob"
+                    type="date"
+                    value={patientData.dob}
+                    onChange={handleInputChange}
+                    isRequired
+                  />
+                </form>
               </ModalBody>
               <ModalFooter>
                 <Button
-                  variant="solid"
-                  radius="full"
                   color="danger"
                   onPress={onClose}
-                  className="text-danger-500 bg-danger-100"
+                  variant="flat"
+                  radius="full"
                 >
                   Cancel
                 </Button>
                 <Button
-                  variant="solid"
+                  color="success"
+                  variant="flat"
                   radius="full"
-                  className="text-success-600 bg-success-100"
                   type="submit"
+                  form="patientForm"
+                  isLoading={isLoading}
                 >
-                  Add
+                  Create Patient
                 </Button>
               </ModalFooter>
-            </form>
+            </>
           )}
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 }

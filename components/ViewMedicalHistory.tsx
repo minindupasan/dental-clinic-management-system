@@ -20,6 +20,7 @@ import {
   Syringe,
   AlertTriangle,
   Phone,
+  Pill,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -32,7 +33,6 @@ type Patient = {
   email: string;
   contactNo: string;
   gender: string;
-  medicalRecords: string;
   dob: string;
   createdDate: string;
 };
@@ -121,10 +121,12 @@ export default function MedicalHistoryViewModal({
   return (
     <>
       <Button
-        color="primary"
+        size="md"
+        color="secondary"
         variant="flat"
         onPress={handleOpen}
         startContent={<HeartPulse size={16} />}
+        isIconOnly
       />
       <Modal
         isOpen={isOpen}
@@ -132,7 +134,6 @@ export default function MedicalHistoryViewModal({
         size="xl"
         scrollBehavior="inside"
         classNames={{
-          base: "bg-background text-foreground",
           header: "border-b border-divider",
           footer: "border-t border-divider",
           body: "p-6",
@@ -172,14 +173,12 @@ export default function MedicalHistoryViewModal({
                           {medicalHistory.patient.firstName}{" "}
                           {medicalHistory.patient.lastName}
                         </p>
-                        <p>
-                          <div className="font-medium flex gap-2">
-                            <Droplet className="w-5 h-5" />
-                            Blood Type:
-                            <Chip color="danger" variant="flat">
-                              {medicalHistory.bloodType}
-                            </Chip>
-                          </div>
+                        <p className="flex gap-2">
+                          <Droplet className="w-5 h-5" />
+                          <span className="font-medium">Blood Type:</span>{" "}
+                          <Chip color="danger" variant="flat">
+                            {medicalHistory.bloodType}
+                          </Chip>
                         </p>
                       </div>
                     )}
@@ -203,34 +202,28 @@ export default function MedicalHistoryViewModal({
 
                     {renderSection(
                       "Additional Information",
-                      <Droplet className="w-5 h-5" />,
+                      <Pill className="w-5 h-5" />,
                       <div className="grid gap-2">
                         <p>
-                          <span className="font-semibold text-secondary mr-3">
-                            Surgeries:
-                          </span>{" "}
+                          <span className="font-medium">Surgeries:</span>{" "}
                           {medicalHistory.surgeries}
                         </p>
                         <p>
-                          <span className="font-semibold text-secondary mr-3">
+                          <span className="font-medium">
                             Current Medications:
                           </span>{" "}
                           {medicalHistory.currentMedications}
                         </p>
                         <p>
-                          <span className="font-semibold text-secondary mr-3">
-                            Drug Allergies:
-                          </span>{" "}
+                          <span className="font-medium">Drug Allergies:</span>{" "}
                           {medicalHistory.drugAllergies}
                         </p>
                         <p>
-                          <span className="font-semibold text-secondary mr-3">
-                            Allergies:
-                          </span>{" "}
+                          <span className="font-medium">Allergies:</span>{" "}
                           {medicalHistory.allergies}
                         </p>
                         <p>
-                          <span className="font-semibold text-secondary mr-3">
+                          <span className="font-medium">
                             Medical Conditions:
                           </span>{" "}
                           {medicalHistory.medicalConditions}

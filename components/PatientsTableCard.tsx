@@ -21,13 +21,12 @@ import AddPatientButton from "./NewPatientButton";
 const API_URL = process.env.API_URL;
 
 type Patient = {
-  patientID: string;
+  patientID: number;
   firstName: string;
   lastName: string;
   email: string;
-  contactNo: number;
+  contactNo: string;
   gender: string;
-  medicalRecords: string;
   dob: string;
   createdDate: string;
 };
@@ -103,7 +102,7 @@ export default function PatientTableCard() {
             >
               View All
             </Button>
-            <AddPatientButton onPatientAdded={handleRefresh} />
+            <AddPatientButton />
           </div>
         </div>
       </CardHeader>
