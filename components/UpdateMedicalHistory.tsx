@@ -54,7 +54,7 @@ type MedicalHistory = {
   emergencyContactName: string;
   emergencyContactNumber: string;
 };
-
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 export default function MedicalHistoryModal({
   patientId,
 }: {
@@ -78,7 +78,7 @@ export default function MedicalHistoryModal({
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:8080/api/medical-records");
+      const response = await fetch(`${API_BASE_URL}/api/medical-records`);
       if (!response.ok) {
         throw new Error("Failed to fetch medical history");
       }
@@ -125,7 +125,7 @@ export default function MedicalHistoryModal({
     setSuccessMessage(null);
     try {
       const response = await fetch(
-        `http://localhost:8080/api/medical-records/update/${medicalHistory.recordID}`,
+        `${API_BASE_URL}/api/medical-records/update/${medicalHistory.recordID}`,
         {
           method: "PUT",
           headers: {
