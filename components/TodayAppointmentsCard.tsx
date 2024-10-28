@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import {
   Calendar,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import MedicalHistoryModal from "./UpdateMedicalHistory";
 import MedicalHistoryViewModal from "./ViewMedicalHistory";
+import NewAppointmentButton from "./NewAppointmentButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -102,7 +103,9 @@ export default function TodayAppointmentsCard() {
     }
     return age;
   };
-
+  const handleAppointmentAdded = useCallback(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
   return (
     <Card className="w-full max-w-3xl mx-auto h-60 ">
       <CardHeader className="flex justify-between items-center px-6 py-4 ">
@@ -110,6 +113,7 @@ export default function TodayAppointmentsCard() {
           <Calendar className="w-6 h-6 mr-2" />
           Today's Appointments
         </h2>
+        <NewAppointmentButton onAppointmentAdded={handleAppointmentAdded} />
       </CardHeader>
       <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
         {isLoading ? (

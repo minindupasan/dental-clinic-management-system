@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
+import { Card, CardHeader, CardBody, Spinner, Button } from "@nextui-org/react";
 import {
   Calendar,
   Clock,
@@ -9,6 +9,7 @@ import {
   AlertCircle,
   Heart,
   Clipboard,
+  List,
 } from "lucide-react";
 import MedicalHistoryViewModal from "./ViewMedicalHistory";
 
@@ -40,27 +41,30 @@ export default function UpcomingAppointmentsCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = async (filter: string = "upcoming") => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/appointments`);
       if (!response.ok) {
         throw new Error("Failed to fetch appointments");
       }
       const data: Appointment[] = await response.json();
-      const now = new Date();
-      const upcomingAppointments = data
-        .filter((appointment) => {
-          const appointmentDate = new Date(
-            `${appointment.appointmentDate}T${appointment.appointmentTime}`
-          );
-          return appointmentDate > now;
-        })
-        .sort((a, b) => {
-          const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
-          const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
-          return dateA.getTime() - dateB.getTime();
-        });
-      setAppointments(upcomingAppointments);
+      let filteredAppointments = data;
+      if (filter === "upcoming") {
+        const now = new Date();
+        filteredAppointments = data
+          .filter((appointment) => {
+            const appointmentDate = new Date(
+              `${appointment.appointmentDate}T${appointment.appointmentTime}`
+            );
+            return appointmentDate > now;
+          })
+          .sort((a, b) => {
+            const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
+            const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
+            return dateA.getTime() - dateB.getTime();
+          });
+      }
+      setAppointments(filteredAppointments);
       setIsLoading(false);
     } catch (err) {
       setError("Failed to load appointments");
@@ -101,6 +105,10 @@ export default function UpcomingAppointmentsCard() {
     return age;
   };
 
+  const handleViewAll = () => {
+    fetchAppointments("all");
+  };
+
   return (
     <Card className="w-full max-w-3xl mx-auto h-60 ">
       <CardHeader className="flex justify-between items-center px-6 py-4 ">
@@ -108,6 +116,14 @@ export default function UpcomingAppointmentsCard() {
           <Calendar className="w-6 h-6 mr-2" />
           Upcoming Appointments
         </h2>
+        <Button
+          color="secondary"
+          radius="full"
+          startContent={<List className="h-4 w-4" />}
+          onPress={handleViewAll}
+        >
+          View All
+        </Button>
       </CardHeader>
       <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
         {isLoading ? (
