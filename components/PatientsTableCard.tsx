@@ -14,7 +14,7 @@ import {
   CardBody,
   Spinner,
 } from "@nextui-org/react";
-import { RefreshCw, List } from "lucide-react";
+import { RefreshCw, List, Link } from "lucide-react";
 import toast from "react-hot-toast";
 import AddPatientButton from "./NewPatientButton";
 
@@ -75,10 +75,6 @@ export default function PatientTableCard() {
     fetchPatients(viewMode);
   };
 
-  const handleViewAll = () => {
-    fetchPatients("all");
-  };
-
   return (
     <Card className="  rounded-xl w-full shadow-md">
       <CardHeader className="pb-0 pt-6 px-6">
@@ -94,14 +90,15 @@ export default function PatientTableCard() {
             >
               Refresh
             </Button>
-            <Button
-              color="secondary"
-              radius="full"
-              startContent={<List className="h-4 w-4" />}
-              onPress={handleViewAll}
-            >
-              View All
-            </Button>
+            <Link href="/patients">
+              <Button
+                color="secondary"
+                radius="full"
+                startContent={<List className="h-4 w-4" />}
+              >
+                View All
+              </Button>
+            </Link>
             <AddPatientButton />
           </div>
         </div>

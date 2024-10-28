@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardBody, Spinner, Button } from "@nextui-org/react";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Spinner,
+  Button,
+  Link,
+} from "@nextui-org/react";
 import {
   Calendar,
   Clock,
@@ -11,6 +18,7 @@ import {
   Clipboard,
   List,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import MedicalHistoryViewModal from "./ViewMedicalHistory";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -40,30 +48,28 @@ export default function UpcomingAppointmentsCard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-  const fetchAppointments = async (filter: string = "upcoming") => {
+  const fetchAppointments = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/appointments`);
       if (!response.ok) {
         throw new Error("Failed to fetch appointments");
       }
       const data: Appointment[] = await response.json();
-      let filteredAppointments = data;
-      if (filter === "upcoming") {
-        const now = new Date();
-        filteredAppointments = data
-          .filter((appointment) => {
-            const appointmentDate = new Date(
-              `${appointment.appointmentDate}T${appointment.appointmentTime}`
-            );
-            return appointmentDate > now;
-          })
-          .sort((a, b) => {
-            const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
-            const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
-            return dateA.getTime() - dateB.getTime();
-          });
-      }
+      const now = new Date();
+      const filteredAppointments = data
+        .filter((appointment) => {
+          const appointmentDate = new Date(
+            `${appointment.appointmentDate}T${appointment.appointmentTime}`
+          );
+          return appointmentDate > now;
+        })
+        .sort((a, b) => {
+          const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
+          const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
+          return dateA.getTime() - dateB.getTime();
+        });
       setAppointments(filteredAppointments);
       setIsLoading(false);
     } catch (err) {
@@ -105,25 +111,22 @@ export default function UpcomingAppointmentsCard() {
     return age;
   };
 
-  const handleViewAll = () => {
-    fetchAppointments("all");
-  };
-
   return (
-    <Card className="w-full max-w-3xl mx-auto h-60 ">
-      <CardHeader className="flex justify-between items-center px-6 py-4 ">
+    <Card className="w-full max-w-3xl mx-auto h-60">
+      <CardHeader className="flex justify-between items-center px-6 py-4">
         <h2 className="text-xl font-semibold flex items-center">
           <Calendar className="w-6 h-6 mr-2" />
           Upcoming Appointments
         </h2>
-        <Button
-          color="secondary"
-          radius="full"
-          startContent={<List className="h-4 w-4" />}
-          onPress={handleViewAll}
-        >
-          View All
-        </Button>
+        <Link href="/appointments">
+          <Button
+            color="secondary"
+            radius="full"
+            startContent={<List className="h-4 w-4" />}
+          >
+            View All
+          </Button>
+        </Link>
       </CardHeader>
       <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
         {isLoading ? (
@@ -140,12 +143,9 @@ export default function UpcomingAppointmentsCard() {
         ) : (
           <div className="space-y-4">
             {appointments.map((appointment) => (
-              <Card>
+              <Card key={appointment.appointmentID}>
                 <CardBody>
-                  <div
-                    key={appointment.appointmentID}
-                    className=" p-2 flex items-center space-x-1"
-                  >
+                  <div className="p-2 flex items-center space-x-1">
                     <div className="py-4 px-2 text-center min-w-[120px] rounded-lg">
                       <div className="text-3xl font-semibold flex items-center justify-center">
                         <Clock className="w-6 h-6 mr-2" />
