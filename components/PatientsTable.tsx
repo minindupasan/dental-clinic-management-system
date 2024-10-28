@@ -110,7 +110,7 @@ export default function PatientTable() {
     setIsRefreshing(true);
     try {
       const response = await fetch(
-        "https://dent-care-plus-springboot.onrender.com/api/patients"
+        "https://dent-care-springboot-b8356d02e269.herokuapp.com/api/patients"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
