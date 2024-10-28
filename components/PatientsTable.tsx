@@ -109,7 +109,9 @@ export default function PatientTable() {
   const fetchPatients = async () => {
     setIsRefreshing(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/patients`);
+      const response = await fetch(
+        "https://dent-care-plus-springboot.onrender.com/api/patients"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
       }
