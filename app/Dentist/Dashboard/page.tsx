@@ -1,11 +1,11 @@
 "use client";
 
-import UpcomingAppointmentsCard from "@/components/UpcomingAppointmentsCard";
-import TodayAppointmentsCard from "@/components/TodayAppointmentsCard";
-import DentureCard from "@/components/DenturesCard";
+import UpcomingAppointmentsCard from "@/components/appointments/UpcomingAppointmentsCard";
+import TodayAppointmentsCard from "@/components/appointments/TodayAppointmentsCard";
+import DentureCard from "@/components/dentures/DenturesCard";
 import FinancialSummaryCard from "@/components/FinancialSummaryCard";
 import PendingPayments from "@/components/PendingPaymentsCard";
-import PatientsTableCard from "@/components/PatientsTableCard";
+import PatientsTableCard from "@/components/patients/PatientsTableCard";
 
 export default function Dashboard() {
   return (

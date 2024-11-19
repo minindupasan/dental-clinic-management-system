@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import AppointmentsTable from "@/components/AppointmentsTable";
-import NewAppointmentButton from "@/components/NewAppointmentButton";
+import AppointmentsTable from "@/components/appointments/AppointmentsTable";
+import NewAppointmentButton from "@/components/appointments/NewAppointmentButton";
 import { Toaster } from "react-hot-toast";
 import { Card, CardHeader, CardBody } from "@nextui-org/react";
 

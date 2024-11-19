@@ -12,8 +12,7 @@ import {
   Clipboard,
   Heart,
 } from "lucide-react";
-import MedicalHistoryModal from "./UpdateMedicalHistory";
-import MedicalHistoryViewModal from "./ViewMedicalHistory";
+import MedicalHistory from "../MedicalHistory";
 import NewAppointmentButton from "./NewAppointmentButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -164,9 +163,7 @@ export default function TodayAppointmentsCard() {
                         {appointment.reason}
                       </p>
                     </div>
-                    <MedicalHistoryViewModal
-                      patientId={appointment.patient.patientID}
-                    />
+                    <MedicalHistory patientId={appointment.patient.patientID} />
                   </div>
                 </CardBody>
               </Card>

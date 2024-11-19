@@ -34,7 +34,7 @@ import {
   FileText,
 } from "lucide-react";
 import NewAppointmentButton from "./NewAppointmentButton";
-import MedicalHistoryViewModal from "./ViewMedicalHistory";
+import MedicalHistoryViewModal from "../MedicalHistory";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 

@@ -1,5 +1,5 @@
 "use client";
-import DenturesTable from "@/components/DenturesTable";
+import DenturesTable from "@/components/dentures/DenturesTable";
 import React from "react";
 
 export default function dentures() {

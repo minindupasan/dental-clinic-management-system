@@ -36,7 +36,7 @@ import {
   FileText,
 } from "lucide-react";
 
-import MedicalHistoryModal from "./UpdateMedicalHistory";
+import MedicalHistory from "../MedicalHistory";
 import NewPatientButton from "./NewPatientButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -422,7 +422,7 @@ export default function PatientTable() {
                       day: "numeric",
                     })
                   ) : column.key === "medicalHistory" ? (
-                    <MedicalHistoryModal patientId={""} />
+                    <MedicalHistory patientId={Number(patient.patientID)} />
                   ) : column.key === "actions" ? (
                     <div className="flex justify-center space-x-2">
                       <Button

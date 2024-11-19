@@ -19,7 +19,7 @@ import {
   List,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import MedicalHistoryViewModal from "./ViewMedicalHistory";
+import MedicalHistoryViewModal from "../MedicalHistory";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 

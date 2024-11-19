@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import PatientTable from "@/components/PatientsTable";
-import AddPatientButton from "@/components/NewPatientButton";
+import PatientTable from "@/components/patients/PatientsTable";
+import AddPatientButton from "@/components/patients/NewPatientButton";
 import { Toaster } from "react-hot-toast";
 
 export default function PatientManagement() {
