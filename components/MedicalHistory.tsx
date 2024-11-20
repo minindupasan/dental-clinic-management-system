@@ -14,6 +14,8 @@ import {
   Input,
   Textarea,
   Switch,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import {
   HeartPulse,
@@ -181,7 +183,9 @@ export default function MedicalHistoryButton({
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setMedicalHistory((prev) => (prev ? { ...prev, [name]: value } : null));
@@ -211,16 +215,51 @@ export default function MedicalHistoryButton({
     label: string,
     name: string,
     value: string,
-    type: "input" | "textarea" = "input"
+    type: "input" | "textarea" | "select" = "input"
   ) => (
     <div className="mb-4">
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700 mb-1"
+        className="block text-sm font-medium text-neutral-400 mb-1"
       >
         {label}
       </label>
-      {type === "input" ? (
+      {type === "select" ? (
+        <Select
+          id={name}
+          name={name}
+          selectedKeys={[value]}
+          onChange={(e) =>
+            handleInputChange(e as React.ChangeEvent<HTMLSelectElement>)
+          }
+          className="w-full"
+        >
+          <SelectItem key="A+" value="A+">
+            A+
+          </SelectItem>
+          <SelectItem key="A-" value="A-">
+            A-
+          </SelectItem>
+          <SelectItem key="B+" value="B+">
+            B+
+          </SelectItem>
+          <SelectItem key="B-" value="B-">
+            B-
+          </SelectItem>
+          <SelectItem key="AB+" value="AB+">
+            AB+
+          </SelectItem>
+          <SelectItem key="AB-" value="AB-">
+            AB-
+          </SelectItem>
+          <SelectItem key="O+" value="O+">
+            O+
+          </SelectItem>
+          <SelectItem key="O-" value="O-">
+            O-
+          </SelectItem>
+        </Select>
+      ) : type === "input" ? (
         <Input
           id={name}
           name={name}
@@ -249,6 +288,7 @@ export default function MedicalHistoryButton({
             key={key}
             isSelected={value as boolean}
             onValueChange={handleSwitchChange(key)}
+            size="sm"
           >
             {key.charAt(0).toUpperCase() + key.slice(1)}
           </Switch>
@@ -270,7 +310,7 @@ export default function MedicalHistoryButton({
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        size="3xl"
+        size="lg"
         scrollBehavior="inside"
         classNames={{
           base: "max-h-[90vh]",
@@ -313,7 +353,8 @@ export default function MedicalHistoryButton({
                             {renderEditableField(
                               "Blood Type",
                               "bloodType",
-                              medicalHistory.bloodType
+                              medicalHistory.bloodType,
+                              "select"
                             )}
                           </div>
                         )}

@@ -2,9 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import AppointmentsTable from "@/components/appointments/AppointmentsTable";
-import NewAppointmentButton from "@/components/appointments/NewAppointmentButton";
 import { Toaster } from "react-hot-toast";
-import { Card, CardHeader, CardBody } from "@nextui-org/react";
 
 export default function Appointments() {
   const [refreshKey, setRefreshKey] = useState(0);

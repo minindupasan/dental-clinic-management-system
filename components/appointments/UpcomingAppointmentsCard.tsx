@@ -118,7 +118,7 @@ export default function UpcomingAppointmentsCard() {
           <Calendar className="w-6 h-6 mr-2" />
           Upcoming Appointments
         </h2>
-        <Link href="/appointments">
+        <Link href="/Appointments">
           <Button
             color="secondary"
             radius="full"

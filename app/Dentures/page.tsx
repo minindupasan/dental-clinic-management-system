@@ -1,11 +1,16 @@
 "use client";
-import DenturesTable from "@/components/dentures/DenturesTable";
-import React from "react";
 
-export default function dentures() {
+import React, { useState, useCallback } from "react";
+import PatientTable from "@/components/dentures/DenturesTable";
+import { Toaster } from "react-hot-toast";
+
+export default function PatientManagement() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
   return (
-    <div className="text-foreground-light mx-4 md:mx-6 lg:mx-10 my-4 lg:my-8">
-      <DenturesTable />
-    </div>
+    <>
+      <Toaster position="top-right" />
+      <PatientTable key={refreshKey} />
+    </>
   );
 }

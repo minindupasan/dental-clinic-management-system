@@ -10,8 +10,8 @@ import {
   ModalFooter,
   Input,
   useDisclosure,
-  Select,
-  SelectItem,
+  Autocomplete,
+  AutocompleteItem,
 } from "@nextui-org/react";
 import { CalendarPlus } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -159,7 +159,7 @@ export default function NewAppointmentButton({
       >
         New Appointment
       </Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl" hideCloseButton>
+      <Modal isOpen={isOpen} onClose={onClose} size="md" hideCloseButton>
         <ModalContent>
           {(onClose) => (
             <form onSubmit={handleSubmit}>
@@ -167,26 +167,25 @@ export default function NewAppointmentButton({
                 New Appointment
               </ModalHeader>
               <ModalBody>
-                <Select
+                <Autocomplete
                   label="Patient"
                   placeholder="Select patient"
                   onChange={(e) =>
                     handlePatientChange(
-                      e as React.ChangeEvent<HTMLSelectElement>
+                      e as unknown as React.ChangeEvent<HTMLSelectElement>
                     )
                   }
                   required
                 >
                   {patients.map((patient) => (
-                    <SelectItem
-                      className="text-foreground-light"
+                    <AutocompleteItem
                       key={patient.patientID}
                       value={patient.patientID}
                     >
                       {`${patient.firstName} ${patient.lastName}`}
-                    </SelectItem>
+                    </AutocompleteItem>
                   ))}
-                </Select>
+                </Autocomplete>
                 <Input
                   label="Appointment Date"
                   name="appointmentDate"

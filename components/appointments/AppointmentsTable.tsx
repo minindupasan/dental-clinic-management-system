@@ -183,7 +183,7 @@ export default function AppointmentManager() {
             <Button
               size="sm"
               variant="light"
-              color="default"
+              color="warning"
               onPress={() => toast.dismiss(t.id)}
             >
               Cancel

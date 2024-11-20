@@ -7,7 +7,6 @@ import {
   Navbar,
   NavbarBrand,
   NavbarContent,
-  NavbarItem,
 } from "@nextui-org/react";
 import NavBarTabs from "./NavBarTabs";
 import MenuBar from "./MenuBar";

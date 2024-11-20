@@ -13,8 +13,9 @@ import {
   CardHeader,
   CardBody,
   Spinner,
+  Link,
 } from "@nextui-org/react";
-import { RefreshCw, List, Link } from "lucide-react";
+import { RefreshCw, List } from "lucide-react";
 import toast from "react-hot-toast";
 import AddPatientButton from "./NewPatientButton";
 
@@ -90,7 +91,7 @@ export default function PatientTableCard() {
             >
               Refresh
             </Button>
-            <Link href="/patients">
+            <Link href="/Patients">
               <Button
                 color="secondary"
                 radius="full"
