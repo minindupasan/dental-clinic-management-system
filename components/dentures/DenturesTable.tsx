@@ -531,7 +531,7 @@ export default function PatientTable() {
                   Cancel
                 </Button>
                 <Button variant="flat" type="submit" color="success">
-                  Update Patient
+                  Update
                 </Button>
               </ModalFooter>
             </form>
