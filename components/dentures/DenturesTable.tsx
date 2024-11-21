@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Table,
   TableHeader,
@@ -17,8 +17,6 @@ import {
   ModalFooter,
   useDisclosure,
   Input,
-  Select,
-  SelectItem,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
@@ -33,16 +31,13 @@ import {
   Search,
   Filter,
   RefreshCw,
-  FileText,
 } from "lucide-react";
-
-import MedicalHistory from "../MedicalHistory";
-import NewPatientButton from "../patients/NewPatientButton";
+import NewDentureButton from "./NewDentureButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Patient = {
-  patientID: string;
+  patientID: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -52,169 +47,143 @@ type Patient = {
   createdDate: string;
 };
 
+type Denture = {
+  dentureId: number;
+  patient: Patient;
+  dentureType: string;
+  materialType: string;
+  trialDentureDate: string;
+  estimatedDeliveryDate: string;
+  receivedDate: string | null;
+  deliveryStatus: string;
+  remarks: string;
+  cost: number;
+  paymentStatus: string;
+  labName: string;
+  orderDateToLab: string;
+};
+
 const columns = [
-  { key: "patientID", label: "PATIENT ID" },
-  { key: "fullName", label: "FULL NAME" },
-  { key: "email", label: "EMAIL" },
-  { key: "contactNo", label: "CONTACT NO" },
-  { key: "gender", label: "GENDER" },
-  { key: "dob", label: "DATE OF BIRTH" },
-  { key: "createdDate", label: "CREATED DATE" },
-  { key: "medicalHistory", label: "MEDICAL HISTORY" },
+  { key: "dentureId", label: "ID" },
+  { key: "patientName", label: "PATIENT NAME" },
+  { key: "dentureType", label: "DENTURE TYPE" },
+  { key: "materialType", label: "MATERIAL" },
+  { key: "trialDentureDate", label: "TRIAL DATE" },
+  { key: "estimatedDeliveryDate", label: "EST. DELIVERY" },
+  { key: "deliveryStatus", label: "STATUS" },
+  { key: "cost", label: "COST" },
+  { key: "paymentStatus", label: "PAYMENT" },
   { key: "actions", label: "ACTIONS" },
 ];
 
-const genderOptions = [
-  { label: "Male", value: "Male" },
-  { label: "Female", value: "Female" },
-  { label: "Other", value: "Other" },
-];
+const deliveryStatusOptions = ["In Progress", "Completed", "Delayed"];
 
-const initialPatientState: Patient = {
-  patientID: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  contactNo: "",
-  gender: "",
-  dob: "",
-  createdDate: "",
-};
-
-export default function PatientTable() {
-  const [patients, setPatients] = useState<Patient[]>([]);
+export default function DentureManager() {
+  const [dentures, setDentures] = useState<Denture[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPatient, setCurrentPatient] =
-    useState<Patient>(initialPatientState);
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
-  const {
-    isOpen: isMedicalHistoryOpen,
-    onOpen: onMedicalHistoryOpen,
-    onClose: onMedicalHistoryClose,
-  } = useDisclosure();
+  const [currentDenture, setCurrentDenture] = useState<Denture | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending" | "none";
     clickCount: number;
   }>({ key: "", direction: "none", clickCount: 0 });
   const [filterValue, setFilterValue] = useState("");
-  const [viewMode, setViewMode] = useState<"all" | "recent" | "older">("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [medicalHistory, setMedicalHistory] = useState("");
 
-  const fetchPatients = async () => {
+  const fetchDentures = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/patients`);
+      const response = await fetch(`${API_BASE_URL}/api/dentures`);
       if (!response.ok) {
-        throw new Error("Failed to fetch patients");
+        throw new Error("Failed to fetch dentures");
       }
       const data = await response.json();
-      setPatients(data);
+      setDentures(data);
       setLoading(false);
     } catch (err) {
-      toast.error("An error occurred while fetching patient data.");
+      toast.error("An error occurred while fetching denture data.");
       setLoading(false);
     } finally {
       setIsRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    fetchPatients();
   }, []);
 
-  const filteredPatients = useMemo(() => {
-    let filtered = [...patients];
+  useEffect(() => {
+    fetchDentures();
+  }, [fetchDentures]);
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    switch (viewMode) {
-      case "recent":
-        filtered = filtered.filter(
-          (patient) => new Date(patient.createdDate) >= thirtyDaysAgo
-        );
-        break;
-      case "older":
-        filtered = filtered.filter(
-          (patient) => new Date(patient.createdDate) < thirtyDaysAgo
-        );
-        break;
-    }
+  const filteredDentures = useMemo(() => {
+    let filtered = [...dentures];
 
     if (filterValue) {
-      filtered = filtered.filter((patient) =>
-        Object.values(patient).some((value) =>
-          value?.toString().toLowerCase().includes(filterValue.toLowerCase())
-        )
+      filtered = filtered.filter(
+        (denture) =>
+          Object.values(denture).some(
+            (value) =>
+              typeof value === "string" &&
+              value.toLowerCase().includes(filterValue.toLowerCase())
+          ) ||
+          denture.patient.firstName
+            .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          denture.patient.lastName
+            .toLowerCase()
+            .includes(filterValue.toLowerCase())
       );
     }
 
     if (sortConfig.direction !== "none") {
       filtered.sort((a, b) => {
         let aValue, bValue;
-
-        if (sortConfig.key === "fullName") {
-          aValue = `${a.firstName} ${a.lastName}`;
-          bValue = `${b.firstName} ${b.lastName}`;
+        if (sortConfig.key === "patientName") {
+          aValue = `${a.patient.firstName} ${a.patient.lastName}`;
+          bValue = `${b.patient.firstName} ${b.patient.lastName}`;
         } else {
-          aValue = a[sortConfig.key as keyof Patient] ?? "";
-          bValue = b[sortConfig.key as keyof Patient] ?? "";
+          aValue = a[sortConfig.key as keyof Denture];
+          bValue = b[sortConfig.key as keyof Denture];
         }
-        const aValueStr = String(aValue);
-        const bValueStr = String(bValue);
-
-        if (sortConfig.direction === "ascending") {
-          return aValueStr.localeCompare(bValueStr);
-        } else {
-          return bValueStr.localeCompare(aValueStr);
-        }
+        if (aValue === null || bValue === null) return 0;
+        if (aValue < bValue)
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        if (aValue > bValue)
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        return 0;
       });
     }
 
     return filtered;
-  }, [patients, filterValue, viewMode, sortConfig]);
+  }, [dentures, filterValue, sortConfig]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCurrentPatient((prev) => ({ ...prev, [name]: value }));
+    setCurrentDenture((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
-  const handleGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCurrentPatient((prev) => ({ ...prev, gender: e.target.value }));
+  const handleEdit = (denture: Denture) => {
+    setCurrentDenture(denture);
+    onOpen();
   };
 
-  const handleEdit = (patient: Patient) => {
-    setCurrentPatient({
-      ...patient,
-      dob: patient.dob.split("T")[0],
-    });
-    onEditOpen();
-  };
-
-  const handleDelete = (patientID: string) => {
+  const handleDelete = (dentureId: number) => {
     toast(
       (t) => (
         <div>
-          <p>Are you sure you want to delete this patient?</p>
+          <p>Are you sure you want to delete this denture?</p>
           <div className="mt-2 flex justify-end space-x-2">
             <Button
               size="sm"
-              variant="flat"
-              color="default"
+              variant="light"
+              color="warning"
               onPress={() => toast.dismiss(t.id)}
             >
               Cancel
             </Button>
             <Button
               size="sm"
-              variant="flat"
+              variant="light"
               color="danger"
-              onPress={() => confirmDelete(patientID, t.id)}
+              onPress={() => confirmDelete(dentureId, t.id)}
             >
               Delete
             </Button>
@@ -225,50 +194,52 @@ export default function PatientTable() {
     );
   };
 
-  const confirmDelete = async (patientID: string, toastId: string) => {
+  const confirmDelete = async (dentureId: number, toastId: string) => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/patients/delete/${patientID}`,
+        `${API_BASE_URL}/api/dentures/delete/${dentureId}`,
         {
           method: "DELETE",
         }
       );
       if (!response.ok) {
-        throw new Error("Failed to delete patient");
+        throw new Error("Failed to delete denture");
       }
-      toast.success("Patient deleted successfully");
-      fetchPatients();
+      toast.success("Denture deleted successfully");
+      fetchDentures();
     } catch (err) {
-      toast.error("An error occurred while deleting the patient");
+      toast.error("An error occurred while deleting the denture");
     } finally {
       toast.dismiss(toastId);
     }
   };
 
-  const handleUpdatePatient = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleUpdateDenture = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!currentDenture) return;
+
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/patients/update/${currentPatient.patientID}`,
+        `${API_BASE_URL}/api/dentures/update/${currentDenture.dentureId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(currentPatient),
+          body: JSON.stringify(currentDenture),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to update patient");
+        throw new Error("Failed to update denture");
       }
 
-      toast.success("Patient updated successfully");
-      fetchPatients();
-      onEditClose();
-      setCurrentPatient(initialPatientState);
+      toast.success("Denture updated successfully");
+      fetchDentures();
+      onClose();
+      setCurrentDenture(null);
     } catch (err) {
-      toast.error("An error occurred while updating the patient");
+      toast.error("An error occurred while updating the denture");
     }
   };
 
@@ -299,26 +270,48 @@ export default function PatientTable() {
     );
   };
 
-  const handleMedicalHistoryOpen = async (patientID: string) => {
+  const handleStatusChange = async (dentureId: number, newStatus: string) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/patients/medical-history/${patientID}`
+      const dentureToUpdate = dentures.find(
+        (denture) => denture.dentureId === dentureId
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch medical history");
+      if (!dentureToUpdate) {
+        throw new Error("Denture not found");
       }
-      const data = await response.json();
-      setMedicalHistory(data.medicalHistory);
-      onMedicalHistoryOpen();
-    } catch (err) {
-      toast.error("An error occurred while fetching medical history");
+
+      const updatedDenture = { ...dentureToUpdate, deliveryStatus: newStatus };
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/dentures/update/${dentureId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedDenture),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update denture status");
+      }
+
+      toast.success(`Denture status updated to ${newStatus}`);
+      fetchDentures();
+    } catch (error) {
+      console.error("Error updating denture status:", error);
+      toast.error("An error occurred while updating the denture status");
     }
   };
 
+  const handleDentureAdded = useCallback(() => {
+    fetchDentures();
+  }, [fetchDentures]);
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64 text-foreground-flat">
-        <Spinner label="Loading patient data..." />
+      <div className="flex justify-center items-center h-64 text-foreground-light">
+        <Spinner label="Loading denture data..." />
       </div>
     );
   }
@@ -328,36 +321,9 @@ export default function PatientTable() {
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
-            <NewPatientButton />
-            <Dropdown>
-              <DropdownTrigger className="w-[200px]">
-                <Button
-                  radius="full"
-                  color="primary"
-                  variant="ghost"
-                  startContent={<Filter className="h-4 w-4" />}
-                  endContent={<ChevronDown className="h-4 w-4" />}
-                  className="px-5 py-1  w-[200px] flex justify-between items-center"
-                  aria-label="Filter patients"
-                >
-                  {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
-                  Patients
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                aria-label="View options"
-                onAction={(key) => setViewMode(key as any)}
-                className="w-[200px] text-foreground-flat"
-              >
-                <DropdownItem key="all">All Patients</DropdownItem>
-                <DropdownItem key="recent">
-                  Recent Patients (30 days)
-                </DropdownItem>
-                <DropdownItem key="older">Older Patients</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+            <NewDentureButton onDentureAdded={handleDentureAdded} />
             <Input
-              placeholder="Search patients..."
+              placeholder="Search dentures..."
               value={filterValue}
               onChange={(e) => setFilterValue(e.target.value)}
               radius="full"
@@ -367,9 +333,9 @@ export default function PatientTable() {
           </div>
           <Button
             isIconOnly
-            color="primary"
+            className="bg-primary-200 text-primary-600"
             aria-label="Refresh"
-            onClick={fetchPatients}
+            onClick={fetchDentures}
             isLoading={isRefreshing}
           >
             {isRefreshing ? (
@@ -380,7 +346,7 @@ export default function PatientTable() {
           </Button>
         </div>
       </div>
-      <Table aria-label="Patient data table">
+      <Table aria-label="Denture data table">
         <TableHeader>
           {columns.map((column) => (
             <TableColumn
@@ -388,12 +354,12 @@ export default function PatientTable() {
               key={column.key}
               onClick={() =>
                 column.key !== "actions" &&
-                column.key !== "medicalHistory" &&
+                column.key !== "deliveryStatus" &&
                 handleSort(column.key)
               }
               style={{
                 cursor:
-                  column.key !== "actions" && column.key !== "medicalHistory"
+                  column.key !== "actions" && column.key !== "deliveryStatus"
                     ? "pointer"
                     : "default",
               }}
@@ -404,134 +370,178 @@ export default function PatientTable() {
           ))}
         </TableHeader>
         <TableBody>
-          {filteredPatients.map((patient) => (
-            <TableRow key={patient.patientID}>
-              {columns.map((column) => (
-                <TableCell
-                  key={`${patient.patientID}-${column.key}`}
-                  className="text-center"
-                >
-                  {column.key === "fullName" ? (
-                    `${patient.firstName} ${patient.lastName}`
-                  ) : column.key === "dob" || column.key === "createdDate" ? (
-                    new Date(
-                      patient[column.key as keyof Patient]
-                    ).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
-                  ) : column.key === "medicalHistory" ? (
-                    <MedicalHistory patientId={Number(patient.patientID)} />
-                  ) : column.key === "actions" ? (
-                    <div className="flex justify-center space-x-2">
-                      <Button
-                        isIconOnly
-                        color="warning"
-                        variant="flat"
-                        aria-label="Edit"
-                        onClick={() => handleEdit(patient)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        color="danger"
-                        variant="flat"
-                        aria-label="Delete"
-                        onClick={() => handleDelete(patient.patientID)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    patient[column.key as keyof Patient]
-                  )}
-                </TableCell>
-              ))}
+          {filteredDentures.map((denture) => (
+            <TableRow key={denture.dentureId}>
+              <TableCell className="text-center">{denture.dentureId}</TableCell>
+              <TableCell className="text-center">
+                {`${denture.patient.firstName} ${denture.patient.lastName}`}
+              </TableCell>
+              <TableCell className="text-center">
+                {denture.dentureType}
+              </TableCell>
+              <TableCell className="text-center">
+                {denture.materialType}
+              </TableCell>
+              <TableCell className="text-center">
+                {denture.trialDentureDate}
+              </TableCell>
+              <TableCell className="text-center">
+                {denture.estimatedDeliveryDate}
+              </TableCell>
+              <TableCell className="text-center">
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      size="sm"
+                      radius="full"
+                      variant="light"
+                      className="bg-default-100"
+                      endContent={<ChevronDown className="h-4 w-4" />}
+                    >
+                      {denture.deliveryStatus}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Status options"
+                    onAction={(key) =>
+                      handleStatusChange(denture.dentureId, key as string)
+                    }
+                    selectedKeys={new Set([denture.deliveryStatus])}
+                    selectionMode="single"
+                  >
+                    {deliveryStatusOptions.map((status) => (
+                      <DropdownItem key={status}>{status}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </TableCell>
+              <TableCell className="text-center">
+                ${denture.cost.toFixed(2)}
+              </TableCell>
+              <TableCell className="text-center">
+                {denture.paymentStatus}
+              </TableCell>
+              <TableCell className="text-center">
+                <div className="flex justify-center space-x-2">
+                  <Button
+                    isIconOnly
+                    color="warning"
+                    variant="flat"
+                    aria-label="Edit"
+                    onClick={() => handleEdit(denture)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    color="danger"
+                    variant="flat"
+                    aria-label="Delete"
+                    onClick={() => handleDelete(denture.dentureId)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
       <Modal
-        isOpen={isEditOpen}
+        isOpen={isOpen}
         onClose={() => {
-          onEditClose();
-          setCurrentPatient(initialPatientState);
+          onClose();
+          setCurrentDenture(null);
         }}
         size="lg"
         hideCloseButton
       >
         <ModalContent>
           {(onClose) => (
-            <form onSubmit={handleUpdatePatient}>
-              <ModalHeader className="flex flex-col gap-1 text-foreground-flat">
-                Edit Patient
+            <form onSubmit={handleUpdateDenture}>
+              <ModalHeader className="flex flex-col gap-1 text-foreground-light">
+                Edit Denture
               </ModalHeader>
               <ModalBody>
                 <Input
-                  label="First Name"
-                  name="firstName"
-                  value={currentPatient.firstName}
+                  label="Denture Type"
+                  name="dentureType"
+                  value={currentDenture?.dentureType || ""}
                   onChange={handleInputChange}
                   required
                 />
                 <Input
-                  label="Last Name"
-                  name="lastName"
-                  value={currentPatient.lastName}
+                  label="Material Type"
+                  name="materialType"
+                  value={currentDenture?.materialType || ""}
                   onChange={handleInputChange}
                   required
                 />
                 <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={currentPatient.email}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Contact No"
-                  name="contactNo"
-                  type="tel"
-                  value={currentPatient.contactNo}
-                  onChange={handleInputChange}
-                  required
-                  pattern="[0-9]{10}"
-                />
-                <Select
-                  label="Gender"
-                  placeholder="Select gender"
-                  selectedKeys={[currentPatient.gender]}
-                  onChange={handleGenderChange}
-                  required
-                >
-                  {genderOptions.map((option) => (
-                    <SelectItem
-                      className="text-foreground-flat"
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <Input
-                  label="Date of Birth"
-                  name="dob"
+                  label="Trial Date"
+                  name="trialDentureDate"
                   type="date"
-                  value={currentPatient.dob}
+                  value={currentDenture?.trialDentureDate || ""}
                   onChange={handleInputChange}
                   required
                 />
+                <Input
+                  label="Estimated Delivery Date"
+                  name="estimatedDeliveryDate"
+                  type="date"
+                  value={currentDenture?.estimatedDeliveryDate || ""}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Cost"
+                  name="cost"
+                  type="number"
+                  value={currentDenture?.cost.toString() || ""}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      variant="light"
+                      className="bg-default-100"
+                      radius="full"
+                      endContent={<ChevronDown className="h-4 w-4" />}
+                    >
+                      {currentDenture?.deliveryStatus || "Select Status"}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Status options"
+                    onAction={(key) =>
+                      setCurrentDenture((prev) =>
+                        prev ? { ...prev, deliveryStatus: key as string } : null
+                      )
+                    }
+                    selectedKeys={
+                      currentDenture
+                        ? new Set([currentDenture.deliveryStatus])
+                        : new Set()
+                    }
+                    selectionMode="single"
+                  >
+                    {deliveryStatusOptions.map((status) => (
+                      <DropdownItem key={status}>{status}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
+                <Button color="danger" variant="light" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button variant="flat" type="submit" color="success">
-                  Update
+                <Button
+                  variant="light"
+                  type="submit"
+                  className="text-success-600"
+                >
+                  Update Denture
                 </Button>
               </ModalFooter>
             </form>
