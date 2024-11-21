@@ -125,7 +125,7 @@ export default function UpcomingAppointmentsCard() {
             variant="ghost"
             startContent={<List className="h-4 w-4" />}
           >
-            View All
+            View 
           </Button>
         </Link>
       </CardHeader>
