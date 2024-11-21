@@ -299,11 +299,12 @@ export default function MedicalHistoryButton({
   return (
     <>
       <Button
-        size="md"
+        size="sm"
         color="primary"
         variant="flat"
+        radius="full"
         onPress={handleOpen}
-        startContent={<HeartPulse size={16} />}
+        startContent={<HeartPulse className="h-4 w-4" />}
       >
         Medical History
       </Button>
