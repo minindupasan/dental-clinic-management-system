@@ -12,26 +12,26 @@ import {
   useDisclosure,
   Autocomplete,
   AutocompleteItem,
-  Select,
-  SelectItem,
 } from "@nextui-org/react";
-import { PlusCircle, UserPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Denture = {
-  patientID: number;
+  dentureId: number;
+  patientID: string;
   dentureType: string;
   materialType: string;
   trialDentureDate: string;
   estimatedDeliveryDate: string;
+  receivedDate: string | null;
   deliveryStatus: string;
+  remarks: string;
   cost: number;
   paymentStatus: string;
   labName: string;
   orderDateToLab: string;
-  remarks: string;
 };
 
 type Patient = {
@@ -40,47 +40,25 @@ type Patient = {
   lastName: string;
 };
 
-const dentureTypeOptions = [
-  { label: "Partial", value: "Partial" },
-  { label: "Full", value: "Full" },
-];
-
-const materialTypeOptions = [
-  { label: "Acrylic", value: "Acrylic" },
-  { label: "Metal", value: "Metal" },
-  { label: "Flexible", value: "Flexible" },
-];
-
-const deliveryStatusOptions = [
-  { label: "In Progress", value: "In Progress" },
-  { label: "Completed", value: "Completed" },
-  { label: "Delayed", value: "Delayed" },
-];
-
-const paymentStatusOptions = [
-  { label: "Pending", value: "Pending" },
-  { label: "Paid", value: "Paid" },
-  { label: "Partially Paid", value: "Partially Paid" },
-];
-
 export default function NewDentureButton({
   onDentureAdded,
 }: {
   onDentureAdded: () => void;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [newDenture, setNewDenture] = useState<Denture>({
-    patientID: 0,
+  const [newDenture, setNewDenture] = useState<Omit<Denture, "dentureId">>({
+    patientID: "",
     dentureType: "",
     materialType: "",
     trialDentureDate: "",
     estimatedDeliveryDate: "",
+    receivedDate: null,
     deliveryStatus: "In Progress",
+    remarks: "",
     cost: 0,
     paymentStatus: "Pending",
     labName: "",
     orderDateToLab: "",
-    remarks: "",
   });
   const [patients, setPatients] = useState<Patient[]>([]);
 
@@ -106,19 +84,35 @@ export default function NewDentureButton({
     const { name, value } = e.target;
     setNewDenture((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "cost" ? parseFloat(value) : value,
     }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
+  const handlePatientChange = (patientID: string) => {
     setNewDenture((prev) => ({
       ...prev,
-      [name]: value,
+      patientID,
     }));
+  };
+
+  const validateDentureDates = () => {
+    const now = new Date();
+    const trialDate = new Date(newDenture.trialDentureDate);
+    const estimatedDeliveryDate = new Date(newDenture.estimatedDeliveryDate);
+    const orderDate = new Date(newDenture.orderDateToLab);
+
+    return (
+      trialDate > now && estimatedDeliveryDate > trialDate && orderDate <= now
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateDentureDates()) {
+      toast.error("Please check the dates. They must be in a logical order.");
+      return;
+    }
 
     const toastId = toast.loading("Adding new denture...");
     try {
@@ -139,21 +133,22 @@ export default function NewDentureButton({
       }
 
       const result = await response.json();
-      toast.success(`New denture added successfully! ID: ${result.id}`, {
+      toast.success(`New denture added successfully! ID: ${result.dentureId}`, {
         id: toastId,
       });
       setNewDenture({
-        patientID: 0,
+        patientID: "",
         dentureType: "",
         materialType: "",
         trialDentureDate: "",
         estimatedDeliveryDate: "",
+        receivedDate: null,
         deliveryStatus: "In Progress",
+        remarks: "",
         cost: 0,
         paymentStatus: "Pending",
         labName: "",
         orderDateToLab: "",
-        remarks: "",
       });
       onClose();
       onDentureAdded();
@@ -175,11 +170,11 @@ export default function NewDentureButton({
         variant="ghost"
         onClick={onOpen}
         radius="full"
-        startContent={<UserPlus size={16} />}
+        startContent={<Plus className="w-4 h-4" />}
       >
         New Denture
       </Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="lg" hideCloseButton>
+      <Modal isOpen={isOpen} onClose={onClose} size="md" hideCloseButton>
         <ModalContent>
           {(onClose) => (
             <form onSubmit={handleSubmit}>
@@ -190,8 +185,8 @@ export default function NewDentureButton({
                 <Autocomplete
                   label="Patient"
                   placeholder="Select patient"
-                  onSelectionChange={(value) =>
-                    handleSelectChange("patientID", value as string)
+                  onSelectionChange={(patientID) =>
+                    handlePatientChange(patientID as string)
                   }
                   required
                 >
@@ -204,34 +199,20 @@ export default function NewDentureButton({
                     </AutocompleteItem>
                   ))}
                 </Autocomplete>
-                <Select
+                <Input
                   label="Denture Type"
-                  placeholder="Select denture type"
-                  onChange={(e) =>
-                    handleSelectChange("dentureType", e.target.value)
-                  }
+                  name="dentureType"
+                  value={newDenture.dentureType}
+                  onChange={handleInputChange}
                   required
-                >
-                  {dentureTypeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <Select
+                />
+                <Input
                   label="Material Type"
-                  placeholder="Select material type"
-                  onChange={(e) =>
-                    handleSelectChange("materialType", e.target.value)
-                  }
+                  name="materialType"
+                  value={newDenture.materialType}
+                  onChange={handleInputChange}
                   required
-                >
-                  {materialTypeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
+                />
                 <Input
                   label="Trial Denture Date"
                   name="trialDentureDate"
@@ -248,20 +229,6 @@ export default function NewDentureButton({
                   onChange={handleInputChange}
                   required
                 />
-                <Select
-                  label="Delivery Status"
-                  placeholder="Select delivery status"
-                  onChange={(e) =>
-                    handleSelectChange("deliveryStatus", e.target.value)
-                  }
-                  required
-                >
-                  {deliveryStatusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
                 <Input
                   label="Cost"
                   name="cost"
@@ -270,25 +237,12 @@ export default function NewDentureButton({
                   onChange={handleInputChange}
                   required
                 />
-                <Select
-                  label="Payment Status"
-                  placeholder="Select payment status"
-                  onChange={(e) =>
-                    handleSelectChange("paymentStatus", e.target.value)
-                  }
-                  required
-                >
-                  {paymentStatusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </Select>
                 <Input
                   label="Lab Name"
                   name="labName"
                   value={newDenture.labName}
                   onChange={handleInputChange}
+                  required
                 />
                 <Input
                   label="Order Date to Lab"
@@ -296,6 +250,7 @@ export default function NewDentureButton({
                   type="date"
                   value={newDenture.orderDateToLab}
                   onChange={handleInputChange}
+                  required
                 />
                 <Input
                   label="Remarks"
