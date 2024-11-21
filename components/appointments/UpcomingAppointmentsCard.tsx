@@ -122,6 +122,7 @@ export default function UpcomingAppointmentsCard() {
           <Button
             color="secondary"
             radius="full"
+            variant="ghost"
             startContent={<List className="h-4 w-4" />}
           >
             View All
