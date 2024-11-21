@@ -152,7 +152,7 @@ export default function NewAppointmentButton({
     <>
       <Button
         color="primary"
-        variant="ghost"
+        variant="solid"
         onClick={onOpen}
         radius="full"
         startContent={<CalendarPlus className="w-4 h-4" />}
