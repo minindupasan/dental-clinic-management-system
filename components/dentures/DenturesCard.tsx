@@ -94,7 +94,7 @@ export default function DenturesCard() {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "Invalid Date";
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString("en-GB", {
       month: "short",
       day: "2-digit",
       year: "numeric",
@@ -162,9 +162,12 @@ export default function DenturesCard() {
             <RefreshCw className="h-4 w-4" />
           </Button>
           <Link href="/Dentures">
-            <Button color="primary" variant="ghost" radius="full" startContent={<List className="w-4 h-4"/>}>
-              View All
-            </Button>
+            <Button
+              isIconOnly
+              color="primary"
+              variant="ghost"
+              startContent={<List size={16} />}
+            ></Button>
           </Link>
         </div>
       </CardHeader>
@@ -221,7 +224,7 @@ export default function DenturesCard() {
                           </p>
                           <p className="flex items-center">
                             <DollarSign className="w-4 h-4 mr-2 text-primary" />
-                            <span className="font-medium mr-1">Cost:</span>$
+                            <span className="font-medium mr-1">Cost:</span>LKR{" "}
                             {denture.cost.toFixed(2)}
                           </p>
                         </div>
