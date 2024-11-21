@@ -13,7 +13,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { SmileIcon as Tooth } from "lucide-react";
+import { TestTubeDiagonal, SmileIcon as Tooth } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -170,10 +170,10 @@ export default function NewDentureButton({
     <>
       <Button
         color="primary"
-        variant="ghost"
+        variant="solid"
         onClick={onOpen}
         radius="full"
-        startContent={<Tooth className="w-4 h-4" />}
+        startContent={<TestTubeDiagonal className="w-4 h-4" />}
       >
         New Denture
       </Button>
