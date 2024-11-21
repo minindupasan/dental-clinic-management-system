@@ -21,6 +21,8 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import { toast } from "react-hot-toast";
 import {
@@ -60,7 +62,7 @@ type Denture = {
   cost: number;
   paymentStatus: string;
   labName: string;
-  orderDateToLab: string;
+  orderedDate: string;
 };
 
 const columns = [
@@ -73,10 +75,36 @@ const columns = [
   { key: "deliveryStatus", label: "STATUS" },
   { key: "cost", label: "COST" },
   { key: "paymentStatus", label: "PAYMENT" },
+  { key: "orderedDate", label: "ORDERED DATE" },
   { key: "actions", label: "ACTIONS" },
 ];
 
-const deliveryStatusOptions = ["In Progress", "Completed", "Delayed"];
+const deliveryStatusOptions = ["In Progress", "Delivered"];
+const paymentStatusOptions = ["Pending", "Paid"];
+
+const dentureTypes = [
+  "Full Denture",
+  "Partial Denture",
+  "Implant-Supported Denture",
+  "Immediate Denture",
+  "Overdenture",
+];
+
+const dentureMaterials = [
+  "Acrylic",
+  "Porcelain",
+  "Metal",
+  "Flexible",
+  "Hybrid",
+];
+
+const labNames = [
+  "Smile Lab",
+  "Dental Creations",
+  "ProDent Lab",
+  "Crown Masters",
+  "Precision Dental",
+];
 
 export default function DentureManager() {
   const [dentures, setDentures] = useState<Denture[]>([]);
@@ -157,6 +185,10 @@ export default function DentureManager() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setCurrentDenture((prev) => (prev ? { ...prev, [name]: value } : null));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
     setCurrentDenture((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
@@ -333,7 +365,7 @@ export default function DentureManager() {
           </div>
           <Button
             isIconOnly
-            color="primary"
+            className="bg-primary-200 text-primary-600"
             aria-label="Refresh"
             onClick={fetchDentures}
             isLoading={isRefreshing}
@@ -416,10 +448,13 @@ export default function DentureManager() {
                 </Dropdown>
               </TableCell>
               <TableCell className="text-center">
-                ${denture.cost.toFixed(2)}
+                LKR {denture.cost.toFixed(2)}
               </TableCell>
               <TableCell className="text-center">
                 {denture.paymentStatus}
+              </TableCell>
+              <TableCell className="text-center">
+                {denture.orderedDate}
               </TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center space-x-2">
@@ -463,20 +498,36 @@ export default function DentureManager() {
                 Edit Denture
               </ModalHeader>
               <ModalBody>
-                <Input
+                <Select
                   label="Denture Type"
-                  name="dentureType"
+                  placeholder="Select denture type"
                   value={currentDenture?.dentureType || ""}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    handleSelectChange("dentureType", e.target.value)
+                  }
                   required
-                />
-                <Input
+                >
+                  {dentureTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
                   label="Material Type"
-                  name="materialType"
+                  placeholder="Select material type"
                   value={currentDenture?.materialType || ""}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    handleSelectChange("materialType", e.target.value)
+                  }
                   required
-                />
+                >
+                  {dentureMaterials.map((material) => (
+                    <SelectItem key={material} value={material}>
+                      {material}
+                    </SelectItem>
+                  ))}
+                </Select>
                 <Input
                   label="Trial Date"
                   name="trialDentureDate"
@@ -494,43 +545,78 @@ export default function DentureManager() {
                   required
                 />
                 <Input
-                  label="Cost"
+                  label="Cost (LKR)"
                   name="cost"
                   type="number"
+                  min="0"
+                  step="1"
                   value={currentDenture?.cost.toString() || ""}
                   onChange={handleInputChange}
                   required
+                  startContent={
+                    <div className="pointer-events-none flex items-center">
+                      <span className="text-default-400 text-small">LKR</span>
+                    </div>
+                  }
                 />
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button
-                      variant="light"
-                      className="bg-default-100"
-                      radius="full"
-                      endContent={<ChevronDown className="h-4 w-4" />}
-                    >
-                      {currentDenture?.deliveryStatus || "Select Status"}
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    aria-label="Status options"
-                    onAction={(key) =>
-                      setCurrentDenture((prev) =>
-                        prev ? { ...prev, deliveryStatus: key as string } : null
-                      )
-                    }
-                    selectedKeys={
-                      currentDenture
-                        ? new Set([currentDenture.deliveryStatus])
-                        : new Set()
-                    }
-                    selectionMode="single"
-                  >
-                    {deliveryStatusOptions.map((status) => (
-                      <DropdownItem key={status}>{status}</DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
+                <Select
+                  label="Lab Name"
+                  placeholder="Select lab"
+                  value={currentDenture?.labName || ""}
+                  onChange={(e) =>
+                    handleSelectChange("labName", e.target.value)
+                  }
+                  required
+                >
+                  {labNames.map((lab) => (
+                    <SelectItem key={lab} value={lab}>
+                      {lab}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Input
+                  label="Received Date"
+                  name="receivedDate"
+                  type="date"
+                  value={currentDenture?.receivedDate || ""}
+                  onChange={handleInputChange}
+                />
+                <Select
+                  label="Delivery Status"
+                  placeholder="Select delivery status"
+                  value={currentDenture?.deliveryStatus || ""}
+                  onChange={(e) =>
+                    handleSelectChange("deliveryStatus", e.target.value)
+                  }
+                  required
+                >
+                  {deliveryStatusOptions.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
+                  label="Payment Status"
+                  placeholder="Select payment status"
+                  value={currentDenture?.paymentStatus || ""}
+                  onChange={(e) =>
+                    handleSelectChange("paymentStatus", e.target.value)
+                  }
+                  required
+                >
+                  {paymentStatusOptions.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Input
+                  label="Remarks"
+                  name="remarks"
+                  value={currentDenture?.remarks || ""}
+                  onChange={handleInputChange}
+                />
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
