@@ -31,7 +31,6 @@ import {
   Search,
   Filter,
   RefreshCw,
-  FileText,
 } from "lucide-react";
 import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryViewModal from "../MedicalHistory";
@@ -472,8 +471,8 @@ export default function AppointmentManager() {
                 <div className="flex justify-center space-x-2">
                   <Button
                     isIconOnly
-                    className="text-warning-500 bg-warning-100"
-                    variant="light"
+                    color="warning"
+                    variant="flat"
                     aria-label="Edit"
                     onClick={() => handleEdit(appointment)}
                   >
@@ -481,8 +480,8 @@ export default function AppointmentManager() {
                   </Button>
                   <Button
                     isIconOnly
-                    className="text-danger-500 bg-danger-100"
-                    variant="light"
+                    color="danger"
+                    variant="flat"
                     aria-label="Delete"
                     onClick={() => handleDelete(appointment.appointmentID)}
                   >
@@ -565,15 +564,11 @@ export default function AppointmentManager() {
                 </Dropdown>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" variant="flat" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button
-                  variant="light"
-                  type="submit"
-                  className="text-success-600"
-                >
-                  Update Appointment
+                <Button variant="flat" type="submit" color="success">
+                  Update
                 </Button>
               </ModalFooter>
             </form>
