@@ -78,7 +78,7 @@ export default function Component() {
       <Button
         onPress={() => setIsOpen(true)}
         color="primary"
-        variant="ghost"
+        variant="solid"
         radius="full"
         startContent={<UserPlus size={16} />}
       >
