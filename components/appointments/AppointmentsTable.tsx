@@ -31,7 +31,6 @@ import {
   Search,
   Filter,
   RefreshCw,
-  FileText,
 } from "lucide-react";
 import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryViewModal from "../MedicalHistory";
@@ -565,15 +564,11 @@ export default function AppointmentManager() {
                 </Dropdown>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" variant="flat" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button
-                  variant="light"
-                  type="submit"
-                  className="text-success-600"
-                >
-                  Update Appointment
+                <Button variant="flat" type="submit" color="success">
+                  Update
                 </Button>
               </ModalFooter>
             </form>
