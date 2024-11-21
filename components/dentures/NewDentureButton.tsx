@@ -12,6 +12,8 @@ import {
   useDisclosure,
   Autocomplete,
   AutocompleteItem,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import { Plus } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -39,6 +41,30 @@ type Patient = {
   firstName: string;
   lastName: string;
 };
+
+const dentureTypes = [
+  "Full Denture",
+  "Partial Denture",
+  "Implant-Supported Denture",
+  "Immediate Denture",
+  "Overdenture",
+];
+
+const dentureMaterials = [
+  "Acrylic",
+  "Porcelain",
+  "Metal",
+  "Flexible",
+  "Hybrid",
+];
+
+const labNames = [
+  "Smile Lab",
+  "Dental Creations",
+  "ProDent Lab",
+  "Crown Masters",
+  "Precision Dental",
+];
 
 export default function NewDentureButton({
   onDentureAdded,
@@ -82,17 +108,22 @@ export default function NewDentureButton({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewDenture((prev) => ({
-      ...prev,
-      [name]: name === "cost" ? parseFloat(value) : value,
-    }));
+    if (name === "cost") {
+      const cost = parseFloat(value);
+      if (cost >= 0) {
+        setNewDenture((prev) => ({ ...prev, [name]: cost }));
+      }
+    } else {
+      setNewDenture((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setNewDenture((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePatientChange = (patientID: string) => {
-    setNewDenture((prev) => ({
-      ...prev,
-      patientID,
-    }));
+    setNewDenture((prev) => ({ ...prev, patientID }));
   };
 
   const validateDentureDates = () => {
@@ -102,7 +133,7 @@ export default function NewDentureButton({
     const orderDate = new Date(newDenture.orderDateToLab);
 
     return (
-      trialDate > now && estimatedDeliveryDate > trialDate && orderDate <= now
+      trialDate >= now && estimatedDeliveryDate >= trialDate && orderDate <= now
     );
   };
 
@@ -199,20 +230,36 @@ export default function NewDentureButton({
                     </AutocompleteItem>
                   ))}
                 </Autocomplete>
-                <Input
+                <Select
                   label="Denture Type"
-                  name="dentureType"
+                  placeholder="Select denture type"
                   value={newDenture.dentureType}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    handleSelectChange("dentureType", e.target.value)
+                  }
                   required
-                />
-                <Input
+                >
+                  {dentureTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Select
                   label="Material Type"
-                  name="materialType"
+                  placeholder="Select material type"
                   value={newDenture.materialType}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    handleSelectChange("materialType", e.target.value)
+                  }
                   required
-                />
+                >
+                  {dentureMaterials.map((material) => (
+                    <SelectItem key={material} value={material}>
+                      {material}
+                    </SelectItem>
+                  ))}
+                </Select>
                 <Input
                   label="Trial Denture Date"
                   name="trialDentureDate"
@@ -230,20 +277,35 @@ export default function NewDentureButton({
                   required
                 />
                 <Input
-                  label="Cost"
+                  label="Cost (LKR)"
                   name="cost"
                   type="number"
+                  min="0"
+                  step="1"
                   value={newDenture.cost.toString()}
                   onChange={handleInputChange}
                   required
+                  startContent={
+                    <div className="pointer-events-none flex items-center">
+                      <span className="text-default-400 text-small">LKR</span>
+                    </div>
+                  }
                 />
-                <Input
+                <Select
                   label="Lab Name"
-                  name="labName"
+                  placeholder="Select lab"
                   value={newDenture.labName}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    handleSelectChange("labName", e.target.value)
+                  }
                   required
-                />
+                >
+                  {labNames.map((lab) => (
+                    <SelectItem key={lab} value={lab}>
+                      {lab}
+                    </SelectItem>
+                  ))}
+                </Select>
                 <Input
                   label="Order Date to Lab"
                   name="orderDateToLab"
