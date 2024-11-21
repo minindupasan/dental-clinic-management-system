@@ -472,8 +472,8 @@ export default function AppointmentManager() {
                 <div className="flex justify-center space-x-2">
                   <Button
                     isIconOnly
-                    className="text-warning-500 bg-warning-100"
-                    variant="light"
+                    color="warning"
+                    variant="flat"
                     aria-label="Edit"
                     onClick={() => handleEdit(appointment)}
                   >
@@ -481,8 +481,8 @@ export default function AppointmentManager() {
                   </Button>
                   <Button
                     isIconOnly
-                    className="text-danger-500 bg-danger-100"
-                    variant="light"
+                    color="danger"
+                    variant="flat"
                     aria-label="Delete"
                     onClick={() => handleDelete(appointment.appointmentID)}
                   >
