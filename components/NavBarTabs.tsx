@@ -27,9 +27,14 @@ const NavBarTabs: React.FC<NavBarTabsProps> = ({ onTabClick, currentPath }) => {
           value="/Patients"
         />
         <Tab
-          key="Dentures"
+          key="dentures"
           title={<Link href="/Dentures">Dentures</Link>}
           value="/Dentures"
+        />
+        <Tab
+          key=" inventory"
+          title={<Link href="/Inventory">Inventory</Link>}
+          value="/Inventory"
         />
         <Tab
           key="profile"
