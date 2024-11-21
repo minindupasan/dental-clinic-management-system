@@ -749,15 +749,11 @@ export default function DentureManager() {
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" variant="flat" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button
-                  variant="light"
-                  type="submit"
-                  className="text-success-600"
-                >
-                  Update Denture
+                <Button variant="flat" type="submit" color="success">
+                  Update
                 </Button>
               </ModalFooter>
             </form>
