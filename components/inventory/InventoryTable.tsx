@@ -33,7 +33,6 @@ import {
   RefreshCw,
   Plus,
 } from "lucide-react";
-import NewInventoryItemButton from "./NewInventoryButton";
 import NewInventoryButton from "./NewInventoryButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -267,22 +266,6 @@ export default function InventoryTable({
     );
   };
 
-  const handleAddItem = () => {
-    setCurrentItem({
-      inventoryId: 0,
-      itemName: "",
-      quantity: 0,
-      statusLevel: "",
-      restockLevel: 0,
-      purchaseDate: "",
-      expiryDate: "",
-      unitCost: 0,
-      totalCost: null,
-      lastUpdated: null,
-    });
-    onOpen();
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64 text-foreground-light">
@@ -296,6 +279,7 @@ export default function InventoryTable({
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
+            <NewInventoryButton onItemAdded={fetchInventory} />
             <Dropdown>
               <DropdownTrigger className="w-[200px]">
                 <Button
@@ -424,7 +408,7 @@ export default function InventoryTable({
           {(onClose) => (
             <form onSubmit={handleUpdateItem}>
               <ModalHeader className="flex flex-col gap-1 text-foreground-light">
-                {currentItem?.inventoryId ? "Edit Item" : "Add New Item"}
+                Edit Item
               </ModalHeader>
               <ModalBody>
                 <Input
@@ -481,7 +465,7 @@ export default function InventoryTable({
                   Cancel
                 </Button>
                 <Button variant="flat" type="submit" color="success">
-                  {currentItem?.inventoryId ? "Update" : "Add"}
+                  Update
                 </Button>
               </ModalFooter>
             </form>
