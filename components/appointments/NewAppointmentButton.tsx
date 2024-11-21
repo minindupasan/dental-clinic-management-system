@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Key } from "react";
 import {
   Button,
   Modal,
@@ -78,11 +78,10 @@ export default function NewAppointmentButton({
     }));
   };
 
-  const handlePatientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
+  const handlePatientChange = (key: Key | null) => {
     setNewAppointment((prev) => ({
       ...prev,
-      patientID: value,
+      patientID: key as string,
     }));
   };
 
@@ -96,6 +95,16 @@ export default function NewAppointmentButton({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (
+      !newAppointment.patientID ||
+      !newAppointment.appointmentDate ||
+      !newAppointment.appointmentTime ||
+      !newAppointment.reason
+    ) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
 
     if (!validateAppointmentDateTime()) {
       toast.error("Appointment date and time must be in the future.");
@@ -154,11 +163,9 @@ export default function NewAppointmentButton({
         color="primary"
         variant="solid"
         onClick={onOpen}
-        radius="full"
         startContent={<CalendarPlus className="w-4 h-4" />}
-      >
-        New Appointment
-      </Button>
+        isIconOnly
+      ></Button>
       <Modal isOpen={isOpen} onClose={onClose} size="md" hideCloseButton>
         <ModalContent>
           {(onClose) => (
@@ -170,11 +177,7 @@ export default function NewAppointmentButton({
                 <Autocomplete
                   label="Patient"
                   placeholder="Select patient"
-                  onChange={(e) =>
-                    handlePatientChange(
-                      e as unknown as React.ChangeEvent<HTMLSelectElement>
-                    )
-                  }
+                  onSelectionChange={(key) => handlePatientChange(key)}
                   required
                 >
                   {patients.map((patient) => (
@@ -211,20 +214,10 @@ export default function NewAppointmentButton({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button
-                  variant="ghost"
-                  radius="full"
-                  color="danger"
-                  onClick={onClose}
-                >
+                <Button variant="flat" color="danger" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button
-                  variant="ghost"
-                  radius="full"
-                  color="success"
-                  type="submit"
-                >
+                <Button variant="flat" color="success" type="submit">
                   Add
                 </Button>
               </ModalFooter>
