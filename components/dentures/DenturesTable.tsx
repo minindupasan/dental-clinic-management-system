@@ -24,6 +24,7 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
+
 import { toast } from "react-hot-toast";
 import {
   Pencil,
@@ -31,8 +32,8 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
-  Filter,
   RefreshCw,
+  Filter,
 } from "lucide-react";
 import NewDentureButton from "./NewDentureButton";
 
@@ -72,15 +73,15 @@ const columns = [
   { key: "materialType", label: "MATERIAL" },
   { key: "trialDentureDate", label: "TRIAL DATE" },
   { key: "estimatedDeliveryDate", label: "EST. DELIVERY" },
-  { key: "deliveryStatus", label: "STATUS" },
+  { key: "deliveryStatus", label: "DELIVERY STATUS" },
   { key: "cost", label: "COST" },
   { key: "paymentStatus", label: "PAYMENT" },
   { key: "orderedDate", label: "ORDERED DATE" },
   { key: "actions", label: "ACTIONS" },
 ];
 
-const deliveryStatusOptions = ["In Progress", "Delivered"];
-const paymentStatusOptions = ["Pending", "Paid"];
+const deliveryStatusOptions = ["In Progress", "Delivered", "Cancelled"];
+const paymentStatusOptions = ["Pending", "Paid", "Partially Paid"];
 
 const dentureTypes = [
   "Full Denture",
@@ -118,6 +119,10 @@ export default function DentureManager() {
   }>({ key: "", direction: "none", clickCount: 0 });
   const [filterValue, setFilterValue] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [viewMode, setViewMode] = useState<{
+    delivery: string;
+    payment: string;
+  }>({ delivery: "all", payment: "all" });
 
   const fetchDentures = useCallback(async () => {
     setIsRefreshing(true);
@@ -143,6 +148,18 @@ export default function DentureManager() {
 
   const filteredDentures = useMemo(() => {
     let filtered = [...dentures];
+
+    if (viewMode.delivery !== "all") {
+      filtered = filtered.filter(
+        (denture) => denture.deliveryStatus === viewMode.delivery
+      );
+    }
+
+    if (viewMode.payment !== "all") {
+      filtered = filtered.filter(
+        (denture) => denture.paymentStatus === viewMode.payment
+      );
+    }
 
     if (filterValue) {
       filtered = filtered.filter(
@@ -181,7 +198,7 @@ export default function DentureManager() {
     }
 
     return filtered;
-  }, [dentures, filterValue, sortConfig]);
+  }, [dentures, filterValue, viewMode, sortConfig]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -302,7 +319,11 @@ export default function DentureManager() {
     );
   };
 
-  const handleStatusChange = async (dentureId: number, newStatus: string) => {
+  const handleStatusChange = async (
+    dentureId: number,
+    newStatus: string,
+    statusType: "delivery" | "payment"
+  ) => {
     try {
       const dentureToUpdate = dentures.find(
         (denture) => denture.dentureId === dentureId
@@ -311,7 +332,10 @@ export default function DentureManager() {
         throw new Error("Denture not found");
       }
 
-      const updatedDenture = { ...dentureToUpdate, deliveryStatus: newStatus };
+      const updatedDenture =
+        statusType === "delivery"
+          ? { ...dentureToUpdate, deliveryStatus: newStatus }
+          : { ...dentureToUpdate, paymentStatus: newStatus };
 
       const response = await fetch(
         `${API_BASE_URL}/api/dentures/update/${dentureId}`,
@@ -325,20 +349,29 @@ export default function DentureManager() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to update denture status");
+        throw new Error(`Failed to update denture ${statusType} status`);
       }
 
-      toast.success(`Denture status updated to ${newStatus}`);
+      toast.success(`Denture ${statusType} status updated to ${newStatus}`);
       fetchDentures();
     } catch (error) {
-      console.error("Error updating denture status:", error);
-      toast.error("An error occurred while updating the denture status");
+      console.error(`Error updating denture ${statusType} status:`, error);
+      toast.error(
+        `An error occurred while updating the denture ${statusType} status`
+      );
     }
   };
 
   const handleDentureAdded = useCallback(() => {
     fetchDentures();
   }, [fetchDentures]);
+
+  const handleFilterChange = (
+    statusType: "delivery" | "payment",
+    value: string
+  ) => {
+    setViewMode((prev) => ({ ...prev, [statusType]: value }));
+  };
 
   if (loading) {
     return (
@@ -354,6 +387,66 @@ export default function DentureManager() {
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
             <NewDentureButton onDentureAdded={handleDentureAdded} />
+            <Dropdown>
+              <DropdownTrigger className="w-[200px]">
+                <Button
+                  radius="full"
+                  color="primary"
+                  variant="ghost"
+                  startContent={<Filter className="h-4 w-4" />}
+                  endContent={<ChevronDown className="h-4 w-4" />}
+                  className="px-5 py-1 w-[200px] flex justify-between items-center"
+                  aria-label="Filter delivery status"
+                >
+                  {viewMode.delivery === "all"
+                    ? "All Delivery"
+                    : viewMode.delivery}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Delivery status options"
+                onAction={(key) =>
+                  handleFilterChange("delivery", key as string)
+                }
+                className="w-[200px] text-foreground-light"
+              >
+                <DropdownItem key="all">All Delivery</DropdownItem>
+                <>
+                  {deliveryStatusOptions.map((status) => (
+                    <DropdownItem key={status}>{status}</DropdownItem>
+                  ))}
+                </>
+              </DropdownMenu>
+            </Dropdown>
+            <Dropdown>
+              <DropdownTrigger className="w-[200px]">
+                <Button
+                  radius="full"
+                  color="primary"
+                  variant="ghost"
+                  startContent={<Filter className="h-4 w-4" />}
+                  endContent={<ChevronDown className="h-4 w-4" />}
+                  className="px-5 py-1 w-[200px] flex justify-between items-center"
+                  aria-label="Filter payment status"
+                >
+                  {viewMode.payment === "all"
+                    ? "All Payment"
+                    : viewMode.payment}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="Payment status options"
+                onAction={(key) => handleFilterChange("payment", key as string)}
+                className="w-[200px] text-foreground-light"
+              >
+                <DropdownItem key="all">All Payment</DropdownItem>
+                <>
+                  {paymentStatusOptions.map((status) => (
+                    <DropdownItem key={status}>{status}</DropdownItem>
+                  ))}
+                </>
+              </DropdownMenu>
+            </Dropdown>
             <Input
               placeholder="Search dentures..."
               value={filterValue}
@@ -363,19 +456,21 @@ export default function DentureManager() {
               className="w-[300px]"
             />
           </div>
-          <Button
-            isIconOnly
-            className="bg-primary-200 text-primary-600"
-            aria-label="Refresh"
-            onClick={fetchDentures}
-            isLoading={isRefreshing}
-          >
-            {isRefreshing ? (
-              <Spinner size="sm" color="current" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button
+              isIconOnly
+              className="bg-primary-200 text-primary-600"
+              aria-label="Refresh"
+              onClick={fetchDentures}
+              isLoading={isRefreshing}
+            >
+              {isRefreshing ? (
+                <Spinner size="sm" color="current" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
       <Table aria-label="Denture data table">
@@ -387,11 +482,14 @@ export default function DentureManager() {
               onClick={() =>
                 column.key !== "actions" &&
                 column.key !== "deliveryStatus" &&
+                column.key !== "paymentStatus" &&
                 handleSort(column.key)
               }
               style={{
                 cursor:
-                  column.key !== "actions" && column.key !== "deliveryStatus"
+                  column.key !== "actions" &&
+                  column.key !== "deliveryStatus" &&
+                  column.key !== "paymentStatus"
                     ? "pointer"
                     : "default",
               }}
@@ -434,9 +532,13 @@ export default function DentureManager() {
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
-                    aria-label="Status options"
+                    aria-label="Delivery Status options"
                     onAction={(key) =>
-                      handleStatusChange(denture.dentureId, key as string)
+                      handleStatusChange(
+                        denture.dentureId,
+                        key as string,
+                        "delivery"
+                      )
                     }
                     selectedKeys={new Set([denture.deliveryStatus])}
                     selectionMode="single"
@@ -451,7 +553,35 @@ export default function DentureManager() {
                 LKR {denture.cost.toFixed(2)}
               </TableCell>
               <TableCell className="text-center">
-                {denture.paymentStatus}
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      size="sm"
+                      radius="full"
+                      variant="light"
+                      className="bg-default-100"
+                      endContent={<ChevronDown className="h-4 w-4" />}
+                    >
+                      {denture.paymentStatus}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Payment Status options"
+                    onAction={(key) =>
+                      handleStatusChange(
+                        denture.dentureId,
+                        key as string,
+                        "payment"
+                      )
+                    }
+                    selectedKeys={new Set([denture.paymentStatus])}
+                    selectionMode="single"
+                  >
+                    {paymentStatusOptions.map((status) => (
+                      <DropdownItem key={status}>{status}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
               </TableCell>
               <TableCell className="text-center">
                 {denture.orderedDate}
