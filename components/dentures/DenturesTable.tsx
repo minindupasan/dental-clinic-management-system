@@ -333,7 +333,7 @@ export default function DentureManager() {
           </div>
           <Button
             isIconOnly
-            className="bg-primary-200 text-primary-600"
+            color="primary"
             aria-label="Refresh"
             onClick={fetchDentures}
             isLoading={isRefreshing}
