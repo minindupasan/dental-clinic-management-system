@@ -222,9 +222,6 @@ export default function NewDentureButton({
                   >
                     Fixed Prosthodontics
                   </SelectItem>
-                  <SelectItem key="Cancelled" value="Cancelled">
-                    Cancelled
-                  </SelectItem>
                 </Select>
                 <Select
                   label="Material Type"
