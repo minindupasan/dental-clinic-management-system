@@ -19,6 +19,9 @@ import {
   Calendar,
   Clock,
   DollarSign,
+  ClipboardCheck,
+  ClipboardCopy,
+  ClipboardX,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -141,6 +144,20 @@ export default function DenturesCard() {
     }
   };
 
+  const getOrderStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+        return <ClipboardCheck className="w-12 h-12 text-primary m-5" />;
+      case "pending":
+        return <ClipboardCopy className="w-12 h-12 text-primary m-5" />;
+      case "cancelled":
+      case "not completed":
+        return <ClipboardX className="w-12 h-12 text-primary m-5" />;
+      default:
+        return <ClipboardCheck className="w-12 h-12 text-primary m-5" />;
+    }
+  };
+
   return (
     <Card className="w-full max-w-3xl mx-auto bg-gradient-to-br from-background to-background/80 dark:from-default-100 dark:to-default-50 backdrop-blur-xl backdrop-saturate-150 border border-divider shadow-xl">
       <CardHeader className="flex justify-between items-center px-6 py-4 bg-background/60 dark:bg-default-100/50 border-b border-divider">
@@ -187,7 +204,7 @@ export default function DenturesCard() {
                 <CardBody className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 items-center">
-                      <FileText className="w-12 h-12 text-primary m-5" />
+                      <div>{getOrderStatusIcon(denture.deliveryStatus)}</div>
                       <div>
                         <h3 className="text-lg font-semibold mb-1">
                           Denture ID: {denture.dentureId}
