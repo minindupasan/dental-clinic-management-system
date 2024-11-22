@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryViewModal from "../MedicalHistory";
+import PrescriptionButton from "../Prescription";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -66,6 +67,7 @@ const columns = [
   { key: "reason", label: "REASON" },
   { key: "status", label: "STATUS" },
   { key: "medicalRecords", label: "MEDICAL RECORDS" },
+  { key: "prescriptions", label: "PRESCRIPTIONS" },
   { key: "actions", label: "ACTIONS" },
 ];
 
@@ -397,13 +399,15 @@ export default function AppointmentManager() {
                 column.key !== "actions" &&
                 column.key !== "medicalRecords" &&
                 column.key !== "status" &&
+                column.key !== "prescriptions" &&
                 handleSort(column.key)
               }
               style={{
                 cursor:
                   column.key !== "actions" &&
                   column.key !== "medicalRecords" &&
-                  column.key !== "status"
+                  column.key !== "status" &&
+                  column.key !== "prescriptions"
                     ? "pointer"
                     : "default",
               }}
@@ -466,6 +470,9 @@ export default function AppointmentManager() {
                 <MedicalHistoryViewModal
                   patientId={appointment.patient.patientID}
                 />
+              </TableCell>
+              <TableCell className="text-center">
+                <PrescriptionButton appointmentId={appointment.appointmentID} />
               </TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center space-x-2">
