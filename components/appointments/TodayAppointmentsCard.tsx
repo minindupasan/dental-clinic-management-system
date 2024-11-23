@@ -195,7 +195,7 @@ export default function TodayAppointmentsCard() {
                   <div className="flex items-start justify-between">
                     <div className="flex space-x-4 items-center">
                       <div className="px-2 py-4 text-center min-w-[120px] rounded-lg">
-                        <div className="text-3xl font-semibold flex items-center justify-center">
+                        <div className="text-2xl font-semibold flex items-center justify-center">
                           <Clock className="w-6 h-6 mr-2 text-primary" />
                           {formatTime(appointment.appointmentTime)}
                         </div>
