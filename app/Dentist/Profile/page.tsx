@@ -1,5 +1,5 @@
 import FinancialSummary from "@/components/FinancialSummaryCard";
-import PendingPayments from "@/components/PendingPaymentsCard";
+import PendingPayments from "@/components/treatments/PendingPaymentsCard";
 import TreatmentsCard from "@/components/TreatmentsCard";
 import React from "react";
 
