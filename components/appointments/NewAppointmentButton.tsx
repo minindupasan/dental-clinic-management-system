@@ -19,13 +19,20 @@ import { toast } from "react-hot-toast";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Appointment = {
-  appointmentID: string;
-  formattedAppointmentID: string;
-  patientID: string;
+  appointmentID: number;
+  patient: {
+    patientId: number;
+    name: string;
+  };
   appointmentDate: string;
   appointmentTime: string;
   reason: string;
   status: string;
+  treatment: {
+    treatmentID: number;
+    treatmentType: string;
+    startDate: string;
+  };
 };
 
 type Patient = {
@@ -40,15 +47,15 @@ export default function NewAppointmentButton({
   onAppointmentAdded: () => void;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [newAppointment, setNewAppointment] = useState<
-    Omit<Appointment, "appointmentID" | "status"> & { status: string }
-  >({
-    patientID: "",
-    formattedAppointmentID: "",
+  const [newAppointment, setNewAppointment] = useState({
+    patientId: 0,
     appointmentDate: "",
     appointmentTime: "",
     reason: "",
     status: "Scheduled",
+    treatment: {
+      treatmentType: "",
+    },
   });
   const [patients, setPatients] = useState<Patient[]>([]);
 
@@ -72,17 +79,23 @@ export default function NewAppointmentButton({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewAppointment((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (name === "treatmentType") {
+      setNewAppointment((prev) => ({
+        ...prev,
+        treatment: { ...prev.treatment, treatmentType: value },
+      }));
+    } else {
+      setNewAppointment((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
-  const handlePatientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
+  const handlePatientChange = (value: string) => {
     setNewAppointment((prev) => ({
       ...prev,
-      patientID: value,
+      patientId: parseInt(value, 10),
     }));
   };
 
@@ -105,7 +118,7 @@ export default function NewAppointmentButton({
     const toastId = toast.loading("Adding new appointment...");
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/appointments/create/${newAppointment.patientID}`,
+        `${API_BASE_URL}/api/appointments/create/${newAppointment.patientId}`,
         {
           method: "POST",
           headers: {
@@ -122,18 +135,20 @@ export default function NewAppointmentButton({
 
       const result = await response.json();
       toast.success(
-        `New appointment added successfully! ID: ${result.formattedAppointmentID}`,
+        `New appointment added successfully! ID: ${result.appointmentID}`,
         {
           id: toastId,
         }
       );
       setNewAppointment({
-        patientID: "",
-        formattedAppointmentID: "",
+        patientId: 0,
         appointmentDate: "",
         appointmentTime: "",
         reason: "",
         status: "Scheduled",
+        treatment: {
+          treatmentType: "",
+        },
       });
       onClose();
       onAppointmentAdded();
@@ -170,10 +185,8 @@ export default function NewAppointmentButton({
                 <Autocomplete
                   label="Patient"
                   placeholder="Select patient"
-                  onChange={(e) =>
-                    handlePatientChange(
-                      e as unknown as React.ChangeEvent<HTMLSelectElement>
-                    )
+                  onSelectionChange={(value) =>
+                    handlePatientChange(value as string)
                   }
                   required
                 >
@@ -209,19 +222,24 @@ export default function NewAppointmentButton({
                   onChange={handleInputChange}
                   required
                 />
+                <Input
+                  label="Treatment Type"
+                  name="treatmentType"
+                  value={newAppointment.treatment.treatmentType}
+                  onChange={handleInputChange}
+                  required
+                />
               </ModalBody>
               <ModalFooter>
                 <Button
-                  variant="ghost"
-                  radius="full"
+                  variant="flat"
                   color="danger"
                   onClick={onClose}
                 >
                   Cancel
                 </Button>
                 <Button
-                  variant="ghost"
-                  radius="full"
+                  variant="flat"
                   color="success"
                   type="submit"
                 >
