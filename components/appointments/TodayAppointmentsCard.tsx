@@ -13,7 +13,6 @@ import {
   Calendar,
   User,
   AlertCircle,
-  FileText,
   Stethoscope,
   Phone,
   Mail,
