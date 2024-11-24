@@ -374,7 +374,8 @@ export default function AppointmentManager() {
           </div>
           <Button
             isIconOnly
-            className="bg-primary-200 text-primary-600"
+            color="primary"
+            variant="ghost"
             aria-label="Refresh"
             onClick={fetchAppointments}
             isLoading={isRefreshing}
