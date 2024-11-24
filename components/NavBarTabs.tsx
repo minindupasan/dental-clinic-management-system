@@ -37,9 +37,9 @@ const NavBarTabs: React.FC<NavBarTabsProps> = ({ onTabClick, currentPath }) => {
           value="/Inventory"
         />
         <Tab
-          key="profile"
-          title={<Link href="/Dentist/Profile">Profile</Link>}
-          value="/Profile"
+          key="treatments"
+          title={<Link href="/Treatments">Treatments</Link>}
+          value="/Treatments"
         />
       </Tabs>
     </div>
