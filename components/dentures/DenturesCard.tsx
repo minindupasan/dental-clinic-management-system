@@ -264,14 +264,16 @@ export default function DenturesCard() {
               <RefreshCw className="h-4 w-4" />
             </Button>
           </Tooltip>
-          <Link href="/Dentures">
-            <Button
-              isIconOnly
-              color="primary"
-              variant="ghost"
-              startContent={<List size={16} />}
-            />
-          </Link>
+          <Tooltip content="View All Dentures" color="primary">
+            <Link href="../Dentures">
+              <Button
+                isIconOnly
+                color="primary"
+                variant="ghost"
+                startContent={<List size={16} />}
+              />
+            </Link>
+          </Tooltip>
         </div>
       </CardHeader>
       <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
