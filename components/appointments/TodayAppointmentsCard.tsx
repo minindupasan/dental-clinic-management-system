@@ -216,11 +216,10 @@ export default function TodayAppointmentsCard() {
                         <Tooltip content="View Full Details">
                           <Link href="../Appointments">
                             <Button
-                              size="sm"
                               variant="ghost"
                               isIconOnly
                               aria-label="View Details"
-                              color="primary"
+                              color="success"
                             >
                               <Stethoscope size={16} />
                             </Button>
