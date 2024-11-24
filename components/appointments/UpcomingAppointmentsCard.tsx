@@ -5,21 +5,24 @@ import {
   Card,
   CardHeader,
   CardBody,
-  Spinner,
   Button,
-  Link,
+  Chip,
+  Tooltip,
+  Spinner,
 } from "@nextui-org/react";
 import {
   Calendar,
-  Clock,
   User,
   AlertCircle,
-  Heart,
-  Clipboard,
+  Stethoscope,
+  Phone,
+  Mail,
+  RefreshCw,
   List,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import MedicalHistoryViewModal from "../MedicalHistory";
+import NewAppointmentButton from "./NewAppointmentButton";
+import MedicalHistoryButton from "../MedicalHistory";
+import Link from "next/link";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -41,39 +44,44 @@ type Appointment = {
   appointmentTime: string;
   reason: string;
   status: string;
-  treatment: string;
 };
 
 export default function UpcomingAppointmentsCard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const fetchAppointments = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/appointments`);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set to start of today
+      const tomorrowString = new Date(today.getTime() + 86400000)
+        .toISOString()
+        .split("T")[0]; // Get tomorrow's date
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/appointments?startDate=${tomorrowString}`
+      );
       if (!response.ok) {
-        throw new Error("Failed to fetch appointments");
+        throw new Error(`Failed to fetch appointments: ${response.statusText}`);
       }
       const data: Appointment[] = await response.json();
-      const now = new Date();
-      const filteredAppointments = data
-        .filter((appointment) => {
-          const appointmentDate = new Date(
-            `${appointment.appointmentDate}T${appointment.appointmentTime}`
-          );
-          return appointmentDate > now;
-        })
-        .sort((a, b) => {
-          const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
-          const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
-          return dateA.getTime() - dateB.getTime();
-        });
-      setAppointments(filteredAppointments);
-      setIsLoading(false);
+
+      setAppointments(
+        data.sort((a, b) =>
+          (a.appointmentDate + a.appointmentTime).localeCompare(
+            b.appointmentDate + b.appointmentTime
+          )
+        )
+      );
     } catch (err) {
-      setError("Failed to load appointments");
+      console.error("Error fetching appointments:", err);
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
+    } finally {
       setIsLoading(false);
     }
   };
@@ -94,7 +102,12 @@ export default function UpcomingAppointmentsCard() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { month: "short", day: "2-digit" });
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
   };
 
   const calculateAge = (dob: string) => {
@@ -111,78 +124,181 @@ export default function UpcomingAppointmentsCard() {
     return age;
   };
 
-  return (
-    <Card className="w-full max-w-3xl mx-auto h-60">
-      <CardHeader className="flex justify-between items-center px-6 py-4">
-        <h2 className="text-xl font-semibold flex items-center">
-          <Calendar className="w-6 h-6 mr-2" />
-          Upcoming Appointments
-        </h2>
-        <Link href="/Appointments">
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "scheduled":
+        return "warning";
+      case "confirmed":
+        return "success";
+      case "cancelled":
+        return "danger";
+      case "completed":
+        return "primary";
+      default:
+        return "default";
+    }
+  };
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center h-full">
+          <Spinner label="Loading appointments..." color="primary" size="lg" />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="h-full text-center text-danger flex flex-col items-center justify-center p-4 rounded-lg">
+          <AlertCircle className="w-8 h-8 mb-2" />
+          <p className="text-lg">Error: {error}</p>
           <Button
-            color="secondary"
-            radius="full"
-            startContent={<List className="h-4 w-4" />}
+            color="danger"
+            variant="flat"
+            onPress={fetchAppointments}
+            className="mt-4"
           >
-            View All
+            Try Again
           </Button>
-        </Link>
-      </CardHeader>
-      <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-full">
-            <Spinner label="Loading appointments..." color="primary" />
-          </div>
-        ) : error ? (
-          <p className="text-center text-danger flex items-center justify-center">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            {error}
+        </div>
+      );
+    }
+
+    if (appointments.length === 0) {
+      return (
+        <div className="h-full text-center flex flex-col items-center justify-center p-4">
+          <Calendar className="w-12 h-12 mb-2 text-primary" />
+          <p
+            className="
+text-lg "
+          >
+            No upcoming appointments scheduled
           </p>
-        ) : appointments.length === 0 ? (
-          <p className="text-center">No upcoming appointments scheduled.</p>
-        ) : (
-          <div className="space-y-4">
-            {appointments.map((appointment) => (
-              <Card key={appointment.appointmentID}>
-                <CardBody>
-                  <div className="p-2 flex items-center space-x-1">
-                    <div className="py-4 px-2 text-center min-w-[120px] rounded-lg">
-                      <div className="text-3xl font-semibold flex items-center justify-center">
-                        <Clock className="w-6 h-6 mr-2" />
-                        {formatTime(appointment.appointmentTime)}
-                      </div>
-                      <div className="text-xl font-semibold flex items-center justify-center">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        {formatDate(appointment.appointmentDate)}
-                      </div>
-                    </div>
-                    <div className="flex-grow">
-                      <p className="flex items-center">
-                        <User className="w-5 h-5 mr-2" />
-                        <span className="font-semibold mr-2">Name:</span>
+          <Button
+            color="primary"
+            variant="flat"
+            onPress={fetchAppointments}
+            className="mt-4"
+          >
+            Refresh
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6 overflow-y-auto pr-2">
+        {appointments.map((appointment) => (
+          <Card key={appointment.appointmentID} className="overflow-hidden">
+            <CardBody className="p-0">
+              <div className="flex">
+                <div className="flex-shrink-0 w-24 sm:w-32 p-4 flex flex-col justify-center items-center text-center">
+                  <div className="text-2xl sm:text-3xl font-bold">
+                    {formatTime(appointment.appointmentTime)}
+                  </div>
+                  <div className="text-xs sm:text-sm my-2">
+                    {formatDate(appointment.appointmentDate)}
+                  </div>
+                  <Chip
+                    variant="flat"
+                    size="sm"
+                    color={getStatusColor(appointment.status)}
+                  >
+                    {appointment.status}
+                  </Chip>
+                </div>
+                <div className="flex-grow p-2 sm:p-4">
+                  <div>
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg sm:text-xl font-semibold">
                         {appointment.patient.firstName}{" "}
                         {appointment.patient.lastName}
+                      </h3>
+                      <div className="flex items-center space-x-2">
+                        <MedicalHistoryButton
+                          patientId={appointment.patient.patientID}
+                        />
+                        <Tooltip content="View Full Details">
+                          <Link href="../Appointments">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              isIconOnly
+                              aria-label="View Details"
+                              color="primary"
+                            >
+                              <Stethoscope size={16} />
+                            </Button>
+                          </Link>
+                        </Tooltip>
+                      </div>
+                    </div>
+                    <div className="w-full text-left text-sm mb-1">
+                      <p className="mb-1">
+                        <User className="inline w-4 h-4 mr-1" />
+                        Age: {calculateAge(appointment.patient.dob)} |{" "}
+                        {appointment.patient.gender}
                       </p>
-                      <p className="flex items-center">
-                        <Heart className="w-5 h-5 mr-2" />
-                        <span className="font-semibold mr-2">Age:</span>
-                        {calculateAge(appointment.patient.dob)}
+                      <p className="mb-1">
+                        <Mail className="inline w-4 h-4 mr-1" />
+                        {appointment.patient.email}
                       </p>
-                      <p className="flex items-center">
-                        <Clipboard className="w-5 h-5 mr-2" />
-                        <span className="font-semibold mr-2">Reason:</span>
-                        {appointment.reason}
+                      <p className="mb-1">
+                        <Phone className="inline w-4 h-4 mr-1" />
+                        {appointment.patient.contactNo}
+                      </p>
+                      <p className="inline mb-1 text-xs">
+                        Patient ID: {appointment.patient.patientID}
                       </p>
                     </div>
-                    <MedicalHistoryViewModal
-                      patientId={appointment.patient.patientID}
-                    />
                   </div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        )}
+                  <Chip color="primary" size="sm" variant="dot">
+                    <strong>Reason:</strong> {appointment.reason}
+                  </Chip>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <Card className="w-full mx-auto h-[38vh]">
+      <CardHeader className="flex justify-between items-center px-6 py-4">
+        <h2 className="text-xl font-bold flex items-center">
+          <Calendar className="w-8 h-8 mr-3" />
+          Upcoming Appointments
+        </h2>
+        <div className="flex items-center space-x-2">
+          <NewAppointmentButton onAppointmentAdded={fetchAppointments} />
+          <Tooltip content="Refresh" color="primary">
+            <Button
+              isIconOnly
+              color="primary"
+              variant="ghost"
+              onPress={fetchAppointments}
+              aria-label="Refresh appointments"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </Tooltip>
+          <Tooltip content="View All Appointments" color="primary">
+            <Link href="/Appointments">
+              <Button
+                isIconOnly
+                color="primary"
+                variant="ghost"
+                startContent={<List size={16} />}
+              />
+            </Link>
+          </Tooltip>
+        </div>
+      </CardHeader>
+      <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+        {renderContent()}
       </CardBody>
     </Card>
   );

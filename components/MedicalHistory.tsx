@@ -16,6 +16,7 @@ import {
   Switch,
   Select,
   SelectItem,
+  Tooltip,
 } from "@nextui-org/react";
 import {
   HeartPulse,
@@ -298,15 +299,16 @@ export default function MedicalHistoryButton({
 
   return (
     <>
-      <Button
-        size="md"
-        color="primary"
-        variant="flat"
-        onPress={handleOpen}
-        startContent={<HeartPulse size={16} />}
-      >
-        Medical History
-      </Button>
+      <Tooltip content="View Medical History">
+        <Button
+          size="sm"
+          color="primary"
+          variant="ghost"
+          onPress={handleOpen}
+          startContent={<HeartPulse className="h-4 w-4" />}
+          isIconOnly
+        ></Button>
+      </Tooltip>
       <Modal
         isOpen={isOpen}
         onClose={onClose}

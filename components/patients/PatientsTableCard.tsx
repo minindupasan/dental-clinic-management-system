@@ -86,6 +86,7 @@ export default function PatientTableCard() {
             <Button
               color="primary"
               radius="full"
+              variant="ghost"
               startContent={<RefreshCw className="h-4 w-4" />}
               onPress={handleRefresh}
             >
@@ -95,6 +96,7 @@ export default function PatientTableCard() {
               <Button
                 color="secondary"
                 radius="full"
+                variant="ghost"
                 startContent={<List className="h-4 w-4" />}
               >
                 View All
