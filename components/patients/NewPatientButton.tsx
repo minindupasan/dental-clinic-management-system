@@ -8,9 +8,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Input, 
+  Input,
   Select,
   SelectItem,
+  Tooltip,
 } from "@nextui-org/react";
 import { toast, Toaster } from "react-hot-toast";
 import { UserPlus } from "lucide-react";
@@ -75,15 +76,15 @@ export default function Component() {
   return (
     <div>
       <Toaster position="top-right" />
-      <Button
-        onPress={() => setIsOpen(true)}
-        color="primary"
-        variant="solid"
-        radius="full"
-        startContent={<UserPlus size={16} />}
-      >
-        Create New Patient
-      </Button>
+      <Tooltip content="Create New Patient" color="primary">
+        <Button
+          onPress={() => setIsOpen(true)}
+          color="primary"
+          variant="solid"
+          startContent={<UserPlus size={16} />}
+          isIconOnly
+        ></Button>
+      </Tooltip>
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

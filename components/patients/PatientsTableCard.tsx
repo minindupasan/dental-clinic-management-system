@@ -14,10 +14,11 @@ import {
   CardBody,
   Spinner,
   Link,
+  Tooltip,
 } from "@nextui-org/react";
 import { RefreshCw, List } from "lucide-react";
 import toast from "react-hot-toast";
-import AddPatientButton from "./NewPatientButton";
+import NewPatientButton from "./NewPatientButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -83,26 +84,26 @@ export default function PatientTableCard() {
           <h1 className="font-semibold text-xl">Patient Records</h1>
 
           <div className="flex items-center space-x-4">
-            <Button
-              color="primary"
-              radius="full"
-              variant="ghost"
-              startContent={<RefreshCw className="h-4 w-4" />}
-              onPress={handleRefresh}
-            >
-              Refresh
-            </Button>
-            <Link href="/Patients">
+            <NewPatientButton />
+            <Tooltip content="Refresh Patient Data" color="primary">
               <Button
-                color="secondary"
-                radius="full"
+                color="primary"
                 variant="ghost"
-                startContent={<List className="h-4 w-4" />}
-              >
-                View All
-              </Button>
-            </Link>
-            <AddPatientButton />
+                startContent={<RefreshCw className="h-4 w-4" />}
+                onPress={handleRefresh}
+                isIconOnly
+              ></Button>
+            </Tooltip>
+            <Tooltip content="View All Patients" color="primary">
+              <Link href="/Patients">
+                <Button
+                  color="primary"
+                  variant="ghost"
+                  startContent={<List className="h-4 w-4" />}
+                  isIconOnly
+                ></Button>
+              </Link>
+            </Tooltip>
           </div>
         </div>
       </CardHeader>
