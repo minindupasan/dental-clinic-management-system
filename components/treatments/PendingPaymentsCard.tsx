@@ -198,9 +198,6 @@ export default function PendingPayments() {
                 </div>
               </div>
             </CardBody>
-            {index < pendingTreatments.length - 1 && (
-              <Divider className="my-0" />
-            )}
           </Card>
         ))}
       </div>
@@ -240,12 +237,6 @@ export default function PendingPayments() {
         <p className="text-sm">
           Total Pending:{" "}
           <span className="font-semibold">{pendingTreatments.length}</span>
-        </p>
-        <p className="text-sm">
-          Last Updated:{" "}
-          <span className="font-semibold">
-            {new Date().toLocaleTimeString()}
-          </span>
         </p>
       </CardFooter>
     </Card>
