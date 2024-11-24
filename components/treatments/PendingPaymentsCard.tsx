@@ -134,9 +134,12 @@ export default function PendingPayments() {
     return (
       <div className="space-y-4">
         {pendingTreatments.map((treatment, index) => (
-          <Card key={treatment.treatmentID} className="w-full overflow-hidden">
+          <Card
+            key={treatment.treatmentID}
+            className="w-full overflow-hidden h-[150px]"
+          >
             <CardBody className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                 <div className="p-4">
                   <h3 className="text-lg font-semibold mb-2 flex items-center">
                     <User size={18} className="mr-2 text-primary" />
@@ -179,19 +182,24 @@ export default function PendingPayments() {
                 <div className="p-4 ml-10">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">Total Paid:</span>
-                    <span className="text-sm">
-                      ${treatment.totalPaid?.toFixed(2) ?? "N/A"}
-                    </span>
+                    <Chip className="text-md" size="sm">
+                      LKR {treatment.totalPaid?.toFixed(2) ?? "N/A"}
+                    </Chip>
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">Due Amount:</span>
-                    <Chip color="warning" variant="flat" size="sm">
-                      ${treatment.dueAmount?.toFixed(2) ?? "N/A"}
+                    <Chip
+                      className="text-md"
+                      color="warning"
+                      variant="flat"
+                      size="sm"
+                    >
+                      LKR {treatment.dueAmount?.toFixed(2) ?? "N/A"}
                     </Chip>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Status:</span>
-                    <Chip color="danger" variant="flat" size="sm">
+                    <Chip color="danger" variant="flat" size="md">
                       {treatment.paymentStatus}
                     </Chip>
                   </div>
