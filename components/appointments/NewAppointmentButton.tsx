@@ -75,10 +75,17 @@ export default function NewAppointmentButton({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewAppointment((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (name === "treatmentType") {
+      setNewAppointment((prev) => ({
+        ...prev,
+        treatment: { ...prev.treatment, treatmentType: value },
+      }));
+    } else {
+      setNewAppointment((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handlePatientChange = (key: Key | null) => {

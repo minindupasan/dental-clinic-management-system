@@ -4,7 +4,7 @@ import UpcomingAppointmentsCard from "@/components/appointments/UpcomingAppointm
 import TodayAppointmentsCard from "@/components/appointments/TodayAppointmentsCard";
 import DentureCard from "@/components/dentures/DenturesCard";
 import FinancialSummaryCard from "@/components/FinancialSummaryCard";
-import PendingPayments from "@/components/PendingPaymentsCard";
+import PendingPayments from "@/components/treatments/PendingPaymentsCard";
 import PatientsTableCard from "@/components/patients/PatientsTableCard";
 
 export default function Dashboard() {

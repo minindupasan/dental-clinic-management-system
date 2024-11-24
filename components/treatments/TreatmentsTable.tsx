@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -30,41 +30,67 @@ import {
   ChevronUp,
   Search,
   Filter,
-  RefreshCw,
 } from "lucide-react";
-import MedicalHistoryViewModal from "../MedicalHistory";
-import PrescriptionButton from "../Prescription";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+type Patient = {
+  patientID: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactNo: string;
+  gender: string;
+  dob: string;
+  createdDate: string;
+};
+
 type Appointment = {
   appointmentID: number;
-  patientID: number;
+  patient: Patient;
   appointmentDate: string;
   appointmentTime: string;
+  treatment: Treatment | null;
   reason: string;
   status: string;
 };
 
+type Treatment = {
+  treatmentID: number;
+  treatmentType: string;
+  startDate: string | null;
+  finishedDate: string | null;
+  totalPaid: number;
+  dueAmount: number;
+  appointment: Appointment;
+};
+
+interface TreatmentManagerProps {
+  onTreatmentUpdated: () => void;
+}
+
 const columns = [
-  { key: "appointmentID", label: "ID" },
-  { key: "patientID", label: "PATIENT ID" },
-  { key: "appointmentDate", label: "DATE" },
-  { key: "appointmentTime", label: "TIME" },
-  { key: "reason", label: "REASON" },
+  { key: "treatmentID", label: "ID" },
+  { key: "patientName", label: "PATIENT NAME" },
+  { key: "treatmentType", label: "TYPE" },
+  { key: "startDate", label: "START DATE" },
+  { key: "finishedDate", label: "FINISHED DATE" },
+  { key: "totalPaid", label: "TOTAL PAID" },
+  { key: "dueAmount", label: "DUE AMOUNT" },
   { key: "status", label: "STATUS" },
-  { key: "medicalRecords", label: "MEDICAL RECORDS" },
-  { key: "prescriptions", label: "PRESCRIPTIONS" },
   { key: "actions", label: "ACTIONS" },
 ];
 
-const statusOptions = ["Scheduled", "Treated", "Cancelled"];
+const statusOptions = ["Scheduled", "In Progress", "Completed", "Cancelled"];
 
-export default function AppointmentManager() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+const TreatmentManager: React.FC<TreatmentManagerProps> = ({
+  onTreatmentUpdated,
+}) => {
+  const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentAppointment, setCurrentAppointment] =
-    useState<Appointment | null>(null);
+  const [currentTreatment, setCurrentTreatment] = useState<Treatment | null>(
+    null
+  );
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -73,62 +99,73 @@ export default function AppointmentManager() {
   }>({ key: "", direction: "none", clickCount: 0 });
   const [filterValue, setFilterValue] = useState("");
   const [viewMode, setViewMode] = useState<
-    "all" | "today" | "upcoming" | "past"
+    "all" | "ongoing" | "completed" | "scheduled"
   >("all");
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchAppointments = useCallback(async () => {
-    setIsRefreshing(true);
+  const fetchTreatments = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/appointments`);
+      const response = await fetch(`${API_BASE_URL}/api/treatments`);
       if (!response.ok) {
-        throw new Error("Failed to fetch appointments");
+        throw new Error("Failed to fetch treatments");
       }
-      const data: Appointment[] = await response.json();
-      setAppointments(data);
+      const data = await response.json();
+      setTreatments(data);
       setLoading(false);
     } catch (err) {
-      toast.error("An error occurred while fetching appointment data.");
+      console.error("Error fetching treatments:", err);
+      toast.error("Failed to fetch treatments");
       setLoading(false);
-    } finally {
-      setIsRefreshing(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
+    fetchTreatments();
+  }, []);
 
-  const filteredAppointments = useMemo(() => {
-    let filtered = [...appointments];
-    const today = new Date().toISOString().split("T")[0];
+  const filteredTreatments = useMemo(() => {
+    let filtered = [...treatments];
 
     switch (viewMode) {
-      case "today":
-        filtered = filtered.filter((app) => app.appointmentDate === today);
+      case "ongoing":
+        filtered = filtered.filter(
+          (treatment) => treatment.startDate && !treatment.finishedDate
+        );
         break;
-      case "upcoming":
-        filtered = filtered.filter((app) => app.appointmentDate > today);
+      case "completed":
+        filtered = filtered.filter((treatment) => treatment.finishedDate);
         break;
-      case "past":
-        filtered = filtered.filter((app) => app.appointmentDate < today);
+      case "scheduled":
+        filtered = filtered.filter((treatment) => !treatment.startDate);
         break;
     }
 
     if (filterValue) {
-      filtered = filtered.filter((app) =>
-        Object.values(app).some(
-          (value) =>
-            typeof value === "string" &&
-            value.toLowerCase().includes(filterValue.toLowerCase())
-        )
+      filtered = filtered.filter(
+        (treatment) =>
+          Object.values(treatment).some(
+            (value) =>
+              typeof value === "string" &&
+              value.toLowerCase().includes(filterValue.toLowerCase())
+          ) ||
+          treatment.appointment.patient.firstName
+            .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          treatment.appointment.patient.lastName
+            .toLowerCase()
+            .includes(filterValue.toLowerCase())
       );
     }
 
     if (sortConfig.direction !== "none") {
       filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key as keyof Appointment];
-        const bValue = b[sortConfig.key as keyof Appointment];
+        let aValue, bValue;
+        if (sortConfig.key === "patientName") {
+          aValue = `${a.appointment.patient.firstName} ${a.appointment.patient.lastName}`;
+          bValue = `${b.appointment.patient.firstName} ${b.appointment.patient.lastName}`;
+        } else {
+          aValue = a[sortConfig.key as keyof Treatment];
+          bValue = b[sortConfig.key as keyof Treatment];
+        }
         if (aValue === null || bValue === null) return 0;
         if (aValue < bValue)
           return sortConfig.direction === "ascending" ? -1 : 1;
@@ -139,23 +176,23 @@ export default function AppointmentManager() {
     }
 
     return filtered;
-  }, [appointments, filterValue, viewMode, sortConfig]);
+  }, [treatments, filterValue, viewMode, sortConfig]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCurrentAppointment((prev) => (prev ? { ...prev, [name]: value } : null));
+    setCurrentTreatment((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
-  const handleEdit = (appointment: Appointment) => {
-    setCurrentAppointment(appointment);
+  const handleEdit = (treatment: Treatment) => {
+    setCurrentTreatment(treatment);
     onOpen();
   };
 
-  const handleDelete = (appointmentID: number) => {
+  const handleDelete = (treatmentID: number) => {
     toast(
       (t) => (
         <div>
-          <p>Are you sure you want to delete this appointment?</p>
+          <p>Are you sure you want to delete this treatment?</p>
           <div className="mt-2 flex justify-end space-x-2">
             <Button
               size="sm"
@@ -169,7 +206,7 @@ export default function AppointmentManager() {
               size="sm"
               variant="light"
               color="danger"
-              onPress={() => confirmDelete(appointmentID, t.id)}
+              onPress={() => confirmDelete(treatmentID, t.id)}
             >
               Delete
             </Button>
@@ -180,54 +217,72 @@ export default function AppointmentManager() {
     );
   };
 
-  const confirmDelete = async (appointmentID: number, toastId: string) => {
+  const confirmDelete = async (treatmentID: number, toastId: string) => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/appointments/delete/${appointmentID}`,
+        `${API_BASE_URL}/api/treatments/delete/${treatmentID}`,
         {
           method: "DELETE",
         }
       );
       if (!response.ok) {
-        throw new Error("Failed to delete appointment");
+        throw new Error("Failed to delete treatment");
       }
-      toast.success("Appointment deleted successfully");
-      fetchAppointments();
+      toast.success("Treatment deleted successfully");
+      setTreatments((prevTreatments) =>
+        prevTreatments.filter((t) => t.treatmentID !== treatmentID)
+      );
+      onTreatmentUpdated();
     } catch (err) {
-      toast.error("An error occurred while deleting the appointment");
+      console.error("Error deleting treatment:", err);
+      toast.error("An error occurred while deleting the treatment");
     } finally {
       toast.dismiss(toastId);
     }
   };
 
-  const handleUpdateAppointment = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleUpdateTreatment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!currentAppointment) return;
+    if (!currentTreatment) return;
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/appointments/update/${currentAppointment.appointmentID}`,
+        `${API_BASE_URL}/api/treatments/update/${currentTreatment.treatmentID}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(currentAppointment),
+          body: JSON.stringify(currentTreatment),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to update appointment");
+        throw new Error("Failed to update treatment");
       }
 
-      toast.success("Appointment updated successfully");
-      fetchAppointments();
+      const updatedTreatment = await response.json();
+      setTreatments((prevTreatments) => {
+        const index = prevTreatments.findIndex(
+          (t) => t.treatmentID === updatedTreatment.treatmentID
+        );
+        if (index !== -1) {
+          return [
+            ...prevTreatments.slice(0, index),
+            updatedTreatment,
+            ...prevTreatments.slice(index + 1),
+          ];
+        }
+        return prevTreatments;
+      });
+
+      toast.success("Treatment updated successfully");
+      onTreatmentUpdated();
       onClose();
-      setCurrentAppointment(null);
+      setCurrentTreatment(null);
     } catch (err) {
-      toast.error("An error occurred while updating the appointment");
+      console.error("Error updating treatment:", err);
+      toast.error("An error occurred while updating the treatment");
     }
   };
 
@@ -258,47 +313,59 @@ export default function AppointmentManager() {
     );
   };
 
-  const handleStatusChange = async (
-    appointmentID: number,
-    newStatus: string
-  ) => {
+  const handleStatusChange = async (treatmentID: number, newStatus: string) => {
     try {
-      const appointmentToUpdate = appointments.find(
-        (app) => app.appointmentID === appointmentID
+      const treatmentToUpdate = treatments.find(
+        (treatment) => treatment.treatmentID === treatmentID
       );
-      if (!appointmentToUpdate) {
-        throw new Error("Appointment not found");
+      if (!treatmentToUpdate) {
+        throw new Error("Treatment not found");
       }
 
-      const updatedAppointment = { ...appointmentToUpdate, status: newStatus };
+      const updatedTreatment = { ...treatmentToUpdate, status: newStatus };
 
       const response = await fetch(
-        `${API_BASE_URL}/api/appointments/update/${appointmentID}`,
+        `${API_BASE_URL}/api/treatments/update/${treatmentID}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(updatedAppointment),
+          body: JSON.stringify(updatedTreatment),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to update appointment status");
+        throw new Error("Failed to update treatment status");
       }
 
-      toast.success(`Appointment status updated to ${newStatus}`);
-      fetchAppointments();
+      const updatedTreatmentData = await response.json();
+      setTreatments((prevTreatments) => {
+        const index = prevTreatments.findIndex(
+          (t) => t.treatmentID === treatmentID
+        );
+        if (index !== -1) {
+          return [
+            ...prevTreatments.slice(0, index),
+            updatedTreatmentData,
+            ...prevTreatments.slice(index + 1),
+          ];
+        }
+        return prevTreatments;
+      });
+
+      toast.success(`Treatment status updated to ${newStatus}`);
+      onTreatmentUpdated();
     } catch (error) {
-      console.error("Error updating appointment status:", error);
-      toast.error("An error occurred while updating the appointment status");
+      console.error("Error updating treatment status:", error);
+      toast.error("An error occurred while updating the treatment status");
     }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64 text-foreground-light">
-        <Spinner label="Loading appointment data..." />
+        <Spinner label="Loading treatment data..." />
       </div>
     );
   }
@@ -317,10 +384,10 @@ export default function AppointmentManager() {
                   startContent={<Filter className="h-4 w-4" />}
                   endContent={<ChevronDown className="h-4 w-4" />}
                   className="px-5 py-1 w-[200px] flex justify-between items-center"
-                  aria-label="Filter appointments"
+                  aria-label="Filter treatments"
                 >
                   {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}{" "}
-                  Appointments
+                  Treatments
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -328,16 +395,18 @@ export default function AppointmentManager() {
                 onAction={(key) => setViewMode(key as any)}
                 className="w-[200px] text-foreground-light"
               >
-                <DropdownItem key="all">All Appointments</DropdownItem>
-                <DropdownItem key="today">Today's Appointments</DropdownItem>
-                <DropdownItem key="upcoming">
-                  Upcoming Appointments
+                <DropdownItem key="all">All Treatments</DropdownItem>
+                <DropdownItem key="ongoing">Ongoing Treatments</DropdownItem>
+                <DropdownItem key="completed">
+                  Completed Treatments
                 </DropdownItem>
-                <DropdownItem key="past">Past Appointments</DropdownItem>
+                <DropdownItem key="scheduled">
+                  Scheduled Treatments
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
             <Input
-              placeholder="Search appointments..."
+              placeholder="Search treatments..."
               value={filterValue}
               onChange={(e) => setFilterValue(e.target.value)}
               radius="full"
@@ -345,23 +414,9 @@ export default function AppointmentManager() {
               className="w-[300px]"
             />
           </div>
-          <Button
-            isIconOnly
-            color="primary"
-            variant="ghost"
-            aria-label="Refresh"
-            onClick={fetchAppointments}
-            isLoading={isRefreshing}
-          >
-            {isRefreshing ? (
-              <Spinner size="sm" color="current" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-          </Button>
         </div>
       </div>
-      <Table aria-label="Appointment data table">
+      <Table aria-label="Treatment data table">
         <TableHeader>
           {columns.map((column) => (
             <TableColumn
@@ -369,15 +424,12 @@ export default function AppointmentManager() {
               key={column.key}
               onClick={() =>
                 column.key !== "actions" &&
-                column.key !== "medicalRecords" &&
-                column.key !== "prescriptions" &&
+                column.key !== "status" &&
                 handleSort(column.key)
               }
               style={{
                 cursor:
-                  column.key !== "actions" &&
-                  column.key !== "medicalRecords" &&
-                  column.key !== "prescriptions"
+                  column.key !== "actions" && column.key !== "status"
                     ? "pointer"
                     : "default",
               }}
@@ -388,22 +440,28 @@ export default function AppointmentManager() {
           ))}
         </TableHeader>
         <TableBody>
-          {filteredAppointments.map((appointment) => (
-            <TableRow key={appointment.appointmentID}>
+          {filteredTreatments.map((treatment) => (
+            <TableRow key={treatment.treatmentID}>
               <TableCell className="text-center">
-                {appointment.appointmentID}
+                {treatment.treatmentID}
               </TableCell>
               <TableCell className="text-center">
-                {appointment.patientID}
+                {`${treatment.appointment.patient.firstName} ${treatment.appointment.patient.lastName}`}
               </TableCell>
               <TableCell className="text-center">
-                {appointment.appointmentDate}
+                {treatment.treatmentType}
               </TableCell>
               <TableCell className="text-center">
-                {appointment.appointmentTime}
+                {treatment.startDate || "Not started"}
               </TableCell>
               <TableCell className="text-center">
-                {appointment.reason}
+                {treatment.finishedDate || "In progress"}
+              </TableCell>
+              <TableCell className="text-center">
+                ${treatment.totalPaid.toFixed(2)}
+              </TableCell>
+              <TableCell className="text-center">
+                ${treatment.dueAmount.toFixed(2)}
               </TableCell>
               <TableCell className="text-center">
                 <Dropdown>
@@ -415,18 +473,15 @@ export default function AppointmentManager() {
                       className="bg-default-100"
                       endContent={<ChevronDown className="h-4 w-4" />}
                     >
-                      {appointment.status}
+                      {treatment.appointment.status}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
                     aria-label="Status options"
                     onAction={(key) =>
-                      handleStatusChange(
-                        appointment.appointmentID,
-                        key as string
-                      )
+                      handleStatusChange(treatment.treatmentID, key as string)
                     }
-                    selectedKeys={new Set([appointment.status])}
+                    selectedKeys={new Set([treatment.appointment.status])}
                     selectionMode="single"
                   >
                     {statusOptions.map((status) => (
@@ -436,19 +491,13 @@ export default function AppointmentManager() {
                 </Dropdown>
               </TableCell>
               <TableCell className="text-center">
-                <MedicalHistoryViewModal patientId={appointment.patientID} />
-              </TableCell>
-              <TableCell className="text-center">
-                <PrescriptionButton appointmentId={appointment.appointmentID} />
-              </TableCell>
-              <TableCell className="text-center">
                 <div className="flex justify-center space-x-2">
                   <Button
                     isIconOnly
                     color="warning"
                     variant="flat"
                     aria-label="Edit"
-                    onClick={() => handleEdit(appointment)}
+                    onClick={() => handleEdit(treatment)}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -457,7 +506,7 @@ export default function AppointmentManager() {
                     color="danger"
                     variant="flat"
                     aria-label="Delete"
-                    onClick={() => handleDelete(appointment.appointmentID)}
+                    onClick={() => handleDelete(treatment.treatmentID)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -471,38 +520,52 @@ export default function AppointmentManager() {
         isOpen={isOpen}
         onClose={() => {
           onClose();
-          setCurrentAppointment(null);
+          setCurrentTreatment(null);
         }}
         size="lg"
         hideCloseButton
       >
         <ModalContent>
           {(onClose) => (
-            <form onSubmit={handleUpdateAppointment}>
+            <form onSubmit={handleUpdateTreatment}>
               <ModalHeader className="flex flex-col gap-1 text-foreground-light">
-                Edit Appointment
+                Edit Treatment
               </ModalHeader>
               <ModalBody>
                 <Input
-                  label="Date"
-                  name="appointmentDate"
+                  label="Treatment Type"
+                  name="treatmentType"
+                  value={currentTreatment?.treatmentType || ""}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Start Date"
+                  name="startDate"
                   type="date"
-                  value={currentAppointment?.appointmentDate || ""}
+                  value={currentTreatment?.startDate || ""}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  label="Finished Date"
+                  name="finishedDate"
+                  type="date"
+                  value={currentTreatment?.finishedDate || ""}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  label="Total Paid"
+                  name="totalPaid"
+                  type="number"
+                  value={currentTreatment?.totalPaid.toString() || ""}
                   onChange={handleInputChange}
                   required
                 />
                 <Input
-                  label="Time"
-                  name="appointmentTime"
-                  type="time"
-                  value={currentAppointment?.appointmentTime || ""}
-                  onChange={handleInputChange}
-                  required
-                />
-                <Input
-                  label="Reason"
-                  name="reason"
-                  value={currentAppointment?.reason || ""}
+                  label="Due Amount"
+                  name="dueAmount"
+                  type="number"
+                  value={currentTreatment?.dueAmount.toString() || ""}
                   onChange={handleInputChange}
                   required
                 />
@@ -514,19 +577,27 @@ export default function AppointmentManager() {
                       radius="full"
                       endContent={<ChevronDown className="h-4 w-4" />}
                     >
-                      {currentAppointment?.status || "Select Status"}
+                      {currentTreatment?.appointment.status || "Select Status"}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
                     aria-label="Status options"
                     onAction={(key) =>
-                      setCurrentAppointment((prev) =>
-                        prev ? { ...prev, status: key as string } : null
+                      setCurrentTreatment((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              appointment: {
+                                ...prev.appointment,
+                                status: key as string,
+                              },
+                            }
+                          : null
                       )
                     }
                     selectedKeys={
-                      currentAppointment
-                        ? new Set([currentAppointment.status])
+                      currentTreatment
+                        ? new Set([currentTreatment.appointment.status])
                         : new Set()
                     }
                     selectionMode="single"
@@ -551,4 +622,6 @@ export default function AppointmentManager() {
       </Modal>
     </>
   );
-}
+};
+
+export default TreatmentManager;
