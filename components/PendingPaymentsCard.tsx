@@ -11,6 +11,7 @@ import {
   Chip,
   Tooltip,
   Divider,
+  Link,
 } from "@nextui-org/react";
 import {
   AlertCircle,
@@ -20,6 +21,7 @@ import {
   Clock,
   User,
   Tag,
+  List,
 } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -209,15 +211,27 @@ export default function PendingPayments() {
     <Card className="w-full h-[35vh] overflow-hidden">
       <CardHeader className="flex justify-between items-center px-6 py-4">
         <h2 className="text-xl font-semibold">Pending Payments</h2>
-        <Button
-          isIconOnly
-          color="primary"
-          variant="ghost"
-          onPress={fetchData}
-          aria-label="Refresh pending payments"
-        >
-          <RefreshCw size={20} />
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            isIconOnly
+            color="primary"
+            variant="ghost"
+            onPress={fetchData}
+            aria-label="Refresh pending payments"
+          >
+            <RefreshCw size={20} />
+          </Button>
+          <Tooltip content="View All Dentures" color="primary">
+            <Link href="../Treatments">
+              <Button
+                isIconOnly
+                color="primary"
+                variant="ghost"
+                startContent={<List size={16} />}
+              />
+            </Link>
+          </Tooltip>
+        </div>
       </CardHeader>
       <CardBody className="overflow-y-auto px-6 py-4">
         {renderContent()}
