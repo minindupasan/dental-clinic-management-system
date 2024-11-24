@@ -1,26 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
-  CardHeader,
   CardBody,
-  Spinner,
   Button,
-  Link,
   Chip,
+  Tooltip,
+  Spinner,
 } from "@nextui-org/react";
 import {
   Calendar,
-  Clock,
   User,
   AlertCircle,
+  FileText,
+  Stethoscope,
+  Phone,
+  Mail,
   RefreshCw,
-  Clipboard,
-  List,
 } from "lucide-react";
-import MedicalHistory from "../MedicalHistory";
 import NewAppointmentButton from "./NewAppointmentButton";
+import MedicalHistoryButton from "../MedicalHistory";
+import Link from "next/link";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -33,36 +34,59 @@ type Appointment = {
   status: string;
 };
 
-export default function UpcomingAppointmentsCard() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+type Patient = {
+  patientID: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactNo: string;
+  gender: string;
+  dob: string;
+  createdDate: string;
+};
+
+type AppointmentWithPatient = Appointment & { patient: Patient };
+
+export default function TodayAppointmentsCard() {
+  const [appointments, setAppointments] = useState<AppointmentWithPatient[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAppointments = async () => {
+  const fetchAppointmentsAndPatients = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/appointments`);
-      if (!response.ok) {
+      const todayDate = new Date().toISOString().split("T")[0];
+      const appointmentsResponse = await fetch(
+        `${API_BASE_URL}/api/appointments?date=${todayDate}`
+      );
+      if (!appointmentsResponse.ok) {
         throw new Error("Failed to fetch appointments");
       }
-      const data: Appointment[] = await response.json();
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      const futureAppointments = data
-        .filter((appointment) => {
-          const appointmentDateTime = new Date(
-            `${appointment.appointmentDate}T${appointment.appointmentTime}`
+      const appointmentsData: Appointment[] = await appointmentsResponse.json();
+
+      const appointmentsWithPatients = await Promise.all(
+        appointmentsData.map(async (appointment) => {
+          const patientResponse = await fetch(
+            `${API_BASE_URL}/api/patients/${appointment.patientID}`
           );
-          return appointmentDateTime >= tomorrow;
+          if (!patientResponse.ok) {
+            throw new Error(
+              `Failed to fetch patient with ID ${appointment.patientID}`
+            );
+          }
+          const patientData: Patient = await patientResponse.json();
+          return { ...appointment, patient: patientData };
         })
-        .sort((a, b) => {
-          const dateA = new Date(`${a.appointmentDate}T${a.appointmentTime}`);
-          const dateB = new Date(`${b.appointmentDate}T${b.appointmentTime}`);
-          return dateA.getTime() - dateB.getTime();
-        });
-      setAppointments(futureAppointments);
+      );
+
+      setAppointments(
+        appointmentsWithPatients.sort((a, b) =>
+          a.appointmentTime.localeCompare(b.appointmentTime)
+        )
+      );
     } catch (err) {
       console.error("Error fetching appointments:", err);
       setError("Failed to load appointments");
@@ -72,7 +96,7 @@ export default function UpcomingAppointmentsCard() {
   };
 
   useEffect(() => {
-    fetchAppointments();
+    fetchAppointmentsAndPatients();
   }, []);
 
   const formatTime = (time: string) => {
@@ -86,124 +110,155 @@ export default function UpcomingAppointmentsCard() {
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Invalid Date";
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
       year: "numeric",
+      month: "numeric",
+      day: "numeric",
     });
   };
 
-  const handleAppointmentAdded = useCallback(() => {
-    fetchAppointments();
-  }, []);
+  const calculateAge = (dob: string) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "scheduled":
         return "warning";
-      case "treated":
+      case "confirmed":
         return "success";
       case "cancelled":
         return "danger";
-      default:
+      case "completed":
         return "primary";
+      default:
+        return "default";
     }
   };
 
   return (
-    <Card className="w-full mx-auto max-h-[290px]">
-      <CardHeader className="flex justify-between items-center px-6 py-4">
-        <h2 className="text-xl font-semibold flex items-center text-foreground">
-          <Calendar className="w-8 h-8 mr-2" />
-          Future Appointments
-        </h2>
-        <div className="flex space-x-2">
-          <Button
-            isIconOnly
-            color="primary"
-            variant="ghost"
-            onPress={fetchAppointments}
-            aria-label="Refresh appointments"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Link href="/Appointments">
-            <Button
-              color="primary"
-              variant="ghost"
-              startContent={<List className="w-4 h-4" />}
-              isIconOnly
-            ></Button>
-          </Link>
-          <NewAppointmentButton onAppointmentAdded={handleAppointmentAdded} />
-        </div>
-      </CardHeader>
-      <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-full">
-            <Spinner
-              label="Loading appointments..."
-              color="primary"
-              size="lg"
+    <Card className="w-full mx-auto h-[calc(100vh-520px)]">
+      <CardBody className="p-6 overflow-hidden">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold flex items-center">
+            <Calendar className="w-8 h-8 mr-3" />
+            Today's Appointments
+          </h2>
+          <div className="flex items-center space-x-2">
+            <Tooltip content="Refresh">
+              <Button
+                variant="ghost"
+                color="primary"
+                isIconOnly
+                aria-label="Refresh"
+                onClick={fetchAppointmentsAndPatients}
+              >
+                <RefreshCw size={16} />
+              </Button>
+            </Tooltip>
+            <NewAppointmentButton
+              onAppointmentAdded={fetchAppointmentsAndPatients}
             />
           </div>
+        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-60">
+            <Spinner size="lg" color="primary" />
+          </div>
         ) : error ? (
-          <div className="text-center text-danger flex flex-col items-center justify-center p-4 bg-danger-50 rounded-lg">
-            <AlertCircle className="w-8 h-8 mb-2" />
+          <div className="text-center text-danger-500 p-6 rounded-xl shadow-inner">
+            <AlertCircle className="w-10 h-10 mx-auto mb-3" />
             <p className="text-lg font-semibold">{error}</p>
           </div>
         ) : appointments.length === 0 ? (
-          <div className="text-center flex flex-col items-center justify-center p-4">
-            <Calendar className="w-12 h-12 mb-2 text-primary" />
-            <p className="text-lg font-semibold">
-              No future appointments scheduled.
+          <div className="text-center p-10 ">
+            <Calendar className="w-16 h-16 mx-auto mb-4 " />
+            <p className="text-xl font-semibold">
+              No appointments scheduled for today.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6 overflow-y-auto pr-2">
             {appointments.map((appointment) => (
-              <Card key={appointment.appointmentID} className="min-h-[130px]">
-                <CardBody className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex space-x-4 items-center">
-                      <div className="px-2 py-4 text-center min-w-[120px] rounded-lg">
-                        <div className="text-2xl font-semibold flex items-center justify-center">
-                          <Clock className="w-6 h-6 mr-2 text-primary" />
-                          {formatTime(appointment.appointmentTime)}
-                        </div>
-                        <div className="text-2xl font-semibold flex items-center justify-center">
-                          <Calendar className="w-4 h-4 mr-2 text-primary" />
-                          {formatDate(appointment.appointmentDate)}
-                        </div>
+              <Card key={appointment.appointmentID} className="overflow-hidden">
+                <CardBody className="p-0">
+                  <div className="flex ">
+                    <div className="flex-shrink-0 w-24 sm:w-32 p-4 flex flex-col justify-center items-center text-center">
+                      <div className="text-2xl sm:text-3xl font-bold">
+                        {formatTime(appointment.appointmentTime)}
                       </div>
+                      <div className="text-xs sm:text-sm my-2">
+                        {formatDate(appointment.appointmentDate)}
+                      </div>
+                      <Chip
+                        variant="flat"
+                        size="sm"
+                        color={getStatusColor(appointment.status)}
+                      >
+                        {appointment.status}
+                      </Chip>
+                    </div>
+                    <div className="flex-grow p-2 sm:p-4">
                       <div>
-                        <h3 className="text-lg font-semibold mb-1">
-                          Patient ID: {appointment.patientID}
-                        </h3>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <p className="flex items-center">
-                            <Clipboard className="w-4 h-4 mr-2 text-primary" />
-                            <span className="font-medium mr-1">Reason:</span>
-                            {appointment.reason}
-                          </p>
-                          <p className="flex items-center">
-                            <User className="w-4 h-4 mr-2 text-primary" />
-                            <span className="font-medium mr-1">Status:</span>
-                            <Chip
-                              color={getStatusColor(appointment.status)}
-                              size="sm"
-                            >
-                              {appointment.status}
-                            </Chip>
-                          </p>
+                        <div className="flex justify-between items-center">
+                          <h3 className="text-lg sm:text-xl font-semibold">
+                            {appointment.patient.firstName}{" "}
+                            {appointment.patient.lastName}
+                          </h3>
+                          <div className="flex items-center space-x-2">
+                            <MedicalHistoryButton
+                              patientId={appointment.patient.patientID}
+                            />
+                            <Tooltip content="View Full Details">
+                              <Link href={"../Appointments"}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  isIconOnly
+                                  aria-label="View Details"
+                                  color="primary"
+                                >
+                                  <Stethoscope size={16} />
+                                </Button>
+                              </Link>
+                            </Tooltip>
+                          </div>
                         </div>
-                        <div className="mt-2 flex items-center space-x-2">
-                          <MedicalHistory patientId={appointment.patientID} />
+                        <div className="w-full text-left text-sm mb-1">
+                          <p className="mb-1">
+                            <User className="inline w-4 h-4 mr-1" />
+                            Age: {calculateAge(appointment.patient.dob)} |{" "}
+                            {appointment.patient.gender}
+                          </p>
+                          <p className="mb-1">
+                            <Mail className="inline w-4 h-4 mr-1" />
+                            {appointment.patient.email}
+                          </p>
+                          <p className="mb-1">
+                            <Phone className="inline w-4 h-4 mr-1" />
+                            {appointment.patient.contactNo}
+                          </p>
+                          <p className="inline mb-1 text-xs">
+                            Patient ID: {appointment.patient.patientID}
+                          </p>
                         </div>
                       </div>
+
+                      <Chip color="primary" size="sm" variant="dot">
+                        <strong>Reason:</strong> {appointment.reason}
+                      </Chip>
                     </div>
                   </div>
                 </CardBody>
