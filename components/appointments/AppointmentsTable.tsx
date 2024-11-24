@@ -32,27 +32,14 @@ import {
   Filter,
   RefreshCw,
 } from "lucide-react";
-import NewAppointmentButton from "./NewAppointmentButton";
 import MedicalHistoryViewModal from "../MedicalHistory";
 import PrescriptionButton from "../Prescription";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-type Patient = {
-  patientID: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNo: string;
-  gender: string;
-  dob: string;
-  createdDate: string;
-};
-
 type Appointment = {
   appointmentID: number;
-  formattedAppointmentID: string;
-  patient: Patient;
+  patientID: number;
   appointmentDate: string;
   appointmentTime: string;
   reason: string;
@@ -61,7 +48,7 @@ type Appointment = {
 
 const columns = [
   { key: "appointmentID", label: "ID" },
-  { key: "patientName", label: "PATIENT NAME" },
+  { key: "patientID", label: "PATIENT ID" },
   { key: "appointmentDate", label: "DATE" },
   { key: "appointmentTime", label: "TIME" },
   { key: "reason", label: "REASON" },
@@ -97,7 +84,7 @@ export default function AppointmentManager() {
       if (!response.ok) {
         throw new Error("Failed to fetch appointments");
       }
-      const data = await response.json();
+      const data: Appointment[] = await response.json();
       setAppointments(data);
       setLoading(false);
     } catch (err) {
@@ -129,30 +116,19 @@ export default function AppointmentManager() {
     }
 
     if (filterValue) {
-      filtered = filtered.filter(
-        (app) =>
-          Object.values(app).some(
-            (value) =>
-              typeof value === "string" &&
-              value.toLowerCase().includes(filterValue.toLowerCase())
-          ) ||
-          app.patient.firstName
-            .toLowerCase()
-            .includes(filterValue.toLowerCase()) ||
-          app.patient.lastName.toLowerCase().includes(filterValue.toLowerCase())
+      filtered = filtered.filter((app) =>
+        Object.values(app).some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLowerCase().includes(filterValue.toLowerCase())
+        )
       );
     }
 
     if (sortConfig.direction !== "none") {
       filtered.sort((a, b) => {
-        let aValue, bValue;
-        if (sortConfig.key === "patientName") {
-          aValue = `${a.patient.firstName} ${a.patient.lastName}`;
-          bValue = `${b.patient.firstName} ${b.patient.lastName}`;
-        } else {
-          aValue = a[sortConfig.key as keyof Appointment];
-          bValue = b[sortConfig.key as keyof Appointment];
-        }
+        const aValue = a[sortConfig.key as keyof Appointment];
+        const bValue = b[sortConfig.key as keyof Appointment];
         if (aValue === null || bValue === null) return 0;
         if (aValue < bValue)
           return sortConfig.direction === "ascending" ? -1 : 1;
@@ -319,10 +295,6 @@ export default function AppointmentManager() {
     }
   };
 
-  const handleAppointmentAdded = useCallback(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64 text-foreground-light">
@@ -336,7 +308,6 @@ export default function AppointmentManager() {
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
-            <NewAppointmentButton onAppointmentAdded={handleAppointmentAdded} />
             <Dropdown>
               <DropdownTrigger className="w-[200px]">
                 <Button
@@ -398,7 +369,6 @@ export default function AppointmentManager() {
               onClick={() =>
                 column.key !== "actions" &&
                 column.key !== "medicalRecords" &&
-                column.key !== "status" &&
                 column.key !== "prescriptions" &&
                 handleSort(column.key)
               }
@@ -406,7 +376,6 @@ export default function AppointmentManager() {
                 cursor:
                   column.key !== "actions" &&
                   column.key !== "medicalRecords" &&
-                  column.key !== "status" &&
                   column.key !== "prescriptions"
                     ? "pointer"
                     : "default",
@@ -421,11 +390,10 @@ export default function AppointmentManager() {
           {filteredAppointments.map((appointment) => (
             <TableRow key={appointment.appointmentID}>
               <TableCell className="text-center">
-                {appointment.formattedAppointmentID ||
-                  appointment.appointmentID}
+                {appointment.appointmentID}
               </TableCell>
               <TableCell className="text-center">
-                {`${appointment.patient.firstName} ${appointment.patient.lastName}`}
+                {appointment.patientID}
               </TableCell>
               <TableCell className="text-center">
                 {appointment.appointmentDate}
@@ -467,9 +435,7 @@ export default function AppointmentManager() {
                 </Dropdown>
               </TableCell>
               <TableCell className="text-center">
-                <MedicalHistoryViewModal
-                  patientId={appointment.patient.patientID}
-                />
+                <MedicalHistoryViewModal patientId={appointment.patientID} />
               </TableCell>
               <TableCell className="text-center">
                 <PrescriptionButton appointmentId={appointment.appointmentID} />
