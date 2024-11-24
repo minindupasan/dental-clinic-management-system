@@ -36,9 +36,9 @@ type Patient = {
 const columns = [
   { key: "patientID", label: "PATIENT ID" },
   { key: "fullName", label: "FULL NAME" },
+  { key: "email", label: "EMAIL" },
   { key: "contactNo", label: "CONTACT NO" },
   { key: "gender", label: "GENDER" },
-  { key: "medicalRecords", label: "MEDICAL RECORDS" },
   { key: "dob", label: "DATE OF BIRTH" },
 ];
 
