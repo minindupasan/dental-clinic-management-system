@@ -230,16 +230,16 @@ export default function TodayAppointmentsCard() {
                     </div>
                     <div className="w-full text-left text-sm mb-1">
                       <p className="mb-1">
-                        <User className="inline w-4 h-4 mr-1" />
+                        <User className="inline w-4 h-4 mr-1 text-primary" />
                         Age: {calculateAge(appointment.patient.dob)} |{" "}
                         {appointment.patient.gender}
                       </p>
                       <p className="mb-1">
-                        <Mail className="inline w-4 h-4 mr-1" />
+                        <Mail className="inline w-4 h-4 mr-1 text-primary" />
                         {appointment.patient.email}
                       </p>
                       <p className="mb-1">
-                        <Phone className="inline w-4 h-4 mr-1" />
+                        <Phone className="inline w-4 h-4 mr-1 text-primary" />
                         {appointment.patient.contactNo}
                       </p>
                       <p className="inline mb-1 text-xs">
@@ -268,7 +268,7 @@ export default function TodayAppointmentsCard() {
         </h2>
         <div className="flex items-center space-x-2">
           <NewAppointmentButton onAppointmentAdded={fetchAppointments} />
-          <Tooltip content="Refresh">
+          <Tooltip content="Refresh" color="primary">
             <Button
               isIconOnly
               color="primary"
@@ -279,14 +279,16 @@ export default function TodayAppointmentsCard() {
               <RefreshCw className="h-4 w-4" />
             </Button>
           </Tooltip>
-          <Link href="/Appointments">
-            <Button
-              isIconOnly
-              color="primary"
-              variant="ghost"
-              startContent={<List size={16} />}
-            />
-          </Link>
+          <Tooltip content="View All Appointments" color="primary">
+            <Link href="/Appointments">
+              <Button
+                isIconOnly
+                color="primary"
+                variant="ghost"
+                startContent={<List size={16} />}
+              />
+            </Link>
+          </Tooltip>
         </div>
       </CardHeader>
       <CardBody className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">

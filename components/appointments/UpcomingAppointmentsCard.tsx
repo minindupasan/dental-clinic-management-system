@@ -236,16 +236,16 @@ text-lg "
                     </div>
                     <div className="w-full text-left text-sm mb-1">
                       <p className="mb-1">
-                        <User className="inline w-4 h-4 mr-1" />
+                        <User className="inline w-4 h-4 mr-1 text-primary" />
                         Age: {calculateAge(appointment.patient.dob)} |{" "}
                         {appointment.patient.gender}
                       </p>
                       <p className="mb-1">
-                        <Mail className="inline w-4 h-4 mr-1" />
+                        <Mail className="inline w-4 h-4 mr-1 text-primary" />
                         {appointment.patient.email}
                       </p>
                       <p className="mb-1">
-                        <Phone className="inline w-4 h-4 mr-1" />
+                        <Phone className="inline w-4 h-4 mr-1 text-primary" />
                         {appointment.patient.contactNo}
                       </p>
                       <p className="inline mb-1 text-xs">
