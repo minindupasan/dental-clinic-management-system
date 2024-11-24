@@ -24,7 +24,7 @@ import {
   Droplet,
   Stethoscope,
   Pill,
-  AlertTriangle,
+  AlertCircle,
   Phone,
   Plus,
   Edit,
@@ -34,20 +34,9 @@ import { toast } from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-type Patient = {
-  patientID: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNo: string;
-  gender: string;
-  dob: string;
-  createdDate: string;
-};
-
 type MedicalHistory = {
   recordID: number;
-  patient: Patient;
+  patientId: number;
   bloodType: string;
   diabetes: boolean;
   hypertension: boolean;
@@ -106,7 +95,6 @@ export default function MedicalHistoryButton({
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`An error occurred while fetching data: ${errorMessage}`);
       console.error("Error fetching data:", err);
-      toast.error("Failed to fetch medical history. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -116,6 +104,31 @@ export default function MedicalHistoryButton({
     setLoading(true);
     setError(null);
     try {
+      const newMedicalHistory: Omit<MedicalHistory, "recordID"> = {
+        patientId,
+        bloodType: "",
+        diabetes: false,
+        hypertension: false,
+        heartDisease: false,
+        bleedingDisorders: false,
+        osteoporosis: false,
+        arthritis: false,
+        asthma: false,
+        epilepsy: false,
+        hivAids: false,
+        hepatitis: false,
+        thyroidDisorder: false,
+        pregnancy: null,
+        surgeries: "",
+        currentMedications: "",
+        drugAllergies: "",
+        allergies: "",
+        medications: "",
+        medicalConditions: "",
+        emergencyContactName: "",
+        emergencyContactNumber: "",
+      };
+
       const response = await fetch(
         `${API_BASE_URL}/api/medical-records/create/${patientId}`,
         {
@@ -123,7 +136,7 @@ export default function MedicalHistoryButton({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ patientId }),
+          body: JSON.stringify(newMedicalHistory),
         }
       );
       if (!response.ok) {
@@ -139,7 +152,6 @@ export default function MedicalHistoryButton({
         `An error occurred while creating new medical history: ${errorMessage}`
       );
       console.error("Error creating new medical history:", err);
-      toast.error("Failed to create new medical history. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -172,7 +184,6 @@ export default function MedicalHistoryButton({
         `An error occurred while updating medical history: ${errorMessage}`
       );
       console.error("Error updating medical history:", err);
-      toast.error("Failed to update medical history. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -297,13 +308,220 @@ export default function MedicalHistoryButton({
     </div>
   );
 
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <Spinner size="lg" color="primary" />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="text-center text-danger">
+          <AlertCircle className="w-12 h-12 mx-auto mb-4" />
+          <p className="text-lg font-semibold mb-4">Error occurred fetching</p>
+          <div className="flex justify-center gap-2">
+            <Button
+              color="primary"
+              variant="flat"
+              onPress={fetchMedicalHistory}
+            >
+              Try Again
+            </Button>
+            <Button
+              color="secondary"
+              variant="flat"
+              onPress={createNewMedicalHistory}
+            >
+              Create New Medical History
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (!medicalHistory) {
+      return (
+        <div className="text-center">
+          <HeartPulse className="w-12 h-12 mx-auto mb-4 text-primary" />
+          <p className="text-lg font-medium mb-4">
+            No medical record available
+          </p>
+          <Button
+            color="primary"
+            startContent={<Plus size={16} />}
+            onPress={createNewMedicalHistory}
+          >
+            Create New Medical History
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        {isEditing ? (
+          <>
+            {renderSection(
+              "Patient Information",
+              <User className="w-5 h-5" />,
+              <div className="grid grid-cols-2 gap-4">
+                {renderEditableField(
+                  "Blood Type",
+                  "bloodType",
+                  medicalHistory.bloodType,
+                  "select"
+                )}
+              </div>
+            )}
+            {renderSection(
+              "Medical Conditions",
+              <Stethoscope className="w-5 h-5" />,
+              renderEditableSwitches()
+            )}
+            {renderSection(
+              "Additional Information",
+              <Pill className="w-5 h-5" />,
+              <>
+                {renderEditableField(
+                  "Surgeries",
+                  "surgeries",
+                  medicalHistory.surgeries,
+                  "textarea"
+                )}
+                {renderEditableField(
+                  "Current Medications",
+                  "currentMedications",
+                  medicalHistory.currentMedications,
+                  "textarea"
+                )}
+                {renderEditableField(
+                  "Drug Allergies",
+                  "drugAllergies",
+                  medicalHistory.drugAllergies,
+                  "textarea"
+                )}
+                {renderEditableField(
+                  "Allergies",
+                  "allergies",
+                  medicalHistory.allergies,
+                  "textarea"
+                )}
+                {renderEditableField(
+                  "Medical Conditions",
+                  "medicalConditions",
+                  medicalHistory.medicalConditions,
+                  "textarea"
+                )}
+              </>
+            )}
+            {renderSection(
+              "Emergency Contact",
+              <Phone className="w-5 h-5" />,
+              <>
+                {renderEditableField(
+                  "Name",
+                  "emergencyContactName",
+                  medicalHistory.emergencyContactName
+                )}
+                {renderEditableField(
+                  "Number",
+                  "emergencyContactNumber",
+                  medicalHistory.emergencyContactNumber
+                )}
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            {renderSection(
+              "Patient Information",
+              <User className="w-5 h-5" />,
+              <div className="grid grid-cols-2 gap-2">
+                <p>
+                  <span className="font-medium">Patient ID:</span>{" "}
+                  {medicalHistory.patientId}
+                </p>
+                <p className="flex gap-2">
+                  <Droplet className="w-5 h-5" />
+                  <span className="font-medium">Blood Type:</span>{" "}
+                  <Chip color="danger" variant="flat">
+                    {medicalHistory.bloodType}
+                  </Chip>
+                </p>
+              </div>
+            )}
+            {renderSection(
+              "Medical Conditions",
+              <Stethoscope className="w-5 h-5" />,
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(medicalHistory)
+                  .filter(
+                    ([key, value]) =>
+                      typeof value === "boolean" && value === true
+                  )
+                  .map(([key]) => (
+                    <Chip key={key} color="warning" variant="flat">
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </Chip>
+                  ))}
+              </div>
+            )}
+            {renderSection(
+              "Additional Information",
+              <Pill className="w-5 h-5" />,
+              <div className="grid gap-2">
+                <p>
+                  <span className="font-medium">Surgeries:</span>{" "}
+                  {medicalHistory.surgeries}
+                </p>
+                <p>
+                  <span className="font-medium">Current Medications:</span>{" "}
+                  {medicalHistory.currentMedications}
+                </p>
+                <p>
+                  <span className="font-medium">Drug Allergies:</span>{" "}
+                  {medicalHistory.drugAllergies}
+                </p>
+                <p>
+                  <span className="font-medium">Allergies:</span>{" "}
+                  {medicalHistory.allergies}
+                </p>
+                <p>
+                  <span className="font-medium">Medical Conditions:</span>{" "}
+                  {medicalHistory.medicalConditions}
+                </p>
+              </div>
+            )}
+            {renderSection(
+              "Emergency Contact",
+              <Phone className="w-5 h-5" />,
+              <div className="grid gap-2">
+                <p>
+                  <span className="font-medium">Name:</span>{" "}
+                  {medicalHistory.emergencyContactName}
+                </p>
+                <p>
+                  <span className="font-medium">Number:</span>{" "}
+                  {medicalHistory.emergencyContactNumber}
+                </p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <Tooltip content="View Medical History">
         <Button
-          size="sm"
-          color="primary"
-          variant="ghost"
+          size="md"
+          color="secondary"
+          variant="flat"
           onPress={handleOpen}
           startContent={<HeartPulse className="h-4 w-4" />}
           isIconOnly
@@ -327,199 +545,7 @@ export default function MedicalHistoryButton({
               <ModalHeader className="flex flex-col gap-1">
                 <h2 className="text-2xl font-bold">Medical History</h2>
               </ModalHeader>
-              <ModalBody>
-                {loading ? (
-                  <div className="flex justify-center items-center h-64">
-                    <Spinner size="lg" color="primary" />
-                  </div>
-                ) : error ? (
-                  <div className="text-center text-danger">
-                    <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
-                    <p className="text-lg font-semibold mb-4">{error}</p>
-                    <Button
-                      color="primary"
-                      variant="flat"
-                      onPress={fetchMedicalHistory}
-                    >
-                      Retry
-                    </Button>
-                  </div>
-                ) : medicalHistory ? (
-                  <div className="space-y-6">
-                    {isEditing ? (
-                      <>
-                        {renderSection(
-                          "Patient Information",
-                          <User className="w-5 h-5" />,
-                          <div className="grid grid-cols-2 gap-4">
-                            {renderEditableField(
-                              "Blood Type",
-                              "bloodType",
-                              medicalHistory.bloodType,
-                              "select"
-                            )}
-                          </div>
-                        )}
-                        {renderSection(
-                          "Medical Conditions",
-                          <Stethoscope className="w-5 h-5" />,
-                          renderEditableSwitches()
-                        )}
-                        {renderSection(
-                          "Additional Information",
-                          <Pill className="w-5 h-5" />,
-                          <>
-                            {renderEditableField(
-                              "Surgeries",
-                              "surgeries",
-                              medicalHistory.surgeries,
-                              "textarea"
-                            )}
-                            {renderEditableField(
-                              "Current Medications",
-                              "currentMedications",
-                              medicalHistory.currentMedications,
-                              "textarea"
-                            )}
-                            {renderEditableField(
-                              "Drug Allergies",
-                              "drugAllergies",
-                              medicalHistory.drugAllergies,
-                              "textarea"
-                            )}
-                            {renderEditableField(
-                              "Allergies",
-                              "allergies",
-                              medicalHistory.allergies,
-                              "textarea"
-                            )}
-                            {renderEditableField(
-                              "Medical Conditions",
-                              "medicalConditions",
-                              medicalHistory.medicalConditions,
-                              "textarea"
-                            )}
-                          </>
-                        )}
-                        {renderSection(
-                          "Emergency Contact",
-                          <Phone className="w-5 h-5" />,
-                          <>
-                            {renderEditableField(
-                              "Name",
-                              "emergencyContactName",
-                              medicalHistory.emergencyContactName
-                            )}
-                            {renderEditableField(
-                              "Number",
-                              "emergencyContactNumber",
-                              medicalHistory.emergencyContactNumber
-                            )}
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {renderSection(
-                          "Patient Information",
-                          <User className="w-5 h-5" />,
-                          <div className="grid grid-cols-2 gap-2">
-                            <p>
-                              <span className="font-medium">Name:</span>{" "}
-                              {medicalHistory.patient.firstName}{" "}
-                              {medicalHistory.patient.lastName}
-                            </p>
-                            <p className="flex gap-2">
-                              <Droplet className="w-5 h-5" />
-                              <span className="font-medium">
-                                Blood Type:
-                              </span>{" "}
-                              <Chip color="danger" variant="flat">
-                                {medicalHistory.bloodType}
-                              </Chip>
-                            </p>
-                          </div>
-                        )}
-                        {renderSection(
-                          "Medical Conditions",
-                          <Stethoscope className="w-5 h-5" />,
-                          <div className="flex flex-wrap gap-2">
-                            {Object.entries(medicalHistory)
-                              .filter(
-                                ([key, value]) =>
-                                  typeof value === "boolean" && value === true
-                              )
-                              .map(([key]) => (
-                                <Chip key={key} color="warning" variant="flat">
-                                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                                </Chip>
-                              ))}
-                          </div>
-                        )}
-                        {renderSection(
-                          "Additional Information",
-                          <Pill className="w-5 h-5" />,
-                          <div className="grid gap-2">
-                            <p>
-                              <span className="font-medium">Surgeries:</span>{" "}
-                              {medicalHistory.surgeries}
-                            </p>
-                            <p>
-                              <span className="font-medium">
-                                Current Medications:
-                              </span>{" "}
-                              {medicalHistory.currentMedications}
-                            </p>
-                            <p>
-                              <span className="font-medium">
-                                Drug Allergies:
-                              </span>{" "}
-                              {medicalHistory.drugAllergies}
-                            </p>
-                            <p>
-                              <span className="font-medium">Allergies:</span>{" "}
-                              {medicalHistory.allergies}
-                            </p>
-                            <p>
-                              <span className="font-medium">
-                                Medical Conditions:
-                              </span>{" "}
-                              {medicalHistory.medicalConditions}
-                            </p>
-                          </div>
-                        )}
-                        {renderSection(
-                          "Emergency Contact",
-                          <Phone className="w-5 h-5" />,
-                          <div className="grid gap-2">
-                            <p>
-                              <span className="font-medium">Name:</span>{" "}
-                              {medicalHistory.emergencyContactName}
-                            </p>
-                            <p>
-                              <span className="font-medium">Number:</span>{" "}
-                              {medicalHistory.emergencyContactNumber}
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-lg font-medium mb-4">
-                      No medical history found.
-                    </p>
-                    <Button
-                      color="primary"
-                      startContent={<Plus size={16} />}
-                      onPress={createNewMedicalHistory}
-                    >
-                      Create New Medical History
-                    </Button>
-                  </div>
-                )}
-              </ModalBody>
+              <ModalBody>{renderContent()}</ModalBody>
               <ModalFooter>
                 {medicalHistory &&
                   (isEditing ? (
