@@ -12,6 +12,7 @@ import {
   useDisclosure,
   Autocomplete,
   AutocompleteItem,
+  Tooltip,
 } from "@nextui-org/react";
 import { CalendarPlus } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -159,13 +160,15 @@ export default function NewAppointmentButton({
 
   return (
     <>
-      <Button
-        color="primary"
-        variant="solid"
-        onClick={onOpen}
-        startContent={<CalendarPlus className="w-4 h-4" />}
-        isIconOnly
-      ></Button>
+      <Tooltip content="Add New Appointment">
+        <Button
+          color="primary"
+          variant="solid"
+          onClick={onOpen}
+          startContent={<CalendarPlus className="w-4 h-4" />}
+          isIconOnly
+        ></Button>
+      </Tooltip>
       <Modal isOpen={isOpen} onClose={onClose} size="md" hideCloseButton>
         <ModalContent>
           {(onClose) => (
