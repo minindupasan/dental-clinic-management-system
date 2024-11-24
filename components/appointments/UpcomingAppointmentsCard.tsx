@@ -16,7 +16,6 @@ import {
   User,
   AlertCircle,
   RefreshCw,
-  Heart,
   Clipboard,
   List,
 } from "lucide-react";
@@ -25,25 +24,13 @@ import NewAppointmentButton from "./NewAppointmentButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-type Patient = {
-  patientID: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNo: string;
-  gender: string;
-  dob: string;
-  createdDate: string;
-};
-
 type Appointment = {
   appointmentID: number;
-  patient: Patient;
+  patientID: number;
   appointmentDate: string;
   appointmentTime: string;
   reason: string;
   status: string;
-  treatment: string;
 };
 
 export default function UpcomingAppointmentsCard() {
@@ -96,20 +83,6 @@ export default function UpcomingAppointmentsCard() {
       minute: "2-digit",
       hour12: true,
     });
-  };
-
-  const calculateAge = (dob: string) => {
-    const birthDate = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-    if (
-      monthDifference < 0 ||
-      (monthDifference === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-    return age;
   };
 
   const formatDate = (dateString: string) => {
@@ -208,18 +181,9 @@ export default function UpcomingAppointmentsCard() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold mb-1">
-                          Patient ID: {appointment.patient.patientID}
+                          Patient ID: {appointment.patientID}
                         </h3>
-                        <p className="text-lg font-semibold mb-2">
-                          {appointment.patient.firstName}{" "}
-                          {appointment.patient.lastName}
-                        </p>
                         <div className="grid grid-cols-2 gap-2 text-sm">
-                          <p className="flex items-center">
-                            <Heart className="w-4 h-4 mr-2 text-primary" />
-                            <span className="font-medium mr-1">Age:</span>
-                            {calculateAge(appointment.patient.dob)}
-                          </p>
                           <p className="flex items-center">
                             <Clipboard className="w-4 h-4 mr-2 text-primary" />
                             <span className="font-medium mr-1">Reason:</span>
@@ -227,20 +191,17 @@ export default function UpcomingAppointmentsCard() {
                           </p>
                           <p className="flex items-center">
                             <User className="w-4 h-4 mr-2 text-primary" />
-                            <span className="font-medium mr-1">Name:</span>
-                            {appointment.patient.firstName}{" "}
-                            {appointment.patient.lastName}
-                          </p>
-                          <p className="flex items-center">
-                            <Clock className="w-4 h-4 mr-2 text-primary" />
-                            <span className="font-medium mr-1">Time:</span>
-                            {formatTime(appointment.appointmentTime)}
+                            <span className="font-medium mr-1">Status:</span>
+                            <Chip
+                              color={getStatusColor(appointment.status)}
+                              size="sm"
+                            >
+                              {appointment.status}
+                            </Chip>
                           </p>
                         </div>
                         <div className="mt-2 flex items-center space-x-2">
-                          <MedicalHistory
-                            patientId={appointment.patient.patientID}
-                          />
+                          <MedicalHistory patientId={appointment.patientID} />
                         </div>
                       </div>
                     </div>
