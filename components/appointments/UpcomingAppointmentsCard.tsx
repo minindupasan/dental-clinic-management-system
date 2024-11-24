@@ -69,8 +69,13 @@ export default function UpcomingAppointmentsCard() {
       }
       const data: Appointment[] = await response.json();
 
+      // Filter out any appointments that might be for today
+      const futureAppointments = data.filter(
+        (appointment) => appointment.appointmentDate >= tomorrowString
+      );
+
       setAppointments(
-        data.sort((a, b) =>
+        futureAppointments.sort((a, b) =>
           (a.appointmentDate + a.appointmentTime).localeCompare(
             b.appointmentDate + b.appointmentTime
           )
@@ -169,12 +174,7 @@ export default function UpcomingAppointmentsCard() {
       return (
         <div className="h-full text-center flex flex-col items-center justify-center p-4">
           <Calendar className="w-12 h-12 mb-2 text-primary" />
-          <p
-            className="
-text-lg "
-          >
-            No upcoming appointments scheduled
-          </p>
+          <p className="text-lg">No upcoming appointments scheduled</p>
           <Button
             color="primary"
             variant="flat"
@@ -222,11 +222,10 @@ text-lg "
                         <Tooltip content="View Full Details">
                           <Link href="../Appointments">
                             <Button
-                              size="sm"
                               variant="ghost"
                               isIconOnly
                               aria-label="View Details"
-                              color="primary"
+                              color="success"
                             >
                               <Stethoscope size={16} />
                             </Button>
