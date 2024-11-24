@@ -34,12 +34,24 @@ import {
 } from "lucide-react";
 import MedicalHistoryViewModal from "../MedicalHistory";
 import PrescriptionButton from "../Prescription";
+import NewAppointmentButton from "./NewAppointmentButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+type Patient = {
+  patientID: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactNo: string;
+  gender: string;
+  dob: string;
+  createdDate: string;
+};
+
 type Appointment = {
   appointmentID: number;
-  patientID: number;
+  patient: Patient;
   appointmentDate: string;
   appointmentTime: string;
   reason: string;
@@ -48,13 +60,12 @@ type Appointment = {
 
 const columns = [
   { key: "appointmentID", label: "ID" },
-  { key: "patientID", label: "PATIENT ID" },
+  { key: "patientName", label: "PATIENT NAME" },
   { key: "appointmentDate", label: "DATE" },
   { key: "appointmentTime", label: "TIME" },
   { key: "reason", label: "REASON" },
   { key: "status", label: "STATUS" },
   { key: "medicalRecords", label: "MEDICAL RECORDS" },
-  { key: "prescriptions", label: "PRESCRIPTIONS" },
   { key: "actions", label: "ACTIONS" },
 ];
 
@@ -116,19 +127,30 @@ export default function AppointmentManager() {
     }
 
     if (filterValue) {
-      filtered = filtered.filter((app) =>
-        Object.values(app).some(
-          (value) =>
-            typeof value === "string" &&
-            value.toLowerCase().includes(filterValue.toLowerCase())
-        )
+      filtered = filtered.filter(
+        (app) =>
+          Object.values(app).some(
+            (value) =>
+              typeof value === "string" &&
+              value.toLowerCase().includes(filterValue.toLowerCase())
+          ) ||
+          app.patient.firstName
+            .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          app.patient.lastName.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
     if (sortConfig.direction !== "none") {
       filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key as keyof Appointment];
-        const bValue = b[sortConfig.key as keyof Appointment];
+        let aValue, bValue;
+        if (sortConfig.key === "patientName") {
+          aValue = `${a.patient.firstName} ${a.patient.lastName}`;
+          bValue = `${b.patient.firstName} ${b.patient.lastName}`;
+        } else {
+          aValue = a[sortConfig.key as keyof Appointment];
+          bValue = b[sortConfig.key as keyof Appointment];
+        }
         if (aValue === null || bValue === null) return 0;
         if (aValue < bValue)
           return sortConfig.direction === "ascending" ? -1 : 1;
@@ -308,6 +330,7 @@ export default function AppointmentManager() {
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
+            <NewAppointmentButton onAppointmentAdded={fetchAppointments} />
             <Dropdown>
               <DropdownTrigger className="w-[200px]">
                 <Button
@@ -394,7 +417,7 @@ export default function AppointmentManager() {
                 {appointment.appointmentID}
               </TableCell>
               <TableCell className="text-center">
-                {appointment.patientID}
+                {`${appointment.patient.firstName} ${appointment.patient.lastName}`}
               </TableCell>
               <TableCell className="text-center">
                 {appointment.appointmentDate}
@@ -436,10 +459,14 @@ export default function AppointmentManager() {
                 </Dropdown>
               </TableCell>
               <TableCell className="text-center">
-                <MedicalHistoryViewModal patientId={appointment.patientID} />
-              </TableCell>
-              <TableCell className="text-center">
-                <PrescriptionButton appointmentId={appointment.appointmentID} />
+                <div className="flex justify-center space-x-5">
+                  <MedicalHistoryViewModal
+                    patientId={appointment.patient.patientID}
+                  />
+                  <PrescriptionButton
+                    appointmentId={appointment.appointmentID}
+                  />
+                </div>
               </TableCell>
               <TableCell className="text-center">
                 <div className="flex justify-center space-x-2">
