@@ -13,6 +13,8 @@ import {
   Autocomplete,
   AutocompleteItem,
   Tooltip,
+  Select,
+  SelectItem,
 } from "@nextui-org/react";
 import { CalendarPlus } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -20,13 +22,13 @@ import { toast } from "react-hot-toast";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Appointment = {
-  appointmentID: string;
-  formattedAppointmentID: string;
-  patientID: string;
   appointmentDate: string;
   appointmentTime: string;
   reason: string;
   status: string;
+  treatment: {
+    treatmentType: string;
+  };
 };
 
 type Patient = {
@@ -41,17 +43,17 @@ export default function NewAppointmentButton({
   onAppointmentAdded: () => void;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [newAppointment, setNewAppointment] = useState<
-    Omit<Appointment, "appointmentID" | "status"> & { status: string }
-  >({
-    patientID: "",
-    formattedAppointmentID: "",
+  const [newAppointment, setNewAppointment] = useState<Appointment>({
     appointmentDate: "",
     appointmentTime: "",
     reason: "",
     status: "Scheduled",
+    treatment: {
+      treatmentType: "",
+    },
   });
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [selectedPatientId, setSelectedPatientId] = useState<string>("");
 
   useEffect(() => {
     fetchPatients();
@@ -80,42 +82,49 @@ export default function NewAppointmentButton({
   };
 
   const handlePatientChange = (key: Key | null) => {
+    setSelectedPatientId(key as string);
+  };
+
+  const handleTreatmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setNewAppointment((prev) => ({
       ...prev,
-      patientID: key as string,
+      treatment: {
+        ...prev.treatment,
+        treatmentType: e.target.value,
+      },
     }));
   };
 
   const validateAppointmentDateTime = () => {
     const now = new Date();
-    const appointmentDateTime = new Date(
-      `${newAppointment.appointmentDate}T${newAppointment.appointmentTime}`
-    );
-    return appointmentDateTime > now;
+    const appointmentDate = new Date(newAppointment.appointmentDate);
+    appointmentDate.setHours(0, 0, 0, 0); // Set time to midnight for date comparison
+    return appointmentDate >= now;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (
-      !newAppointment.patientID ||
+      !selectedPatientId ||
       !newAppointment.appointmentDate ||
       !newAppointment.appointmentTime ||
-      !newAppointment.reason
+      !newAppointment.reason ||
+      !newAppointment.treatment.treatmentType
     ) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
     if (!validateAppointmentDateTime()) {
-      toast.error("Appointment date and time must be in the future.");
+      toast.error("Appointment date must be today or in the future.");
       return;
     }
 
     const toastId = toast.loading("Adding new appointment...");
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/appointments/create/${newAppointment.patientID}`,
+        `${API_BASE_URL}/api/appointments/create/${selectedPatientId}`,
         {
           method: "POST",
           headers: {
@@ -131,20 +140,19 @@ export default function NewAppointmentButton({
       }
 
       const result = await response.json();
-      toast.success(
-        `New appointment added successfully! ID: ${result.formattedAppointmentID}`,
-        {
-          id: toastId,
-        }
-      );
+      toast.success(`New appointment added successfully!`, {
+        id: toastId,
+      });
       setNewAppointment({
-        patientID: "",
-        formattedAppointmentID: "",
         appointmentDate: "",
         appointmentTime: "",
         reason: "",
         status: "Scheduled",
+        treatment: {
+          treatmentType: "",
+        },
       });
+      setSelectedPatientId("");
       onClose();
       onAppointmentAdded();
     } catch (error) {
@@ -158,9 +166,14 @@ export default function NewAppointmentButton({
     }
   };
 
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
   return (
     <>
-      <Tooltip content="Add New Appointment">
+      <Tooltip content="Add New Appointment" color="primary">
         <Button
           color="primary"
           variant="solid"
@@ -198,6 +211,7 @@ export default function NewAppointmentButton({
                   type="date"
                   value={newAppointment.appointmentDate}
                   onChange={handleInputChange}
+                  min={getTodayDate()}
                   required
                 />
                 <Input
@@ -215,6 +229,26 @@ export default function NewAppointmentButton({
                   onChange={handleInputChange}
                   required
                 />
+                <Select
+                  label="Treatment Type"
+                  placeholder="Select treatment type"
+                  value={newAppointment.treatment.treatmentType}
+                  onChange={handleTreatmentChange}
+                  required
+                >
+                  <SelectItem key="Teeth Cleaning" value="Teeth Cleaning">
+                    Teeth Cleaning
+                  </SelectItem>
+                  <SelectItem key="Dental Checkup" value="Dental Checkup">
+                    Dental Checkup
+                  </SelectItem>
+                  <SelectItem key="Cavity Filling" value="Cavity Filling">
+                    Cavity Filling
+                  </SelectItem>
+                  <SelectItem key="Root Canal" value="Root Canal">
+                    Root Canal
+                  </SelectItem>
+                </Select>
               </ModalBody>
               <ModalFooter>
                 <Button variant="flat" color="danger" onClick={onClose}>
