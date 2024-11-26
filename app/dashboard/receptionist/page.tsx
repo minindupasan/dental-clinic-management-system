@@ -28,7 +28,7 @@ export default function Dashboard() {
         </div>
 
         {/* Patients Table */}
-        <div className="hidden lg:flex lg:col-span-6 lg:row-start-4">
+        <div className="hidden lg:flex lg:col-span-2 lg:row-start-4">
           <PatientsTableCard />
         </div>
       </div>
