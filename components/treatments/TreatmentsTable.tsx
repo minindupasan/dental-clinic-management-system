@@ -45,24 +45,18 @@ type Patient = {
   createdDate: string;
 };
 
-type Appointment = {
-  appointmentID: number;
-  patient: Patient;
-  appointmentDate: string;
-  appointmentTime: string;
-  treatment: Treatment | null;
-  reason: string;
-  status: string;
-};
-
 type Treatment = {
   treatmentID: number;
+  appointmentID: number;
   treatmentType: string;
   startDate: string | null;
-  finishedDate: string | null;
-  totalPaid: number;
-  dueAmount: number;
-  appointment: Appointment;
+  endDate: string | null;
+  totalPaid: number | null;
+  dueAmount: number | null;
+  paymentStatus: string;
+  treatmentStatus: string;
+  notes: string | null;
+  patient: Patient;
 };
 
 interface TreatmentManagerProps {
@@ -74,10 +68,11 @@ const columns = [
   { key: "patientName", label: "PATIENT NAME" },
   { key: "treatmentType", label: "TYPE" },
   { key: "startDate", label: "START DATE" },
-  { key: "finishedDate", label: "FINISHED DATE" },
+  { key: "endDate", label: "END DATE" },
   { key: "totalPaid", label: "TOTAL PAID" },
   { key: "dueAmount", label: "DUE AMOUNT" },
-  { key: "status", label: "STATUS" },
+  { key: "paymentStatus", label: "PAYMENT STATUS" },
+  { key: "treatmentStatus", label: "TREATMENT STATUS" },
   { key: "actions", label: "ACTIONS" },
 ];
 
@@ -128,14 +123,18 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
     switch (viewMode) {
       case "ongoing":
         filtered = filtered.filter(
-          (treatment) => treatment.startDate && !treatment.finishedDate
+          (treatment) => treatment.treatmentStatus === "In Progress"
         );
         break;
       case "completed":
-        filtered = filtered.filter((treatment) => treatment.finishedDate);
+        filtered = filtered.filter(
+          (treatment) => treatment.treatmentStatus === "Completed"
+        );
         break;
       case "scheduled":
-        filtered = filtered.filter((treatment) => !treatment.startDate);
+        filtered = filtered.filter(
+          (treatment) => treatment.treatmentStatus === "Scheduled"
+        );
         break;
     }
 
@@ -147,10 +146,10 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
               typeof value === "string" &&
               value.toLowerCase().includes(filterValue.toLowerCase())
           ) ||
-          treatment.appointment.patient.firstName
+          treatment.patient.firstName
             .toLowerCase()
             .includes(filterValue.toLowerCase()) ||
-          treatment.appointment.patient.lastName
+          treatment.patient.lastName
             .toLowerCase()
             .includes(filterValue.toLowerCase())
       );
@@ -160,8 +159,8 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
       filtered.sort((a, b) => {
         let aValue, bValue;
         if (sortConfig.key === "patientName") {
-          aValue = `${a.appointment.patient.firstName} ${a.appointment.patient.lastName}`;
-          bValue = `${b.appointment.patient.firstName} ${b.appointment.patient.lastName}`;
+          aValue = `${a.patient.firstName} ${a.patient.lastName}`;
+          bValue = `${b.patient.firstName} ${b.patient.lastName}`;
         } else {
           aValue = a[sortConfig.key as keyof Treatment];
           bValue = b[sortConfig.key as keyof Treatment];
@@ -322,7 +321,10 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
         throw new Error("Treatment not found");
       }
 
-      const updatedTreatment = { ...treatmentToUpdate, status: newStatus };
+      const updatedTreatment = {
+        ...treatmentToUpdate,
+        treatmentStatus: newStatus,
+      };
 
       const response = await fetch(
         `${API_BASE_URL}/api/treatments/update/${treatmentID}`,
@@ -424,12 +426,15 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
               key={column.key}
               onClick={() =>
                 column.key !== "actions" &&
-                column.key !== "status" &&
+                column.key !== "treatmentStatus" &&
+                column.key !== "paymentStatus" &&
                 handleSort(column.key)
               }
               style={{
                 cursor:
-                  column.key !== "actions" && column.key !== "status"
+                  column.key !== "actions" &&
+                  column.key !== "treatmentStatus" &&
+                  column.key !== "paymentStatus"
                     ? "pointer"
                     : "default",
               }}
@@ -446,7 +451,7 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
                 {treatment.treatmentID}
               </TableCell>
               <TableCell className="text-center">
-                {`${treatment.appointment.patient.firstName} ${treatment.appointment.patient.lastName}`}
+                {`${treatment.patient.firstName} ${treatment.patient.lastName}`}
               </TableCell>
               <TableCell className="text-center">
                 {treatment.treatmentType}
@@ -455,13 +460,16 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
                 {treatment.startDate || "Not started"}
               </TableCell>
               <TableCell className="text-center">
-                {treatment.finishedDate || "In progress"}
+                {treatment.endDate || "In progress"}
               </TableCell>
               <TableCell className="text-center">
-                ${treatment.totalPaid.toFixed(2)}
+                ${treatment.totalPaid?.toFixed(2) || "0.00"}
               </TableCell>
               <TableCell className="text-center">
-                ${treatment.dueAmount.toFixed(2)}
+                ${treatment.dueAmount?.toFixed(2) || "0.00"}
+              </TableCell>
+              <TableCell className="text-center">
+                {treatment.paymentStatus}
               </TableCell>
               <TableCell className="text-center">
                 <Dropdown>
@@ -473,7 +481,7 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
                       className="bg-default-100"
                       endContent={<ChevronDown className="h-4 w-4" />}
                     >
-                      {treatment.appointment.status}
+                      {treatment.treatmentStatus}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
@@ -481,7 +489,7 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
                     onAction={(key) =>
                       handleStatusChange(treatment.treatmentID, key as string)
                     }
-                    selectedKeys={new Set([treatment.appointment.status])}
+                    selectedKeys={new Set([treatment.treatmentStatus])}
                     selectionMode="single"
                   >
                     {statusOptions.map((status) => (
@@ -547,27 +555,25 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
                   onChange={handleInputChange}
                 />
                 <Input
-                  label="Finished Date"
-                  name="finishedDate"
+                  label="End Date"
+                  name="endDate"
                   type="date"
-                  value={currentTreatment?.finishedDate || ""}
+                  value={currentTreatment?.endDate || ""}
                   onChange={handleInputChange}
                 />
                 <Input
                   label="Total Paid"
                   name="totalPaid"
                   type="number"
-                  value={currentTreatment?.totalPaid.toString() || ""}
+                  value={currentTreatment?.totalPaid?.toString() || ""}
                   onChange={handleInputChange}
-                  required
                 />
                 <Input
                   label="Due Amount"
                   name="dueAmount"
                   type="number"
-                  value={currentTreatment?.dueAmount.toString() || ""}
+                  value={currentTreatment?.dueAmount?.toString() || ""}
                   onChange={handleInputChange}
-                  required
                 />
                 <Dropdown>
                   <DropdownTrigger>
@@ -577,7 +583,7 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
                       radius="full"
                       endContent={<ChevronDown className="h-4 w-4" />}
                     >
-                      {currentTreatment?.appointment.status || "Select Status"}
+                      {currentTreatment?.treatmentStatus || "Select Status"}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
@@ -587,17 +593,14 @@ const TreatmentManager: React.FC<TreatmentManagerProps> = ({
                         prev
                           ? {
                               ...prev,
-                              appointment: {
-                                ...prev.appointment,
-                                status: key as string,
-                              },
+                              treatmentStatus: key as string,
                             }
                           : null
                       )
                     }
                     selectedKeys={
                       currentTreatment
-                        ? new Set([currentTreatment.appointment.status])
+                        ? new Set([currentTreatment.treatmentStatus])
                         : new Set()
                     }
                     selectionMode="single"
