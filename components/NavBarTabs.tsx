@@ -13,7 +13,7 @@ const NavBarTabs: React.FC<NavBarTabsProps> = ({}) => {
       <Tabs radius={"full"}>
         <Tab
           key="dashboard"
-          title={<Link href="/Users/Dentist/Dashboard">Dashboard</Link>}
+          title={<Link href="/dashboard/receptionist">Dashboard</Link>}
           value="/"
         />
         <Tab
