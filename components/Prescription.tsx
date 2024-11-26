@@ -38,8 +38,6 @@ type Medication = {
   dosage: string;
   frequency: number;
   duration: number;
-  frequencyDisplay?: string;
-  durationDisplay?: string;
 };
 
 type Prescription = {
@@ -68,7 +66,7 @@ export default function PrescriptionButton({
     setError(null);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/prescriptions/${appointmentId}`
+        `${API_BASE_URL}/api/prescription/${appointmentId}`
       );
       if (response.status === 404) {
         setPrescription(null);
@@ -94,21 +92,14 @@ export default function PrescriptionButton({
     setError(null);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/prescriptions/create/${appointmentId}`,
+        `${API_BASE_URL}/api/prescription/create/${appointmentId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             dateIssued: new Date().toISOString().split("T")[0],
-            notes: "Patient should take medications after meals.",
-            medications: [
-              {
-                medicationName: "Amoxicillin",
-                dosage: "500 mg",
-                frequency: 3,
-                duration: 7,
-              },
-            ],
+            notes: "",
+            medications: [],
           }),
         }
       );
@@ -136,7 +127,7 @@ export default function PrescriptionButton({
     setError(null);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/prescriptions/update/${prescription?.prescriptionId}`,
+        `${API_BASE_URL}/api/prescription/${prescription?.prescriptionId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -259,8 +250,8 @@ export default function PrescriptionButton({
     <>
       <Tooltip content="View Prescription">
         <Button
-          size="md"
-          color="secondary"
+          size="sm"
+          color="primary"
           variant="flat"
           onPress={handleOpen}
           isIconOnly
@@ -455,12 +446,10 @@ export default function PrescriptionButton({
                                     </TableCell>
                                     <TableCell>{medication.dosage}</TableCell>
                                     <TableCell>
-                                      {medication.frequencyDisplay ||
-                                        `${medication.frequency} times per day`}
+                                      {medication.frequency} times per day
                                     </TableCell>
                                     <TableCell>
-                                      {medication.durationDisplay ||
-                                        `${medication.duration} days`}
+                                      {medication.duration} days
                                     </TableCell>
                                   </TableRow>
                                 )
