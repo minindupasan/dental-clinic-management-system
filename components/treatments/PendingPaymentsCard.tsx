@@ -112,7 +112,7 @@ export default function PendingPayments() {
 
     if (pendingTreatments.length === 0) {
       return (
-        <div className="h-[500px] text-center flex flex-col items-center justify-center">
+        <div className="h-full text-center flex flex-col items-center justify-center">
           <FileText className="w-12 h-12 mb-2 text-primary" />
           <p className="text-lg">No pending payments</p>
           <Button
@@ -128,14 +128,11 @@ export default function PendingPayments() {
     }
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-2">
         {pendingTreatments.map((treatment) => (
-          <Card
-            key={treatment.treatmentID}
-            className="w-full h-full items-center overflow-hidden"
-          >
-            <CardBody>
-              <div className="w-full px-2 py-4 grid grid-cols-1 md:grid-cols-3 items-center">
+          <Card key={treatment.treatmentID} className="w-full overflow-hidden">
+            <CardBody className="max-h-[15vh]">
+              <div className="w-full px-2 grid grid-cols-1 md:grid-cols-3 items-center">
                 <div className="justify-between items-center">
                   <h3 className="text-lg font-semibold mb-2 flex items-center">
                     <User size={18} className="mr-2 text-primary" />
@@ -242,7 +239,7 @@ export default function PendingPayments() {
         </div>
       </CardHeader>
       <CardBody className="overflow-y-auto px-6">{renderContent()}</CardBody>
-      <CardFooter className="flex justify-between items-center px-6 py-4">
+      <CardFooter className="flex justify-between items-center px-6 py-4 pt-6">
         <div className="flex flex-col">
           <p className="text-sm font-semibold ">
             Total Pending:{" "}
