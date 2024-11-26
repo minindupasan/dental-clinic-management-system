@@ -15,7 +15,15 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
-import { Plus, ChevronDown, Package, Calendar, DollarSign, Package2, PackagePlus } from "lucide-react";
+import {
+  Plus,
+  ChevronDown,
+  Package,
+  Calendar,
+  DollarSign,
+  Package2,
+  PackagePlus,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -212,20 +220,10 @@ export default function NewInventoryItemButton({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button
-                  variant="ghost"
-                  radius="full"
-                  color="danger"
-                  onClick={onClose}
-                >
+                <Button variant="flat" color="danger" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button
-                  variant="ghost"
-                  radius="full"
-                  color="success"
-                  type="submit"
-                >
+                <Button variant="flat" color="success" type="submit">
                   Add
                 </Button>
               </ModalFooter>
