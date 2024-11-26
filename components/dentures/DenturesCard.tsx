@@ -246,7 +246,7 @@ export default function DenturesCard() {
   };
 
   return (
-    <Card className="w-full max-w-full mx-auto h-[80vh]">
+    <Card className="w-full max-w-full mx-auto h-full">
       <CardHeader className="flex justify-between items-center px-6 py-4">
         <h2 className="text-2xl font-bold flex items-center text-foreground">
           <FileText className="w-8 h-8 mr-2" />
