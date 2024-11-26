@@ -7,38 +7,38 @@ interface NavBarTabsProps {
   currentPath: string;
 }
 
-const NavBarTabs: React.FC<NavBarTabsProps> = ({ onTabClick, currentPath }) => {
+const NavBarTabs: React.FC<NavBarTabsProps> = ({}) => {
   return (
     <div>
       <Tabs radius={"full"}>
         <Tab
           key="dashboard"
-          title={<Link href="/Dentist/Dashboard">Dashboard</Link>}
+          title={<Link href="/dashboard/receptionist">Dashboard</Link>}
           value="/"
         />
         <Tab
           key="appointments"
-          title={<Link href="/Appointments">Appointments</Link>}
+          title={<Link href="/appointments">Appointments</Link>}
           value="/Appointments"
         />
         <Tab
           key="patients"
-          title={<Link href="/Patients">Patients</Link>}
+          title={<Link href="/patients">Patients</Link>}
           value="/Patients"
         />
         <Tab
           key="dentures"
-          title={<Link href="/Dentures">Dentures</Link>}
+          title={<Link href="/dentures">Dentures</Link>}
           value="/Dentures"
         />
         <Tab
           key=" inventory"
-          title={<Link href="/Inventory">Inventory</Link>}
+          title={<Link href="/inventory">Inventory</Link>}
           value="/Inventory"
         />
         <Tab
           key="treatments"
-          title={<Link href="/Treatments">Treatments</Link>}
+          title={<Link href="/treatments">Treatments</Link>}
           value="/Treatments"
         />
       </Tabs>

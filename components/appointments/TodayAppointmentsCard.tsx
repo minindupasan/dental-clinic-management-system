@@ -260,7 +260,7 @@ export default function TodayAppointmentsCard() {
   };
 
   return (
-    <Card className="w-full mx-auto h-[38vh]">
+    <Card className="w-full h-full">
       <CardHeader className="flex justify-between items-center px-6 py-4">
         <h2 className="text-xl font-bold flex items-center">
           <Calendar className="w-8 h-8 mr-3" />

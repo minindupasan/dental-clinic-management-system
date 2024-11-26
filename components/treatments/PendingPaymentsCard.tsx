@@ -10,7 +10,6 @@ import {
   Button,
   Chip,
   Tooltip,
-  Divider,
   Link,
 } from "@nextui-org/react";
 import {
@@ -22,6 +21,7 @@ import {
   User,
   Tag,
   List,
+  FileText,
 } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -54,26 +54,30 @@ type Treatment = {
 export default function PendingPayments() {
   const [pendingTreatments, setPendingTreatments] = useState<Treatment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
     setIsLoading(true);
-    setError(null);
     try {
       const response = await fetch(`${API_BASE_URL}/api/treatments`);
       if (!response.ok) {
         throw new Error(`Failed to fetch treatments: ${response.statusText}`);
       }
-      const data: Treatment[] = await response.json();
+      const text = await response.text();
+      let data: Treatment[] = [];
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          console.error("Error parsing JSON:", parseError);
+        }
+      }
       const filteredTreatments = data.filter(
         (treatment) => treatment.paymentStatus === "Pending"
       );
       setPendingTreatments(filteredTreatments);
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      setPendingTreatments([]);
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +100,7 @@ export default function PendingPayments() {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex justify-center items-center h-40">
+        <div className="flex justify-center items-center h-full">
           <Spinner
             label="Loading pending payments..."
             color="primary"
@@ -106,41 +110,30 @@ export default function PendingPayments() {
       );
     }
 
-    if (error) {
+    if (pendingTreatments.length === 0) {
       return (
-        <div className="text-center text-danger flex flex-col items-center justify-center p-4 rounded-lg">
-          <AlertCircle className="w-8 h-8 mb-2" />
-          <p className="text-lg font-semibold">Error: {error}</p>
+        <div className="h-full text-center flex flex-col items-center justify-center">
+          <FileText className="w-12 h-12 mb-2 text-primary" />
+          <p className="text-lg">No pending payments</p>
           <Button
             color="primary"
             variant="flat"
             onPress={fetchData}
             className="mt-4"
           >
-            Try Again
+            Refresh
           </Button>
         </div>
       );
     }
 
-    if (pendingTreatments.length === 0) {
-      return (
-        <div className="text-center p-4">
-          <p className="text-lg font-semibold">No pending payments</p>
-        </div>
-      );
-    }
-
     return (
-      <div className="space-y-4">
-        {pendingTreatments.map((treatment, index) => (
-          <Card
-            key={treatment.treatmentID}
-            className="w-full overflow-hidden h-[150px]"
-          >
-            <CardBody className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <div className="p-4">
+      <div className="space-y-2">
+        {pendingTreatments.map((treatment) => (
+          <Card key={treatment.treatmentID} className="w-full overflow-hidden">
+            <CardBody className="max-h-[15vh]">
+              <div className="w-full px-2 grid grid-cols-1 md:grid-cols-3 items-center">
+                <div className="justify-between items-center">
                   <h3 className="text-lg font-semibold mb-2 flex items-center">
                     <User size={18} className="mr-2 text-primary" />
                     {treatment.patient.firstName} {treatment.patient.lastName}
@@ -152,7 +145,7 @@ export default function PendingPayments() {
                     Treatment ID: {treatment.treatmentID}
                   </p>
                 </div>
-                <div className="p-4">
+                <div>
                   <div className="flex items-center mb-2">
                     <Calendar size={18} className="mr-2 text-primary" />
                     <span className="text-sm font-medium">
@@ -161,7 +154,7 @@ export default function PendingPayments() {
                   </div>
                   <div className="flex items-center mb-2">
                     <Tag size={18} className="mr-2 text-primary" />
-                    <Tooltip content={treatment.treatmentType}>
+                    <Tooltip content="Treatment Type">
                       <Chip
                         size="sm"
                         variant="flat"
@@ -179,27 +172,22 @@ export default function PendingPayments() {
                     </span>
                   </div>
                 </div>
-                <div className="p-4">
+                <div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">Total Paid:</span>
-                    <Chip className="text-md" size="sm">
+                    <Chip color="success" variant="flat" size="sm">
                       LKR {treatment.totalPaid?.toFixed(2) ?? "N/A"}
                     </Chip>
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">Due Amount:</span>
-                    <Chip
-                      className="text-md"
-                      color="warning"
-                      variant="flat"
-                      size="sm"
-                    >
+                    <Chip color="warning" variant="flat" size="sm">
                       LKR {treatment.dueAmount?.toFixed(2) ?? "N/A"}
                     </Chip>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Status:</span>
-                    <Chip color="danger" variant="flat" size="md">
+                    <Chip color="danger" variant="flat" size="sm">
                       {treatment.paymentStatus}
                     </Chip>
                   </div>
@@ -212,8 +200,20 @@ export default function PendingPayments() {
     );
   };
 
+  const totalAmountDue = pendingTreatments.reduce(
+    (sum, treatment) => sum + (treatment.dueAmount || 0),
+    0
+  );
+  const totalPaid = pendingTreatments.reduce(
+    (sum, treatment) => sum + (treatment.totalPaid || 0),
+    0
+  );
+  const totalPatients = new Set(
+    pendingTreatments.map((treatment) => treatment.patient.patientID)
+  ).size;
+
   return (
-    <Card className="w-full h-[35vh] overflow-hidden">
+    <Card className="w-full h-full overflow-hidden">
       <CardHeader className="flex justify-between items-center px-6 py-4">
         <h2 className="text-xl font-semibold">Pending Payments</h2>
         <div className="flex space-x-2">
@@ -224,9 +224,9 @@ export default function PendingPayments() {
             onPress={fetchData}
             aria-label="Refresh pending payments"
           >
-            <RefreshCw size={20} />
+            <RefreshCw size={16} />
           </Button>
-          <Tooltip content="View All Dentures" color="primary">
+          <Tooltip content="View All Treatments" color="primary">
             <Link href="../Treatments">
               <Button
                 isIconOnly
@@ -238,14 +238,30 @@ export default function PendingPayments() {
           </Tooltip>
         </div>
       </CardHeader>
-      <CardBody className="overflow-y-auto px-6 py-4">
-        {renderContent()}
-      </CardBody>
-      <CardFooter className="flex justify-between items-center px-6 py-4">
-        <p className="text-sm">
-          Total Pending:{" "}
-          <span className="font-semibold">{pendingTreatments.length}</span>
-        </p>
+      <CardBody className="overflow-y-auto px-6">{renderContent()}</CardBody>
+      <CardFooter className="flex justify-between items-center px-6 py-4 pt-6">
+        <div className="flex flex-col">
+          <p className="text-sm font-semibold ">
+            Total Pending:{" "}
+            <span className="text-primary">{pendingTreatments.length}</span>
+          </p>
+          <p className="text-sm font-semibold ">
+            Total Patients:{" "}
+            <span className="text-primary">{totalPatients}</span>
+          </p>
+        </div>
+        <div className="flex flex-col items-end">
+          <p className="text-sm font-semibold ">
+            Total Amount Due:{" "}
+            <span className="text-warning">
+              LKR {totalAmountDue.toFixed(2)}
+            </span>
+          </p>
+          <p className="text-sm font-semibold ">
+            Total Paid:{" "}
+            <span className="text-success">LKR {totalPaid.toFixed(2)}</span>
+          </p>
+        </div>
       </CardFooter>
     </Card>
   );

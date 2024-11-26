@@ -13,7 +13,11 @@ import {
   Select,
   SelectItem,
 } from "@nextui-org/react";
-import { TestTubeDiagonal, SmileIcon as Tooth } from "lucide-react";
+import {
+  ClipboardPlus,
+  TestTubeDiagonal,
+  SmileIcon as Tooth,
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
@@ -169,14 +173,12 @@ export default function NewDentureButton({
   return (
     <>
       <Button
+        isIconOnly
         color="primary"
         variant="solid"
         onClick={onOpen}
-        radius="full"
-        startContent={<TestTubeDiagonal className="w-4 h-4" />}
-      >
-        New Denture
-      </Button>
+        startContent={<ClipboardPlus size={16} />}
+      ></Button>
       <Modal isOpen={isOpen} onClose={onClose} size="md" hideCloseButton>
         <ModalContent>
           {(onClose) => (
@@ -296,20 +298,10 @@ export default function NewDentureButton({
                 />
               </ModalBody>
               <ModalFooter>
-                <Button
-                  variant="ghost"
-                  radius="full"
-                  color="danger"
-                  onClick={onClose}
-                >
+                <Button variant="flat" color="danger" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button
-                  variant="ghost"
-                  radius="full"
-                  color="success"
-                  type="submit"
-                >
+                <Button variant="flat" color="success" type="submit">
                   Add
                 </Button>
               </ModalFooter>

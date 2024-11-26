@@ -214,14 +214,20 @@ export default function InventoryTable({
     if (!currentItem) return;
 
     try {
+      // Add the current date and time to the item being updated
+      const updatedItem = {
+        ...currentItem,
+        lastUpdated: new Date().toISOString(),
+      };
+
       const response = await fetch(
-        `${API_BASE_URL}/api/inventory/update/${currentItem.inventoryId}`,
+        `${API_BASE_URL}/api/inventory/update/${updatedItem.inventoryId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(currentItem),
+          body: JSON.stringify(updatedItem),
         }
       );
 

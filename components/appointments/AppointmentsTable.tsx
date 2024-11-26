@@ -34,12 +34,24 @@ import {
 } from "lucide-react";
 import MedicalHistoryViewModal from "../MedicalHistory";
 import PrescriptionButton from "../Prescription";
+import NewAppointmentButton from "./NewAppointmentButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+type Patient = {
+  patientID: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  contactNo: string;
+  gender: string;
+  dob: string;
+  createdDate: string;
+};
+
 type Appointment = {
   appointmentID: number;
-  patientID: number;
+  patient: Patient;
   appointmentDate: string;
   appointmentTime: string;
   reason: string;
@@ -49,12 +61,12 @@ type Appointment = {
 const columns = [
   { key: "appointmentID", label: "ID" },
   { key: "patientID", label: "PATIENT ID" },
+  { key: "patientName", label: "PATIENT NAME" },
   { key: "appointmentDate", label: "DATE" },
   { key: "appointmentTime", label: "TIME" },
   { key: "reason", label: "REASON" },
   { key: "status", label: "STATUS" },
   { key: "medicalRecords", label: "MEDICAL RECORDS" },
-  { key: "prescriptions", label: "PRESCRIPTIONS" },
   { key: "actions", label: "ACTIONS" },
 ];
 
@@ -308,6 +320,7 @@ export default function AppointmentManager() {
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
+            <NewAppointmentButton onAppointmentAdded={fetchAppointments} />
             <Dropdown>
               <DropdownTrigger className="w-[200px]">
                 <Button
@@ -394,7 +407,10 @@ export default function AppointmentManager() {
                 {appointment.appointmentID}
               </TableCell>
               <TableCell className="text-center">
-                {appointment.patientID}
+                {appointment.patient.patientID}
+              </TableCell>
+              <TableCell className="text-center">
+                {`${appointment.patient.firstName} ${appointment.patient.lastName}`}
               </TableCell>
               <TableCell className="text-center">
                 {appointment.appointmentDate}
@@ -435,10 +451,10 @@ export default function AppointmentManager() {
                   </DropdownMenu>
                 </Dropdown>
               </TableCell>
-              <TableCell className="text-center">
-                <MedicalHistoryViewModal patientId={appointment.patientID} />
-              </TableCell>
-              <TableCell className="text-center">
+              <TableCell className="text-center space-x-2">
+                <MedicalHistoryViewModal
+                  patientId={appointment.patient.patientID}
+                />
                 <PrescriptionButton appointmentId={appointment.appointmentID} />
               </TableCell>
               <TableCell className="text-center">

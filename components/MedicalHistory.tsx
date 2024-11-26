@@ -26,28 +26,17 @@ import {
   Pill,
   AlertTriangle,
   Phone,
-  Plus,
   Edit,
   Save,
+  Plus,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-type Patient = {
-  patientID: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNo: string;
-  gender: string;
-  dob: string;
-  createdDate: string;
-};
-
 type MedicalHistory = {
   recordID: number;
-  patient: Patient;
+  patientId: number;
   bloodType: string;
   diabetes: boolean;
   hypertension: boolean;
@@ -79,12 +68,42 @@ export default function MedicalHistoryButton({
   patientId,
 }: MedicalHistoryButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onClose: onCreateClose,
+  } = useDisclosure();
   const [medicalHistory, setMedicalHistory] = useState<MedicalHistory | null>(
     null
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [newMedicalHistory, setNewMedicalHistory] = useState<
+    Partial<MedicalHistory>
+  >({
+    bloodType: "B+",
+    diabetes: false,
+    hypertension: false,
+    heartDisease: false,
+    bleedingDisorders: false,
+    osteoporosis: false,
+    arthritis: false,
+    asthma: false,
+    epilepsy: false,
+    hivAids: false,
+    hepatitis: false,
+    thyroidDisorder: false,
+    pregnancy: null,
+    surgeries: "",
+    currentMedications: "",
+    drugAllergies: "",
+    allergies: "",
+    medications: "",
+    medicalConditions: "",
+    emergencyContactName: "",
+    emergencyContactNumber: "",
+  });
 
   const fetchMedicalHistory = async () => {
     setLoading(true);
@@ -93,20 +112,14 @@ export default function MedicalHistoryButton({
       const response = await fetch(
         `${API_BASE_URL}/api/medical-records/${patientId}`
       );
-      if (response.status === 404) {
-        setMedicalHistory(null);
-        return;
-      }
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       setMedicalHistory(data);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(`An error occurred while fetching data: ${errorMessage}`);
+      setError("No medical history");
       console.error("Error fetching data:", err);
-      toast.error("Failed to fetch medical history. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -123,7 +136,7 @@ export default function MedicalHistoryButton({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ patientId }),
+          body: JSON.stringify(newMedicalHistory),
         }
       );
       if (!response.ok) {
@@ -131,7 +144,8 @@ export default function MedicalHistoryButton({
       }
       const data = await response.json();
       setMedicalHistory(data);
-      setIsEditing(true);
+      setIsEditing(false);
+      onCreateClose();
       toast.success("New medical history created successfully.");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -149,14 +163,40 @@ export default function MedicalHistoryButton({
     setLoading(true);
     setError(null);
     try {
+      if (!medicalHistory) {
+        throw new Error("No medical history to update");
+      }
+      const updatePayload = {
+        bloodType: medicalHistory.bloodType,
+        diabetes: medicalHistory.diabetes,
+        hypertension: medicalHistory.hypertension,
+        heartDisease: medicalHistory.heartDisease,
+        bleedingDisorders: medicalHistory.bleedingDisorders,
+        osteoporosis: medicalHistory.osteoporosis,
+        arthritis: medicalHistory.arthritis,
+        asthma: medicalHistory.asthma,
+        epilepsy: medicalHistory.epilepsy,
+        hivAids: medicalHistory.hivAids,
+        hepatitis: medicalHistory.hepatitis,
+        thyroidDisorder: medicalHistory.thyroidDisorder,
+        pregnancy: medicalHistory.pregnancy,
+        surgeries: medicalHistory.surgeries,
+        currentMedications: medicalHistory.currentMedications,
+        drugAllergies: medicalHistory.drugAllergies,
+        allergies: medicalHistory.allergies,
+        medications: medicalHistory.medications,
+        medicalConditions: medicalHistory.medicalConditions,
+        emergencyContactName: medicalHistory.emergencyContactName,
+        emergencyContactNumber: medicalHistory.emergencyContactNumber,
+      };
       const response = await fetch(
-        `${API_BASE_URL}/api/medical-records/update/${patientId}`,
+        `${API_BASE_URL}/api/medical-records/update/${medicalHistory.recordID}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(medicalHistory),
+          body: JSON.stringify(updatePayload),
         }
       );
       if (!response.ok) {
@@ -192,10 +232,23 @@ export default function MedicalHistoryButton({
     setMedicalHistory((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
+  const handleNewInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setNewMedicalHistory((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSwitchChange = (name: string) => (isSelected: boolean) => {
     setMedicalHistory((prev) =>
       prev ? { ...prev, [name]: isSelected } : null
     );
+  };
+
+  const handleNewSwitchChange = (name: string) => (isSelected: boolean) => {
+    setNewMedicalHistory((prev) => ({ ...prev, [name]: isSelected }));
   };
 
   const renderSection = (
@@ -216,6 +269,11 @@ export default function MedicalHistoryButton({
     label: string,
     name: string,
     value: string,
+    onChange: (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => void,
     type: "input" | "textarea" | "select" = "input"
   ) => (
     <div className="mb-4">
@@ -230,9 +288,7 @@ export default function MedicalHistoryButton({
           id={name}
           name={name}
           selectedKeys={[value]}
-          onChange={(e) =>
-            handleInputChange(e as React.ChangeEvent<HTMLSelectElement>)
-          }
+          onChange={onChange}
           className="w-full"
         >
           <SelectItem key="A+" value="A+">
@@ -265,7 +321,7 @@ export default function MedicalHistoryButton({
           id={name}
           name={name}
           value={value}
-          onChange={handleInputChange}
+          onChange={onChange}
           className="w-full"
         />
       ) : (
@@ -273,22 +329,25 @@ export default function MedicalHistoryButton({
           id={name}
           name={name}
           value={value}
-          onChange={handleInputChange}
+          onChange={onChange}
           className="w-full"
         />
       )}
     </div>
   );
 
-  const renderEditableSwitches = () => (
+  const renderEditableSwitches = (
+    data: Partial<MedicalHistory>,
+    onChange: (name: string) => (isSelected: boolean) => void
+  ) => (
     <div className="grid grid-cols-2 gap-4">
-      {Object.entries(medicalHistory!)
+      {Object.entries(data)
         .filter(([key, value]) => typeof value === "boolean")
         .map(([key, value]) => (
           <Switch
             key={key}
             isSelected={value as boolean}
-            onValueChange={handleSwitchChange(key)}
+            onValueChange={onChange(key)}
             size="sm"
           >
             {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -301,11 +360,10 @@ export default function MedicalHistoryButton({
     <>
       <Tooltip content="View Medical History">
         <Button
-          size="sm"
-          color="primary"
-          variant="ghost"
+          color="secondary"
+          variant="flat"
           onPress={handleOpen}
-          startContent={<HeartPulse className="h-4 w-4" />}
+          startContent={<HeartPulse size={16} />}
           isIconOnly
         ></Button>
       </Tooltip>
@@ -333,15 +391,15 @@ export default function MedicalHistoryButton({
                     <Spinner size="lg" color="primary" />
                   </div>
                 ) : error ? (
-                  <div className="text-center text-danger">
-                    <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
+                  <div className="text-center">
+                    <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-warning" />
                     <p className="text-lg font-semibold mb-4">{error}</p>
                     <Button
                       color="primary"
-                      variant="flat"
-                      onPress={fetchMedicalHistory}
+                      startContent={<Plus size={16} />}
+                      onPress={onCreateOpen}
                     >
-                      Retry
+                      Create Medical History
                     </Button>
                   </div>
                 ) : medicalHistory ? (
@@ -356,6 +414,7 @@ export default function MedicalHistoryButton({
                               "Blood Type",
                               "bloodType",
                               medicalHistory.bloodType,
+                              handleInputChange,
                               "select"
                             )}
                           </div>
@@ -363,7 +422,10 @@ export default function MedicalHistoryButton({
                         {renderSection(
                           "Medical Conditions",
                           <Stethoscope className="w-5 h-5" />,
-                          renderEditableSwitches()
+                          renderEditableSwitches(
+                            medicalHistory,
+                            handleSwitchChange
+                          )
                         )}
                         {renderSection(
                           "Additional Information",
@@ -373,30 +435,35 @@ export default function MedicalHistoryButton({
                               "Surgeries",
                               "surgeries",
                               medicalHistory.surgeries,
+                              handleInputChange,
                               "textarea"
                             )}
                             {renderEditableField(
                               "Current Medications",
                               "currentMedications",
                               medicalHistory.currentMedications,
+                              handleInputChange,
                               "textarea"
                             )}
                             {renderEditableField(
                               "Drug Allergies",
                               "drugAllergies",
                               medicalHistory.drugAllergies,
+                              handleInputChange,
                               "textarea"
                             )}
                             {renderEditableField(
                               "Allergies",
                               "allergies",
                               medicalHistory.allergies,
+                              handleInputChange,
                               "textarea"
                             )}
                             {renderEditableField(
                               "Medical Conditions",
                               "medicalConditions",
                               medicalHistory.medicalConditions,
+                              handleInputChange,
                               "textarea"
                             )}
                           </>
@@ -408,12 +475,15 @@ export default function MedicalHistoryButton({
                             {renderEditableField(
                               "Name",
                               "emergencyContactName",
-                              medicalHistory.emergencyContactName
+                              medicalHistory.emergencyContactName,
+                              handleInputChange
                             )}
                             {renderEditableField(
                               "Number",
+
                               "emergencyContactNumber",
-                              medicalHistory.emergencyContactNumber
+                              medicalHistory.emergencyContactNumber,
+                              handleInputChange
                             )}
                           </>
                         )}
@@ -425,9 +495,8 @@ export default function MedicalHistoryButton({
                           <User className="w-5 h-5" />,
                           <div className="grid grid-cols-2 gap-2">
                             <p>
-                              <span className="font-medium">Name:</span>{" "}
-                              {medicalHistory.patient.firstName}{" "}
-                              {medicalHistory.patient.lastName}
+                              <span className="font-medium">Patient ID:</span>{" "}
+                              {medicalHistory.patientId}
                             </p>
                             <p className="flex gap-2">
                               <Droplet className="w-5 h-5" />
@@ -505,20 +574,7 @@ export default function MedicalHistoryButton({
                       </>
                     )}
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-lg font-medium mb-4">
-                      No medical history found.
-                    </p>
-                    <Button
-                      color="primary"
-                      startContent={<Plus size={16} />}
-                      onPress={createNewMedicalHistory}
-                    >
-                      Create New Medical History
-                    </Button>
-                  </div>
-                )}
+                ) : null}
               </ModalBody>
               <ModalFooter>
                 {medicalHistory &&
@@ -543,6 +599,127 @@ export default function MedicalHistoryButton({
                   ))}
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        isOpen={isCreateOpen}
+        onClose={onCreateClose}
+        size="lg"
+        scrollBehavior="inside"
+        classNames={{
+          base: "max-h-[90vh]",
+          header: "border-b border-divider",
+          footer: "border-t border-divider",
+          body: "p-6",
+        }}
+      >
+        <ModalContent>
+          {(onCreateClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <h2 className="text-2xl font-bold">
+                  Create New Medical History
+                </h2>
+              </ModalHeader>
+              <ModalBody>
+                <div className="space-y-6">
+                  {renderSection(
+                    "Patient Information",
+                    <User className="w-5 h-5" />,
+                    <div className="grid grid-cols-2 gap-4">
+                      {renderEditableField(
+                        "Blood Type",
+                        "bloodType",
+                        newMedicalHistory.bloodType || "",
+                        handleNewInputChange,
+                        "select"
+                      )}
+                    </div>
+                  )}
+                  {renderSection(
+                    "Medical Conditions",
+                    <Stethoscope className="w-5 h-5" />,
+                    renderEditableSwitches(
+                      newMedicalHistory,
+                      handleNewSwitchChange
+                    )
+                  )}
+                  {renderSection(
+                    "Additional Information",
+                    <Pill className="w-5 h-5" />,
+                    <>
+                      {renderEditableField(
+                        "Surgeries",
+                        "surgeries",
+                        newMedicalHistory.surgeries || "",
+                        handleNewInputChange,
+                        "textarea"
+                      )}
+                      {renderEditableField(
+                        "Current Medications",
+                        "currentMedications",
+                        newMedicalHistory.currentMedications || "",
+                        handleNewInputChange,
+                        "textarea"
+                      )}
+                      {renderEditableField(
+                        "Drug Allergies",
+                        "drugAllergies",
+                        newMedicalHistory.drugAllergies || "",
+                        handleNewInputChange,
+                        "textarea"
+                      )}
+                      {renderEditableField(
+                        "Allergies",
+                        "allergies",
+                        newMedicalHistory.allergies || "",
+                        handleNewInputChange,
+                        "textarea"
+                      )}
+                      {renderEditableField(
+                        "Medical Conditions",
+                        "medicalConditions",
+                        newMedicalHistory.medicalConditions || "",
+                        handleNewInputChange,
+                        "textarea"
+                      )}
+                    </>
+                  )}
+                  {renderSection(
+                    "Emergency Contact",
+                    <Phone className="w-5 h-5" />,
+                    <>
+                      {renderEditableField(
+                        "Name",
+                        "emergencyContactName",
+                        newMedicalHistory.emergencyContactName || "",
+                        handleNewInputChange
+                      )}
+                      {renderEditableField(
+                        "Number",
+                        "emergencyContactNumber",
+                        newMedicalHistory.emergencyContactNumber || "",
+                        handleNewInputChange
+                      )}
+                    </>
+                  )}
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="primary"
+                  variant="flat"
+                  onPress={createNewMedicalHistory}
+                  startContent={<Save size={16} />}
+                >
+                  Create Medical History
+                </Button>
+                <Button color="danger" variant="flat" onPress={onCreateClose}>
+                  Cancel
                 </Button>
               </ModalFooter>
             </>

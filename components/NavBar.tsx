@@ -2,17 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import {
-  Button,
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-} from "@nextui-org/react";
+import { Button, Navbar, NavbarBrand, NavbarContent } from "@nextui-org/react";
 import NavBarTabs from "./NavBarTabs";
 import MenuBar from "./MenuBar";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { SunIcon, MoonIcon } from "lucide-react";
+import { SunIcon, MoonIcon, LogOut } from "lucide-react";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -30,47 +25,35 @@ export default function NavBar() {
   if (!mounted) return null;
 
   return (
-    <Navbar className="w-full py-1 px-4">
-      <NavbarBrand className="justify-start">
-        <MenuBar />
-      </NavbarBrand>
-      <NavbarContent className="hidden lg:flex lg:justify-center">
+    <Navbar className="w-full py-2 px-4">
+      <NavbarContent className="flex-1">
+        <NavbarBrand>
+          <MenuBar />
+        </NavbarBrand>
+      </NavbarContent>
+
+      <NavbarContent className="flex-1 hidden lg:flex justify-center">
         <NavBarTabs onTabClick={handleTabClick} currentPath={pathname} />
       </NavbarContent>
-      <NavbarContent className="justify-end">
+
+      <NavbarContent className="flex-1 justify-end gap-4">
         <Button
-          color="primary"
           isIconOnly
-          variant="ghost"
+          variant="light"
           aria-label="Toggle theme"
-          className="mr-2"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
           {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
         </Button>
 
-        <div className="hidden md:flex items-center space-x-4">
-          <Button
-            color="primary"
-            radius="full"
-            as={Link}
-            href="/Login"
-            variant="ghost"
-            size="md"
-          >
-            Login
-          </Button>
-          <Button
-            color="primary"
-            radius="full"
-            as={Link}
-            href="/SignUp"
-            variant="solid"
-            size="md"
-          >
-            Sign Up
-          </Button>
-        </div>
+        <Button
+          as={Link}
+          href="/auth/login"
+          variant="flat"
+          className="hidden md:flex"
+        >
+          Login
+        </Button>
       </NavbarContent>
     </Navbar>
   );

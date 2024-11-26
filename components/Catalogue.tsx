@@ -6,10 +6,10 @@ import list from "../app/data/CatalogueData";
 
 export default function Catalogue() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2 h-full">
       {list.map((item, index) => (
-        <Card key={index} className="w-full h-full " shadow="sm">
-          <CardBody className="p-0 ">
+        <Card key={index} className="w-full h-full">
+          <CardBody className="p-0">
             <Image
               shadow="sm"
               radius="lg"
