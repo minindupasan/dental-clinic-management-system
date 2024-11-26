@@ -114,16 +114,133 @@ const StockLevelCard: React.FC = () => {
     (item) => item.currentQuantity === 0
   ).length;
 
-  if (loading) {
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-full">
+          <Spinner
+            label="Loading inventory data..."
+            color="primary"
+            size="lg"
+          />
+        </div>
+      );
+    }
+
+    if (inventory.length === 0) {
+      return (
+        <div className="h-full text-center flex flex-col items-center justify-center p-4">
+          <Package className="w-12 h-12 mb-2 text-primary" />
+          <p className="text-lg">No inventory items</p>
+          <Button
+            color="primary"
+            variant="flat"
+            onPress={fetchInventory}
+            className="mt-4"
+          >
+            Refresh
+          </Button>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner label="Loading inventory data..." />
+      <div className="space-y-4">
+        <div className="flex justify-between text-sm">
+          <div>
+            <p className="text-default-500">Total Items</p>
+            <p className="font-semibold">{totalItems}</p>
+          </div>
+          <div>
+            <p className="text-warning-500">Low Stock</p>
+            <p className="font-semibold">{lowStockItems}</p>
+          </div>
+          <div>
+            <p className="text-danger-500">Out of Stock</p>
+            <p className="font-semibold">{outOfStockItems}</p>
+          </div>
+        </div>
+        {(lowStockItems > 0 || outOfStockItems > 0) && (
+          <div className="bg-warning-50 p-2 rounded-lg flex items-center space-x-2">
+            <AlertTriangle className="h-5 w-5 text-warning-500" />
+            <p className="text-sm text-warning">
+              {lowStockItems + outOfStockItems} items need attention
+            </p>
+          </div>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {inventory.map((item) => (
+            <Card key={item.inventoryId} className="w-full">
+              <CardBody>
+                <h4 className="font-semibold mb-2">{item.itemName}</h4>
+                <p className="text-sm  mb-2">
+                  <p>Current Quantity: {item.currentQuantity}</p>
+                  <p>Max Quantity: {item.quantity}</p>
+                </p>
+                <Progress
+                  size="sm"
+                  radius="sm"
+                  value={item.currentQuantity}
+                  maxValue={item.quantity}
+                  classNames={{
+                    indicator:
+                      item.currentQuantity === 0
+                        ? "bg-danger"
+                        : item.currentQuantity <= item.restockLevel
+                          ? "bg-warning"
+                          : "bg-success",
+                  }}
+                />
+                {item.currentQuantity === 0 ? (
+                  <p className="text-sm text-danger-500 mt-2">Out of Stock</p>
+                ) : (
+                  item.currentQuantity <= item.restockLevel && (
+                    <p className="text-sm text-warning-500 mt-2">
+                      Warning: Stock level low
+                    </p>
+                  )
+                )}
+                <p className="text-sm mt-2">
+                  Status:{" "}
+                  <Chip
+                    color={item.currentQuantity === 0 ? "danger" : "success"}
+                    size="sm"
+                  >
+                    {item.statusLevel}
+                  </Chip>
+                </p>
+                <p className="text-sm mt-2">
+                  Unit Cost: ${item.unitCost.toFixed(2)}
+                </p>
+                <p className="text-sm">
+                  Total Cost: ${item.totalCost.toFixed(2)}
+                </p>
+                <div className="flex justify-between items-center mt-2">
+                  <p className="text-sm">
+                    Expiry: {new Date(item.expiryDate).toLocaleDateString()}
+                  </p>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="flat"
+                    color="danger"
+                    onClick={() => decreaseQuantity(item.inventoryId)}
+                    isDisabled={item.currentQuantity === 0}
+                    isLoading={decreasingItems.has(item.inventoryId)}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
+          ))}
+        </div>
       </div>
     );
-  }
+  };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full h-full">
       <CardHeader className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Inventory Stock Levels</h3>
         <div className="flex space-x-2">
@@ -144,99 +261,7 @@ const StockLevelCard: React.FC = () => {
           </Button>
         </div>
       </CardHeader>
-      <CardBody className="h-[390px]">
-        <div className="space-y-4">
-          <div className="flex justify-between text-sm">
-            <div>
-              <p className="text-default-500">Total Items</p>
-              <p className="font-semibold">{totalItems}</p>
-            </div>
-            <div>
-              <p className="text-warning-500">Low Stock</p>
-              <p className="font-semibold">{lowStockItems}</p>
-            </div>
-            <div>
-              <p className="text-danger-500">Out of Stock</p>
-              <p className="font-semibold">{outOfStockItems}</p>
-            </div>
-          </div>
-          {(lowStockItems > 0 || outOfStockItems > 0) && (
-            <div className="bg-warning-50 p-2 rounded-lg flex items-center space-x-2">
-              <AlertTriangle className="h-5 w-5 text-warning-500" />
-              <p className="text-sm text-warning">
-                {lowStockItems + outOfStockItems} items need attention
-              </p>
-            </div>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {inventory.map((item) => (
-              <Card key={item.inventoryId} className="w-full">
-                <CardBody>
-                  <h4 className="font-semibold mb-2">{item.itemName}</h4>
-                  <p className="text-sm  mb-2">
-                    <p>Current Quantity: {item.currentQuantity}</p>
-                    <p>Max Quantity: {item.quantity}</p>
-                  </p>
-                  <Progress
-                    size="sm"
-                    radius="sm"
-                    value={item.currentQuantity}
-                    maxValue={item.quantity}
-                    classNames={{
-                      indicator:
-                        item.currentQuantity === 0
-                          ? "bg-danger"
-                          : item.currentQuantity <= item.restockLevel
-                            ? "bg-warning"
-                            : "bg-success",
-                    }}
-                  />
-                  {item.currentQuantity === 0 ? (
-                    <p className="text-sm text-danger-500 mt-2">Out of Stock</p>
-                  ) : (
-                    item.currentQuantity <= item.restockLevel && (
-                      <p className="text-sm text-warning-500 mt-2">
-                        Warning: Stock level low
-                      </p>
-                    )
-                  )}
-                  <p className="text-sm mt-2">
-                    Status:{" "}
-                    <Chip
-                      color={item.currentQuantity === 0 ? "danger" : "success"}
-                      size="sm"
-                    >
-                      {item.statusLevel}
-                    </Chip>
-                  </p>
-                  <p className="text-sm mt-2">
-                    Unit Cost: ${item.unitCost.toFixed(2)}
-                  </p>
-                  <p className="text-sm">
-                    Total Cost: ${item.totalCost.toFixed(2)}
-                  </p>
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-sm">
-                      Expiry: {new Date(item.expiryDate).toLocaleDateString()}
-                    </p>
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      variant="flat"
-                      color="danger"
-                      onClick={() => decreaseQuantity(item.inventoryId)}
-                      isDisabled={item.currentQuantity === 0}
-                      isLoading={decreasingItems.has(item.inventoryId)}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </CardBody>
+      <CardBody className="h-[390px]">{renderContent()}</CardBody>
     </Card>
   );
 };
