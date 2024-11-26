@@ -3,7 +3,7 @@
 import UpcomingAppointmentsCard from "@/components/appointments/UpcomingAppointmentsCard";
 import TodayAppointmentsCard from "@/components/appointments/TodayAppointmentsCard";
 import DentureCard from "@/components/dentures/DenturesCard";
-import FinancialSummaryCard from "@/components/FinancialSummaryCard";
+import FinancialSummaryCard from "@/components/inventory/InventoryCard";
 import PendingPayments from "@/components/treatments/PendingPaymentsCard";
 import PatientsTableCard from "@/components/patients/PatientsTableCard";
 
@@ -28,10 +28,10 @@ export default function Dashboard() {
         </div>
 
         {/* Financial Summary and Pending Payments */}
-        <div className="row-start-4 col-start-1 lg:col-span-2 lg:col-start-1 lg:row-start-3">
+        <div className="row-start-3 col-start-1 lg:col-span-3 lg:col-start-1 lg:row-start-3">
           <FinancialSummaryCard />
         </div>
-        <div className="lg:col-span-4 lg:col-start-3">
+        <div className="row-start-3 lg:col-span-3 lg:col-start-4">
           <PendingPayments />
         </div>
 
