@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, Key } from "react";
 import {
   Button,
@@ -104,6 +102,7 @@ export default function NewAppointmentButton({
 
   const validateAppointmentDateTime = () => {
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Set time to midnight for date comparison
     const appointmentDate = new Date(newAppointment.appointmentDate);
     appointmentDate.setHours(0, 0, 0, 0); // Set time to midnight for date comparison
     return appointmentDate >= now;
