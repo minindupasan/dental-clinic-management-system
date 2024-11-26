@@ -6,7 +6,7 @@ import { MessageSquare, Phone } from "lucide-react";
 
 export default function AboutCard() {
   return (
-    <Card className="mx-auto w-full max-w-[600px]">
+    <Card className="w-full h-full">
       <CardBody className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
           <Avatar
