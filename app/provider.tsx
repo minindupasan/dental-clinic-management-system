@@ -18,7 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <NextUIProvider>
       <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-        <ScrollShadow>{children}</ScrollShadow>
+        {children}
       </NextThemesProvider>
     </NextUIProvider>
   );
