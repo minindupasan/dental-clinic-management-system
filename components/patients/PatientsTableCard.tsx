@@ -124,14 +124,14 @@ export default function PatientTableCard() {
             <Table aria-label="Patient Records">
               <TableHeader>
                 {columns.map((column) => (
-                  <TableColumn key={column.key}>{column.label}</TableColumn>
+                  <TableColumn className="text-center" key={column.key}>{column.label}</TableColumn>
                 ))}
               </TableHeader>
               <TableBody>
                 {patients.map((patient) => (
                   <TableRow key={patient.patientID}>
                     {columns.map((column) => (
-                      <TableCell key={`${patient.patientID}-${column.key}`}>
+                      <TableCell className="text-center" key={`${patient.patientID}-${column.key}`}>
                         {column.key === "fullName"
                           ? `${patient.firstName} ${patient.lastName}`
                           : column.key === "dob" || column.key === "createdDate"
