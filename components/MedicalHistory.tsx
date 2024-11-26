@@ -26,28 +26,17 @@ import {
   Pill,
   AlertTriangle,
   Phone,
-  Plus,
   Edit,
   Save,
+  Plus,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-type Patient = {
-  patientID: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNo: string;
-  gender: string;
-  dob: string;
-  createdDate: string;
-};
-
 type MedicalHistory = {
   recordID: number;
-  patient: Patient;
+  patientId: number;
   bloodType: string;
   diabetes: boolean;
   hypertension: boolean;
@@ -93,20 +82,14 @@ export default function MedicalHistoryButton({
       const response = await fetch(
         `${API_BASE_URL}/api/medical-records/${patientId}`
       );
-      if (response.status === 404) {
-        setMedicalHistory(null);
-        return;
-      }
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       setMedicalHistory(data);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(`An error occurred while fetching data: ${errorMessage}`);
+      setError("No medical history");
       console.error("Error fetching data:", err);
-      toast.error("Failed to fetch medical history. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -123,7 +106,29 @@ export default function MedicalHistoryButton({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ patientId }),
+          body: JSON.stringify({
+            bloodType: "B+",
+            diabetes: true,
+            hypertension: false,
+            heartDisease: true,
+            bleedingDisorders: false,
+            osteoporosis: false,
+            arthritis: true,
+            asthma: false,
+            epilepsy: false,
+            hivAids: false,
+            hepatitis: true,
+            thyroidDisorder: false,
+            pregnancy: null,
+            surgeries: "Appendectomy in 2018",
+            currentMedications: "Metformin, Lisinopril",
+            drugAllergies: "Penicillin",
+            allergies: "Peanuts, Dust",
+            medications: "Metformin, Lisinopril",
+            medicalConditions: "Type 2 Diabetes, Rheumatoid Arthritis",
+            emergencyContactName: "John Doe",
+            emergencyContactNumber: "+1234567890",
+          }),
         }
       );
       if (!response.ok) {
@@ -131,7 +136,7 @@ export default function MedicalHistoryButton({
       }
       const data = await response.json();
       setMedicalHistory(data);
-      setIsEditing(true);
+      setIsEditing(false);
       toast.success("New medical history created successfully.");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -301,11 +306,10 @@ export default function MedicalHistoryButton({
     <>
       <Tooltip content="View Medical History">
         <Button
-          size="sm"
-          color="primary"
-          variant="ghost"
+          color="secondary"
+          variant="flat"
           onPress={handleOpen}
-          startContent={<HeartPulse className="h-4 w-4" />}
+          startContent={<HeartPulse size={16} />}
           isIconOnly
         ></Button>
       </Tooltip>
@@ -333,15 +337,15 @@ export default function MedicalHistoryButton({
                     <Spinner size="lg" color="primary" />
                   </div>
                 ) : error ? (
-                  <div className="text-center text-danger">
-                    <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
+                  <div className="text-center">
+                    <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-warning" />
                     <p className="text-lg font-semibold mb-4">{error}</p>
                     <Button
                       color="primary"
-                      variant="flat"
-                      onPress={fetchMedicalHistory}
+                      startContent={<Plus size={16} />}
+                      onPress={createNewMedicalHistory}
                     >
-                      Retry
+                      Create Medical History
                     </Button>
                   </div>
                 ) : medicalHistory ? (
@@ -425,9 +429,8 @@ export default function MedicalHistoryButton({
                           <User className="w-5 h-5" />,
                           <div className="grid grid-cols-2 gap-2">
                             <p>
-                              <span className="font-medium">Name:</span>{" "}
-                              {medicalHistory.patient.firstName}{" "}
-                              {medicalHistory.patient.lastName}
+                              <span className="font-medium">Patient ID:</span>{" "}
+                              {medicalHistory.patientId}
                             </p>
                             <p className="flex gap-2">
                               <Droplet className="w-5 h-5" />
@@ -505,20 +508,7 @@ export default function MedicalHistoryButton({
                       </>
                     )}
                   </div>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-lg font-medium mb-4">
-                      No medical history found.
-                    </p>
-                    <Button
-                      color="primary"
-                      startContent={<Plus size={16} />}
-                      onPress={createNewMedicalHistory}
-                    >
-                      Create New Medical History
-                    </Button>
-                  </div>
-                )}
+                ) : null}
               </ModalBody>
               <ModalFooter>
                 {medicalHistory &&

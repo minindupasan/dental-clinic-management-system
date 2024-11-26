@@ -250,8 +250,7 @@ export default function PrescriptionButton({
     <>
       <Tooltip content="View Prescription">
         <Button
-          size="sm"
-          color="primary"
+          color="secondary"
           variant="flat"
           onPress={handleOpen}
           isIconOnly
