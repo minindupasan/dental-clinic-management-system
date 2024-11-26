@@ -1,4 +1,4 @@
-import FinancialSummary from "@/components/FinancialSummaryCard";
+import FinancialSummary from "@/components/inventory/InventoryCard";
 import PendingPayments from "@/components/treatments/PendingPaymentsCard";
 import TreatmentsCard from "@/components/TreatmentsCard";
 import React from "react";
