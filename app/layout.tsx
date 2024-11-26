@@ -5,8 +5,6 @@ import React from "react";
 import { Providers } from "./provider";
 
 import { fontSans } from "@/config/fonts";
-import NavBar from "../components/NavBar";
-import { ScrollShadow } from "@nextui-org/react";
 import { Effects } from "./effects";
 
 export const metadata: Metadata = {

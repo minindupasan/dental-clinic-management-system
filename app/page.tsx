@@ -4,7 +4,12 @@ import React from "react";
 import LoginCard from "@/components/LoginCard";
 import Catalogue from "@/components/Catalogue";
 import AboutCard from "@/components/AboutCard";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/navbar";
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+} from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { SunIcon, MoonIcon } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -16,32 +21,32 @@ export default function HomePage() {
   return (
     <div>
       <Navbar className="w-full px-4">
-      <NavbarBrand className="flex-1">
-        <DentCareLogo />
-        <span className="font-bold text-2xl ml-2">DentCare+</span>
-      </NavbarBrand>
-      <NavbarContent justify="end" className="flex-1">
-        <NavbarItem>
-          <Button
-            isIconOnly
-            variant="ghost"
-            aria-label="Toggle theme"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
-          <Button
-            as={Link}
-            href="/login"
-            variant="ghost"
-          >
-            Login
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
-    </Navbar>
+        <NavbarBrand className="flex-1">
+          <DentCareLogo />
+          <span className="font-bold text-2xl ml-2">DentCare+</span>
+        </NavbarBrand>
+        <NavbarContent justify="end" className="flex-1">
+          <NavbarItem>
+            <Button
+              isIconOnly
+              variant="ghost"
+              aria-label="Toggle theme"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <SunIcon size={20} />
+              ) : (
+                <MoonIcon size={20} />
+              )}
+            </Button>
+          </NavbarItem>
+          <NavbarItem>
+            <Button as={Link} href="/auth/login" variant="ghost">
+              Login
+            </Button>
+          </NavbarItem>
+        </NavbarContent>
+      </Navbar>
       <div className="container mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-5 gap-4">
           <div className="lg:col-span-3 lg:row-span-2">
