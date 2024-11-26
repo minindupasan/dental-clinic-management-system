@@ -6,6 +6,7 @@ import { Providers } from "./provider";
 
 import { fontSans } from "@/config/fonts";
 import { Effects } from "./effects";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "DentCare+",
@@ -38,6 +39,7 @@ export default function RootLayout({
             <div className="relative flex flex-col h-screen">
               <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
                 {children}
+                <Toaster />
               </main>
             </div>
           </Effects>
