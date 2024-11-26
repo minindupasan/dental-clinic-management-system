@@ -24,7 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           defaultTheme="system"
           enableSystem
         >
-          <ScrollShadow>{children}</ScrollShadow>
+          {children}
         </NextThemesProvider>
       </NextUIProvider>
     </SessionProvider>
