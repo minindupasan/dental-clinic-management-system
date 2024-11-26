@@ -38,7 +38,7 @@ export default function App() {
       <NavbarContent>
         <NavbarBrand>
           <Link href="/">
-            <DentCareLogo fill="text-background" />
+            <DentCareLogo/>
             <div
               className={clsx(
                 "hidden lg:block lg:font-bold text-foreground lg:ml-3 lg:text-xl lg:font-serif ",
