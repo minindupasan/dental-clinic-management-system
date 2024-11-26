@@ -32,6 +32,7 @@ import {
   Filter,
   RefreshCw,
 } from "lucide-react";
+import NewDentureButton from "./NewDentureButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -379,6 +380,7 @@ export default function DentureTable() {
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
+            <NewDentureButton onDentureAdded={fetchDentures} />
             <Dropdown>
               <DropdownTrigger className="w-[200px]">
                 <Button

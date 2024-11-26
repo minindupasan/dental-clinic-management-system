@@ -54,11 +54,9 @@ type Treatment = {
 export default function PendingPayments() {
   const [pendingTreatments, setPendingTreatments] = useState<Treatment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  //const [error, setError] = useState<string | null>(null); //Removed error state
 
   const fetchData = async () => {
     setIsLoading(true);
-    //setError(null); //Removed setError
     try {
       const response = await fetch(`${API_BASE_URL}/api/treatments`);
       if (!response.ok) {
@@ -79,7 +77,7 @@ export default function PendingPayments() {
       setPendingTreatments(filteredTreatments);
     } catch (err) {
       console.error("Error fetching data:", err);
-      setPendingTreatments([]); //Set to empty array on error
+      setPendingTreatments([]);
     } finally {
       setIsLoading(false);
     }
@@ -205,6 +203,18 @@ export default function PendingPayments() {
     );
   };
 
+  const totalAmountDue = pendingTreatments.reduce(
+    (sum, treatment) => sum + (treatment.dueAmount || 0),
+    0
+  );
+  const totalPaid = pendingTreatments.reduce(
+    (sum, treatment) => sum + (treatment.totalPaid || 0),
+    0
+  );
+  const totalPatients = new Set(
+    pendingTreatments.map((treatment) => treatment.patient.patientID)
+  ).size;
+
   return (
     <Card className="w-full h-full overflow-hidden">
       <CardHeader className="flex justify-between items-center px-6 py-4">
@@ -232,11 +242,29 @@ export default function PendingPayments() {
         </div>
       </CardHeader>
       <CardBody className="overflow-y-auto px-6">{renderContent()}</CardBody>
-      <CardFooter className="flex justify-between items-center px-6 py-2">
-        <p className="text-sm">
-          Total Pending:{" "}
-          <span className="font-semibold">{pendingTreatments.length}</span>
-        </p>
+      <CardFooter className="flex justify-between items-center px-6 py-4">
+        <div className="flex flex-col">
+          <p className="text-sm font-semibold ">
+            Total Pending:{" "}
+            <span className="text-primary">{pendingTreatments.length}</span>
+          </p>
+          <p className="text-sm font-semibold ">
+            Total Patients:{" "}
+            <span className="text-primary">{totalPatients}</span>
+          </p>
+        </div>
+        <div className="flex flex-col items-end">
+          <p className="text-sm font-semibold ">
+            Total Amount Due:{" "}
+            <span className="text-warning">
+              LKR {totalAmountDue.toFixed(2)}
+            </span>
+          </p>
+          <p className="text-sm font-semibold ">
+            Total Paid:{" "}
+            <span className="text-success">LKR {totalPaid.toFixed(2)}</span>
+          </p>
+        </div>
       </CardFooter>
     </Card>
   );
