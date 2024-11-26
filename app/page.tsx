@@ -15,6 +15,7 @@ import { SunIcon, MoonIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { DentCareLogo } from "@/components/icons/DentCareLogo";
+import LogoutButton from "@/components/LogOutButtton";
 
 export default function HomePage() {
   const { theme, setTheme } = useTheme();
@@ -44,6 +45,7 @@ export default function HomePage() {
             <Button as={Link} href="/auth/login" variant="ghost">
               Login
             </Button>
+            <LogoutButton />
           </NavbarItem>
         </NavbarContent>
       </Navbar>

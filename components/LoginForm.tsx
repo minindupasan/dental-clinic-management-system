@@ -4,31 +4,22 @@ import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 
 type FormData = {
   email: string;
   password: string;
 };
 
-type UserData = {
-  role: string;
-  id: string;
-  name: string;
-  email: string;
-};
-
 export default function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>();
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    setIsLoading(true);
     try {
       const result = await signIn("credentials", {
         redirect: false,
@@ -37,36 +28,23 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        toast.error("Invalid email or password");
+        setError("Invalid email or password");
       } else {
-        toast.success("Logged in successfully");
         // Redirect based on user role
         const response = await fetch("/api/user");
-        const userData: UserData = await response.json();
+        const userData = await response.json();
 
-        switch (userData.role) {
-          case "DENTIST":
-            router.push("/dashboard/dentist");
-            break;
-          case "RECEPTIONIST":
-            router.push("/dashboard/receptionist");
-            break;
-          case "ASSISTANT":
-            router.push("/dashboard/assistant");
-            break;
-          default:
-            router.push("/dashboard");
-        }
+        const dashboardPath = `/dashboard/${userData.role.toLowerCase()}`;
+        router.push(dashboardPath);
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
+      {error && <div className="text-red-500 text-center">{error}</div>}
       <div>
         <label htmlFor="email" className="sr-only">
           Email address
@@ -74,13 +52,7 @@ export default function LoginForm() {
         <input
           id="email"
           type="email"
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /\S+@\S+\.\S+/,
-              message: "Entered value does not match email format",
-            },
-          })}
+          {...register("email", { required: "Email is required" })}
           className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
           placeholder="Email address"
         />
@@ -95,13 +67,7 @@ export default function LoginForm() {
         <input
           id="password"
           type="password"
-          {...register("password", {
-            required: "Password is required",
-            minLength: {
-              value: 8,
-              message: "Password must have at least 8 characters",
-            },
-          })}
+          {...register("password", { required: "Password is required" })}
           className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
           placeholder="Password"
         />
@@ -112,10 +78,10 @@ export default function LoginForm() {
       <div>
         <button
           type="submit"
-          disabled={isLoading}
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          disabled={isSubmitting}
+          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          {isLoading ? "Signing in..." : "Sign in"}
+          {isSubmitting ? "Signing in..." : "Sign in"}
         </button>
       </div>
     </form>

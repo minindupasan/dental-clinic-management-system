@@ -1,19 +1,14 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
 interface LoginResponse {
-  user: User;
+  user: User & {
+    role: string;
+  };
   token: string;
 }
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -35,10 +30,7 @@ const authOptions: NextAuthOptions = {
 
         if (res.ok && loginResponse.user) {
           return {
-            id: loginResponse.user.id,
-            name: loginResponse.user.name,
-            email: loginResponse.user.email,
-            role: loginResponse.user.role,
+            ...loginResponse.user,
             token: loginResponse.token,
           };
         }
@@ -49,17 +41,13 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        if ("role" in user) {
-          token.role = user.role;
-        }
-        token.id = user.id;
+        token.role = (user as User & { role: string }).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as User).role = token.role as string;
-        (session.user as User).id = token.id as string;
+        (session.user as User & { role: string }).role = token.role as string;
       }
       return session;
     },
@@ -71,4 +59,4 @@ const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST, authOptions };
+export { handler as GET, handler as POST };

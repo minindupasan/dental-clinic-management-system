@@ -1,13 +1,18 @@
-"use client";
-
-import UpcomingAppointmentsCard from "@/components/appointments/UpcomingAppointmentsCard";
+import { getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import TodayAppointmentsCard from "@/components/appointments/TodayAppointmentsCard";
-import DentureCard from "@/components/dentures/DenturesCard";
-import InventoryCard from "@/components/inventory/InventoryCard";
-import PendingPayments from "@/components/treatments/PendingPaymentsCard";
+import UpcomingAppointmentsCard from "@/components/appointments/UpcomingAppointmentsCard";
 import PatientsTableCard from "@/components/patients/PatientsTableCard";
+import PendingPayments from "@/components/treatments/PendingPaymentsCard";
 
-export default function Dashboard() {
+export default async function ReceptionistDashboard() {
+  const session = await getServerSession(authOptions);
+
+  if (!session || (session.user as any).role !== "RECEPTIONIST") {
+    redirect("/auth/login");
+  }
+
   return (
     <div className=" max-w-full mx-4 md:mx-6 lg:mx-10 my-4 lg:my-8">
       {/* Grid layout for the dashboard */}

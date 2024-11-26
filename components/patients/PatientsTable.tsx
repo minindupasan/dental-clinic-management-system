@@ -33,11 +33,11 @@ import {
   Search,
   Filter,
   RefreshCw,
-  FileText,
 } from "lucide-react";
 
 import MedicalHistory from "../MedicalHistory";
 import NewPatientButton from "./NewPatientButton";
+import { getAuthToken } from "@/utils/auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -91,11 +91,6 @@ export default function PatientTable() {
     onOpen: onEditOpen,
     onClose: onEditClose,
   } = useDisclosure();
-  const {
-    isOpen: isMedicalHistoryOpen,
-    onOpen: onMedicalHistoryOpen,
-    onClose: onMedicalHistoryClose,
-  } = useDisclosure();
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "ascending" | "descending" | "none";
@@ -104,12 +99,19 @@ export default function PatientTable() {
   const [filterValue, setFilterValue] = useState("");
   const [viewMode, setViewMode] = useState<"all" | "recent" | "older">("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [medicalHistory, setMedicalHistory] = useState("");
 
   const fetchPatients = async () => {
     setIsRefreshing(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/patients`);
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("No auth token found");
+      }
+      const response = await fetch(`${API_BASE_URL}/api/patients`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
       }
@@ -227,10 +229,17 @@ export default function PatientTable() {
 
   const confirmDelete = async (patientID: string, toastId: string) => {
     try {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("No auth token found");
+      }
       const response = await fetch(
         `${API_BASE_URL}/api/patients/delete/${patientID}`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       if (!response.ok) {
@@ -248,12 +257,17 @@ export default function PatientTable() {
   const handleUpdatePatient = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("No auth token found");
+      }
       const response = await fetch(
         `${API_BASE_URL}/api/patients/update/${currentPatient.patientID}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(currentPatient),
         }
@@ -297,22 +311,6 @@ export default function PatientTable() {
     ) : (
       <ChevronDown className="inline-block ml-1" />
     );
-  };
-
-  const handleMedicalHistoryOpen = async (patientID: string) => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/patients/medical-history/${patientID}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch medical history");
-      }
-      const data = await response.json();
-      setMedicalHistory(data.medicalHistory);
-      onMedicalHistoryOpen();
-    } catch (err) {
-      toast.error("An error occurred while fetching medical history");
-    }
   };
 
   if (loading) {
