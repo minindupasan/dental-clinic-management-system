@@ -136,9 +136,9 @@ export default function PendingPayments() {
             key={treatment.treatmentID}
             className="w-full overflow-hidden h-[150px]"
           >
-            <CardBody className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                <div className="p-4">
+            <CardBody className="my-2 items-center">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                <div>
                   <h3 className="text-lg font-semibold mb-2 flex items-center">
                     <User size={18} className="mr-2 text-primary" />
                     {treatment.patient.firstName} {treatment.patient.lastName}
@@ -150,7 +150,7 @@ export default function PendingPayments() {
                     Treatment ID: {treatment.treatmentID}
                   </p>
                 </div>
-                <div className="p-4">
+                <div>
                   <div className="flex items-center mb-2">
                     <Calendar size={18} className="mr-2 text-primary" />
                     <span className="text-sm font-medium">
@@ -177,7 +177,7 @@ export default function PendingPayments() {
                     </span>
                   </div>
                 </div>
-                <div className="p-4">
+                <div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">Total Paid:</span>
                     <Chip
