@@ -78,7 +78,7 @@ export default function PatientTableCard() {
   };
 
   return (
-    <Card className="  rounded-xl w-full shadow-md">
+    <Card className="w-full min-h-[250px]">
       <CardHeader className="pb-0 pt-6 px-6">
         <div className="w-full flex justify-between items-center">
           <h1 className="font-semibold text-xl">Patient Records</h1>
@@ -124,14 +124,19 @@ export default function PatientTableCard() {
             <Table aria-label="Patient Records">
               <TableHeader>
                 {columns.map((column) => (
-                  <TableColumn className="text-center" key={column.key}>{column.label}</TableColumn>
+                  <TableColumn className="text-center" key={column.key}>
+                    {column.label}
+                  </TableColumn>
                 ))}
               </TableHeader>
               <TableBody>
                 {patients.map((patient) => (
                   <TableRow key={patient.patientID}>
                     {columns.map((column) => (
-                      <TableCell className="text-center" key={`${patient.patientID}-${column.key}`}>
+                      <TableCell
+                        className="text-center"
+                        key={`${patient.patientID}-${column.key}`}
+                      >
                         {column.key === "fullName"
                           ? `${patient.firstName} ${patient.lastName}`
                           : column.key === "dob" || column.key === "createdDate"
