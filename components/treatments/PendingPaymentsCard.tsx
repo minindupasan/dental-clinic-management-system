@@ -114,7 +114,7 @@ export default function PendingPayments() {
 
     if (pendingTreatments.length === 0) {
       return (
-        <div className="h-full text-center flex flex-col items-center justify-center">
+        <div className="h-[500px] text-center flex flex-col items-center justify-center">
           <FileText className="w-12 h-12 mb-2 text-primary" />
           <p className="text-lg">No pending payments</p>
           <Button
@@ -134,11 +134,11 @@ export default function PendingPayments() {
         {pendingTreatments.map((treatment) => (
           <Card
             key={treatment.treatmentID}
-            className="w-full overflow-hidden h-[150px]"
+            className="w-full h-full items-center overflow-hidden"
           >
-            <CardBody className="my-2 items-center">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
-                <div>
+            <CardBody>
+              <div className="w-full px-2 py-4 grid grid-cols-1 md:grid-cols-3 items-center">
+                <div className="justify-between items-center">
                   <h3 className="text-lg font-semibold mb-2 flex items-center">
                     <User size={18} className="mr-2 text-primary" />
                     {treatment.patient.firstName} {treatment.patient.lastName}
@@ -159,7 +159,7 @@ export default function PendingPayments() {
                   </div>
                   <div className="flex items-center mb-2">
                     <Tag size={18} className="mr-2 text-primary" />
-                    <Tooltip content={treatment.treatmentType}>
+                    <Tooltip content="Treatment Type">
                       <Chip
                         size="sm"
                         variant="flat"
@@ -180,29 +180,19 @@ export default function PendingPayments() {
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">Total Paid:</span>
-                    <Chip
-                      color="success"
-                      variant="flat"
-                      className="text-md"
-                      size="sm"
-                    >
+                    <Chip color="success" variant="flat" size="sm">
                       LKR {treatment.totalPaid?.toFixed(2) ?? "N/A"}
                     </Chip>
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">Due Amount:</span>
-                    <Chip
-                      className="text-md"
-                      color="warning"
-                      variant="flat"
-                      size="sm"
-                    >
+                    <Chip color="warning" variant="flat" size="sm">
                       LKR {treatment.dueAmount?.toFixed(2) ?? "N/A"}
                     </Chip>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Status:</span>
-                    <Chip color="danger" variant="flat" size="md">
+                    <Chip color="danger" variant="flat" size="sm">
                       {treatment.paymentStatus}
                     </Chip>
                   </div>
@@ -216,7 +206,7 @@ export default function PendingPayments() {
   };
 
   return (
-    <Card className="w-full h-[35vh] overflow-hidden">
+    <Card className="w-full h-full overflow-hidden">
       <CardHeader className="flex justify-between items-center px-6 py-4">
         <h2 className="text-xl font-semibold">Pending Payments</h2>
         <div className="flex space-x-2">
