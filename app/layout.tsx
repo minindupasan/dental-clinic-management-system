@@ -36,7 +36,6 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <NavBar />
           <Effects>
             <div className="relative flex flex-col h-screen">
               <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
