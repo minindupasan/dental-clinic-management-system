@@ -169,12 +169,7 @@ export default function UpcomingAppointmentsCard() {
       return (
         <div className="h-full text-center flex flex-col items-center justify-center p-4">
           <Calendar className="w-12 h-12 mb-2 text-primary" />
-          <p
-            className="
-text-lg "
-          >
-            No upcoming appointments scheduled
-          </p>
+          <p className="text-lg ">No upcoming appointments scheduled</p>
           <Button
             color="primary"
             variant="flat"
@@ -266,7 +261,7 @@ text-lg "
   };
 
   return (
-    <Card className="w-full mx-auto h-[38vh]">
+    <Card className="w-full h-full">
       <CardHeader className="flex justify-between items-center px-6 py-4">
         <h2 className="text-xl font-bold flex items-center">
           <Calendar className="w-8 h-8 mr-3" />
