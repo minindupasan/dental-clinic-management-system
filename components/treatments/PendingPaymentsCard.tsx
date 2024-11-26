@@ -179,7 +179,7 @@ export default function PendingPayments() {
                     </span>
                   </div>
                 </div>
-                <div className="p-4 ml-10">
+                <div className="p-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">Total Paid:</span>
                     <Chip className="text-md" size="sm">
