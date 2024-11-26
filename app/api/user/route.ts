@@ -1,13 +1,20 @@
-import { getServerSession } from "next-auth/next";
-import { NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
+export async function GET(req: NextRequest) {
+  const token = await getToken({ req });
 
-  if (!session || !session.user) {
+  if (!token) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  return NextResponse.json(session.user);
+  // Here you would typically validate the token with your backend
+  // and fetch the user data based on the token
+
+  return NextResponse.json({
+    id: token.id,
+    name: token.name,
+    email: token.email,
+    role: token.role,
+  });
 }

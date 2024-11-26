@@ -30,9 +30,14 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Handle logout
+  if (request.nextUrl.pathname === "/api/auth/signout") {
+    return NextResponse.next();
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/login"],
+  matcher: ["/dashboard/:path*", "/auth/login", "/api/auth/signout"],
 };

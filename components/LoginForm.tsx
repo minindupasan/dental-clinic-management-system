@@ -30,9 +30,14 @@ export default function LoginForm() {
       if (result?.error) {
         setError("Invalid email or password");
       } else {
+        // Save token to localStorage
+        const response = await fetch("/api/auth/token");
+        const { token } = await response.json();
+        localStorage.setItem("authToken", token);
+
         // Redirect based on user role
-        const response = await fetch("/api/user");
-        const userData = await response.json();
+        const userResponse = await fetch("/api/user");
+        const userData = await userResponse.json();
 
         const dashboardPath = `/dashboard/${userData.role.toLowerCase()}`;
         router.push(dashboardPath);
