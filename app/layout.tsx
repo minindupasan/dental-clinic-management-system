@@ -3,10 +3,9 @@ import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import React from "react";
 import { Providers } from "./provider";
-
 import { fontSans } from "@/config/fonts";
-import { Effects } from "./effects";
 import { Toaster } from "react-hot-toast";
+import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
   title: "DentCare+",
@@ -35,14 +34,24 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <Effects>
-            <div className="relative flex flex-col h-screen">
-              <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
-                {children}
-                <Toaster />
-              </main>
-            </div>
-          </Effects>
+          <div className="relative flex flex-col h-screen">
+            <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
+              {children}
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 5000,
+                  style: {
+                    background: "#363636",
+                    color: "#fff",
+                  },
+                  success: {
+                    duration: 3000,
+                  },
+                }}
+              />
+            </main>
+          </div>
         </Providers>
       </body>
     </html>
