@@ -8,7 +8,6 @@ import MenuBar from "./MenuBar";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { SunIcon, MoonIcon, LogOut } from "lucide-react";
-import LogoutButton from "./LogOutButtton";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -55,7 +54,6 @@ export default function NavBar() {
         >
           Login
         </Button>
-        <LogoutButton />
       </NavbarContent>
     </Navbar>
   );

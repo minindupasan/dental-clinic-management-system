@@ -10,7 +10,6 @@ import {
   Button,
 } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
-import LogoutButton from "@/components/LogOutButtton";
 import NavBar from "@/components/NavBar";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

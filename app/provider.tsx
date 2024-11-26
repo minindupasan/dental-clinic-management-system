@@ -17,16 +17,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SessionProvider>
-      <NextUIProvider>
-        <NextThemesProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-        >
-          {children}
-        </NextThemesProvider>
-      </NextUIProvider>
-    </SessionProvider>
+    <NextUIProvider>
+      <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+        {children}
+      </NextThemesProvider>
+    </NextUIProvider>
   );
 }

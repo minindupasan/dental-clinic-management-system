@@ -1,19 +1,13 @@
-import { getServerSession } from "next-auth/next";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import TodayAppointmentsCard from "@/components/appointments/TodayAppointmentsCard";
+"use client";
+
 import UpcomingAppointmentsCard from "@/components/appointments/UpcomingAppointmentsCard";
+import TodayAppointmentsCard from "@/components/appointments/TodayAppointmentsCard";
+import DentureCard from "@/components/dentures/DenturesCard";
 import InventoryCard from "@/components/inventory/InventoryCard";
+import PendingPayments from "@/components/treatments/PendingPaymentsCard";
 import PatientsTableCard from "@/components/patients/PatientsTableCard";
-import DenturesCard from "@/components/dentures/DenturesCard";
 
-export default async function AssistantDashboard() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || (session.user as any).role !== "ASSISTANT") {
-    redirect("/auth/login");
-  }
-
+export default function Dashboard() {
   return (
     <div className=" max-w-full mx-4 md:mx-6 lg:mx-10 my-4 lg:my-8">
       {/* Grid layout for the dashboard */}
@@ -35,7 +29,7 @@ export default async function AssistantDashboard() {
 
         {/* Dentures Card */}
         <div className="row-start-3 col-start-1 lg:col-span-1 lg:row-span-2 lg:col-start-2 lg:col-end-3 lg:row-start-1 lg:row-end-2">
-          <DenturesCard />
+          <DentureCard />
         </div>
 
         {/* Patients Table */}
