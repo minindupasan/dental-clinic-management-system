@@ -6,6 +6,8 @@ import { Providers } from "./provider";
 
 import { fontSans } from "@/config/fonts";
 import NavBar from "../components/NavBar";
+import { ScrollShadow } from "@nextui-org/react";
+import { Effects } from "./effects";
 
 export const metadata: Metadata = {
   title: "DentCare+",
@@ -34,12 +36,14 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <div className="relative flex flex-col h-screen">
-            <NavBar />
-            <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
-              {children}
-            </main>
-          </div>
+          <NavBar />
+          <Effects>
+            <div className="relative flex flex-col h-screen">
+              <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
+                {children}
+              </main>
+            </div>
+          </Effects>
         </Providers>
       </body>
     </html>
