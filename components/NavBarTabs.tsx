@@ -7,13 +7,13 @@ interface NavBarTabsProps {
   currentPath: string;
 }
 
-const NavBarTabs: React.FC<NavBarTabsProps> = ({ onTabClick, currentPath }) => {
+const NavBarTabs: React.FC<NavBarTabsProps> = ({}) => {
   return (
     <div>
       <Tabs radius={"full"}>
         <Tab
           key="dashboard"
-          title={<Link href="/Dentist/Dashboard">Dashboard</Link>}
+          title={<Link href="/Users/Dentist/Dashboard">Dashboard</Link>}
           value="/"
         />
         <Tab

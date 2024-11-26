@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import MedicalHistoryViewModal from "../MedicalHistory";
 import PrescriptionButton from "../Prescription";
+import NewAppointmentButton from "./NewAppointmentButton";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -319,6 +320,7 @@ export default function AppointmentManager() {
       <div className="mb-6 flex items-center justify-between">
         <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-0 pt-6 px-6">
           <div className="flex items-center space-x-4">
+            <NewAppointmentButton onAppointmentAdded={fetchAppointments} />
             <Dropdown>
               <DropdownTrigger className="w-[200px]">
                 <Button
