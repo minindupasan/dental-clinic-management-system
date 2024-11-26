@@ -10,20 +10,9 @@ import {
   ModalFooter,
   Input,
   useDisclosure,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
+  Tooltip,
 } from "@nextui-org/react";
-import {
-  Plus,
-  ChevronDown,
-  Package,
-  Calendar,
-  DollarSign,
-  Package2,
-  PackagePlus,
-} from "lucide-react";
+import { Package, Calendar, PackagePlus } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -122,15 +111,15 @@ export default function NewInventoryItemButton({
 
   return (
     <>
-      <Button
-        color="primary"
-        variant="solid"
-        onClick={onOpen}
-        radius="full"
-        startContent={<PackagePlus className="w-4 h-4" />}
-      >
-        New Item
-      </Button>
+      <Tooltip content="Add Item">
+        <Button
+          isIconOnly
+          color="primary"
+          variant="solid"
+          onClick={onOpen}
+          startContent={<PackagePlus size={16} />}
+        ></Button>
+      </Tooltip>
       <Modal isOpen={isOpen} onClose={onClose} size="md" hideCloseButton>
         <ModalContent>
           {(onClose) => (
