@@ -34,23 +34,23 @@ export default function RootLayout({
         )}
       >
         <Providers>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: "#363636",
+                color: "#fff",
+              },
+              success: {
+                duration: 3000,
+              },
+            }}
+          />
           <NavBar />
           <div className="relative flex flex-col h-screen">
             <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
               {children}
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 5000,
-                  style: {
-                    background: "#363636",
-                    color: "#fff",
-                  },
-                  success: {
-                    duration: 3000,
-                  },
-                }}
-              />
             </main>
           </div>
         </Providers>
