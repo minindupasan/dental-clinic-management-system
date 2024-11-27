@@ -215,9 +215,8 @@ export default function UpcomingAppointmentsCard() {
                           patientId={appointment.patient.patientID}
                         />
                         <Tooltip content="View Full Details">
-                          <Link href="../Appointments">
+                          <Link href="../appointments">
                             <Button
-                              size="sm"
                               variant="ghost"
                               isIconOnly
                               aria-label="View Details"
@@ -281,7 +280,7 @@ export default function UpcomingAppointmentsCard() {
             </Button>
           </Tooltip>
           <Tooltip content="View All Appointments" color="primary">
-            <Link href="/Appointments">
+            <Link href="/appointments">
               <Button
                 isIconOnly
                 color="primary"

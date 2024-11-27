@@ -280,7 +280,7 @@ export default function TodayAppointmentsCard() {
             </Button>
           </Tooltip>
           <Tooltip content="View All Appointments" color="primary">
-            <Link href="/Appointments">
+            <Link href="/appointments">
               <Button
                 isIconOnly
                 color="primary"

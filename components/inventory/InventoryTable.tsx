@@ -95,7 +95,7 @@ export default function InventoryTable({
       setInventory(data);
       setLoading(false);
     } catch (err) {
-      toast.error("An error occurred while fetching inventory data.");
+      // toast.error("An error occurred while fetching inventory data.");
       setLoading(false);
     } finally {
       setIsRefreshing(false);
