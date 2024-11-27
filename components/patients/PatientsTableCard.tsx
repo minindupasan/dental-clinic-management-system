@@ -95,7 +95,7 @@ export default function PatientTableCard() {
               ></Button>
             </Tooltip>
             <Tooltip content="View All Patients" color="primary">
-              <Link href="/Patients">
+              <Link href="/patients">
                 <Button
                   color="primary"
                   variant="ghost"

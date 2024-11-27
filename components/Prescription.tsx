@@ -38,6 +38,8 @@ type Medication = {
   dosage: string;
   frequency: number;
   duration: number;
+  frequencyDisplay: string;
+  durationDisplay: string;
 };
 
 type Prescription = {
@@ -75,7 +77,7 @@ export default function PrescriptionButton({
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: Prescription = await response.json();
       setPrescription(data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -97,6 +99,7 @@ export default function PrescriptionButton({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            appointmentId: appointmentId,
             dateIssued: new Date().toISOString().split("T")[0],
             notes: "",
             medications: [],
@@ -106,7 +109,7 @@ export default function PrescriptionButton({
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: Prescription = await response.json();
       setPrescription(data);
       setIsEditing(true);
       toast.success("New prescription created successfully.");
@@ -123,11 +126,12 @@ export default function PrescriptionButton({
   };
 
   const updatePrescription = async () => {
+    if (!prescription) return;
     setLoading(true);
     setError(null);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/prescription/${prescription?.prescriptionId}`,
+        `${API_BASE_URL}/api/prescription/${prescription.prescriptionId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -137,7 +141,7 @@ export default function PrescriptionButton({
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: Prescription = await response.json();
       setPrescription(data);
       setIsEditing(false);
       toast.success("Prescription updated successfully.");
@@ -174,6 +178,16 @@ export default function PrescriptionButton({
       if (!prev) return null;
       const newMedications = [...prev.medications];
       newMedications[index] = { ...newMedications[index], [field]: value };
+
+      if (field === "frequency") {
+        newMedications[index].frequencyDisplay =
+          `${value} time${value !== 1 ? "s" : ""} per day`;
+      }
+      if (field === "duration") {
+        newMedications[index].durationDisplay =
+          `${value} day${value !== 1 ? "s" : ""}`;
+      }
+
       return { ...prev, medications: newMedications };
     });
   };
@@ -185,7 +199,14 @@ export default function PrescriptionButton({
         ...prev,
         medications: [
           ...prev.medications,
-          { medicationName: "", dosage: "", frequency: 1, duration: 1 },
+          {
+            medicationName: "",
+            dosage: "",
+            frequency: 1,
+            duration: 1,
+            frequencyDisplay: "1 time per day",
+            durationDisplay: "1 day",
+          },
         ],
       };
     });
@@ -445,10 +466,10 @@ export default function PrescriptionButton({
                                     </TableCell>
                                     <TableCell>{medication.dosage}</TableCell>
                                     <TableCell>
-                                      {medication.frequency} times per day
+                                      {medication.frequencyDisplay}
                                     </TableCell>
                                     <TableCell>
-                                      {medication.duration} days
+                                      {medication.durationDisplay}
                                     </TableCell>
                                   </TableRow>
                                 )

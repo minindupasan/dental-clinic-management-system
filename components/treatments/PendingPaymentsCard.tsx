@@ -227,7 +227,7 @@ export default function PendingPayments() {
             <RefreshCw size={16} />
           </Button>
           <Tooltip content="View All Treatments" color="primary">
-            <Link href="../Treatments">
+            <Link href="../treatments">
               <Button
                 isIconOnly
                 color="primary"
