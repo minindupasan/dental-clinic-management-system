@@ -1,16 +1,5 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { JWT } from "next-auth/jwt";
-
-interface LoginResponse {
-  user: {
-    id: number;
-    email: string;
-    name: string;
-    role: string;
-  };
-  accessToken: string;
-}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -36,51 +25,37 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Authentication failed");
           }
 
-          const loginResponse: LoginResponse = await res.json();
-
-          if (loginResponse.user) {
-            return {
-              id: loginResponse.user.id,
-              name: loginResponse.user.name,
-              email: loginResponse.user.email,
-              role: loginResponse.user.role,
-              accessToken: loginResponse.accessToken,
-            };
-          }
+          const data = await res.json();
+          return {
+            id: data.user.id.toString(),
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+            accessToken: data.token,
+          };
         } catch (error) {
           console.error("Authentication error:", error);
+          return null;
         }
-
-        return null;
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: any }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.role = user.role;
         token.accessToken = user.accessToken;
+        token.role = user.role;
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: JWT }) {
-      session.user = {
-        id: token.id as number,
-        email: token.email as string,
-        name: token.name as string,
-        role: token.role as string,
-        accessToken: token.accessToken as string,
-      };
+    async session({ session, token }) {
+      session.user.accessToken = token.accessToken as string;
+      session.user.role = token.role as string;
       return session;
     },
   },
   pages: {
     signIn: "/auth/login",
-    signOut: "/auth/logout",
-    error: "/auth/error",
   },
   session: {
     strategy: "jwt",
