@@ -20,7 +20,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <NextUIProvider>
       <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-        <NavBar />
         {children}
       </NextThemesProvider>
     </NextUIProvider>
