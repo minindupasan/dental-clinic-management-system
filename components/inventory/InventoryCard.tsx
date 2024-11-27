@@ -173,10 +173,10 @@ const StockLevelCard: React.FC = () => {
             <Card key={item.inventoryId} className="w-full">
               <CardBody>
                 <h4 className="font-semibold mb-2">{item.itemName}</h4>
-                <p className="text-sm  mb-2">
+                <div className="text-sm  mb-2">
                   <p>Current Quantity: {item.currentQuantity}</p>
                   <p>Max Quantity: {item.quantity}</p>
-                </p>
+                </div>
                 <Progress
                   size="sm"
                   radius="sm"

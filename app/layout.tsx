@@ -2,10 +2,11 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import React from "react";
-import { Providers } from "./provider";
 import { fontSans } from "@/config/fonts";
 import { Toaster } from "react-hot-toast";
-import NavBar from "@/components/NavBar";
+import { Provider } from "./Provider";
+import { authOptions } from "./api/auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 export const metadata: Metadata = {
   title: "DentCare+",
@@ -19,11 +20,12 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
@@ -33,7 +35,7 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Providers>
+        <Provider session={session}>
           <div className="relative flex flex-col h-screen">
             <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
               {children}
@@ -52,7 +54,7 @@ export default function RootLayout({
               />
             </main>
           </div>
-        </Providers>
+        </Provider>
       </body>
     </html>
   );
