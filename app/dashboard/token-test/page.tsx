@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Spinner } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Spinner, Button } from "@nextui-org/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -15,17 +15,22 @@ export default function TokenTestPage() {
     if (status === "unauthenticated") {
       router.push("/auth/login");
     } else if (status === "authenticated") {
-      // Attempt to get token from localStorage
-      const storedToken = localStorage.getItem("authToken");
-
-      // If token is not in localStorage, use the one from the session
-      const tokenToUse =
-        storedToken || (session?.user as any)?.accessToken || null;
-
-      setToken(tokenToUse);
-      setLoading(false);
+      updateToken();
     }
   }, [status, router, session]);
+
+  const updateToken = () => {
+    const storedToken = localStorage.getItem("authToken");
+    setToken(storedToken);
+    setLoading(false);
+  };
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    // In a real-world scenario, you might want to refresh the token here
+    // For now, we'll just update the display
+    updateToken();
+  };
 
   if (loading) {
     return (
@@ -38,19 +43,20 @@ export default function TokenTestPage() {
   return (
     <div className="container mx-auto p-4">
       <Card className="max-w-md mx-auto">
-        <CardHeader className="flex justify-center">
+        <CardHeader className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Token Test Page</h1>
+          <Button onClick={handleRefresh} color="primary">
+            Refresh Token
+          </Button>
         </CardHeader>
         <CardBody>
           {token ? (
             <div>
               <h2 className="text-xl mb-2 text-success">Your token:</h2>
-              <p className="break-all">{token}</p>
+              <p className="break-all p-2 rounded">{token}</p>
             </div>
           ) : (
-            <p className="text-danger">
-              No token found in localStorage or session
-            </p>
+            <p className="text-danger">No token found in localStorage</p>
           )}
         </CardBody>
       </Card>

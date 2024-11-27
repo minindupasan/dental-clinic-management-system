@@ -2,21 +2,25 @@
 
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Button } from "@nextui-org/react";
 
 export default function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = async () => {
+    // Clear the token from localStorage
+    localStorage.removeItem("authToken");
+
+    // Sign out using NextAuth
     await signOut({ redirect: false });
+
+    // Redirect to login page
     router.push("/auth/login");
   };
 
   return (
-    <button
-      onClick={handleLogout}
-      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-    >
+    <Button onClick={handleLogout} color="danger" className="font-bold">
       Log out
-    </button>
+    </Button>
   );
 }

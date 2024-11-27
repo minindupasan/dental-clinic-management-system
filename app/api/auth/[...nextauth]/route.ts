@@ -1,5 +1,10 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+
+interface CustomUser extends User {
+  role: string;
+  accessToken: string;
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -9,7 +14,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<CustomUser | null> {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -49,8 +54,10 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      session.user.accessToken = token.accessToken as string;
-      session.user.role = token.role as string;
+      if (session.user) {
+        (session.user as CustomUser).accessToken = token.accessToken as string;
+        (session.user as CustomUser).role = token.role as string;
+      }
       return session;
     },
   },
