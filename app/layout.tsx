@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
 import React from "react";
-import { Providers } from "./provider";
+import { Providers } from "./Providers";
 import { fontSans } from "@/config/fonts";
 import { Toaster } from "react-hot-toast";
 import NavBar from "@/components/NavBar";

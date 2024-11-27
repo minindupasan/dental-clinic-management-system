@@ -8,6 +8,7 @@ import MenuBar from "./MenuBar";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { SunIcon, MoonIcon, LogOut } from "lucide-react";
+import SignInButton from "./SignInButton";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -46,14 +47,7 @@ export default function NavBar() {
           {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
         </Button>
 
-        <Button
-          as={Link}
-          href="/auth/login"
-          variant="flat"
-          className="hidden md:flex"
-        >
-          Login
-        </Button>
+        <SignInButton />
       </NavbarContent>
     </Navbar>
   );
