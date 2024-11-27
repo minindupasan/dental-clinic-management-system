@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function TokenTestPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function TokenTestPage() {
     } else if (status === "authenticated") {
       updateToken();
     }
-  }, [status, router, session]);
+  }, [status, router]);
 
   const updateToken = () => {
     const storedToken = localStorage.getItem("authToken");
@@ -27,8 +27,6 @@ export default function TokenTestPage() {
 
   const handleRefresh = async () => {
     setLoading(true);
-    // In a real-world scenario, you might want to refresh the token here
-    // For now, we'll just update the display
     updateToken();
   };
 

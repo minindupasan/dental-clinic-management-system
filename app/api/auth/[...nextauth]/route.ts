@@ -46,7 +46,11 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, profile, trigger, session }) {
+      if (trigger === "update" && session?.user?.accessToken) {
+        // Update the token when the session is updated
+        token.accessToken = session.user.accessToken;
+      }
       if (user) {
         token.accessToken = user.accessToken;
         token.role = user.role;

@@ -39,6 +39,7 @@ export default function LoginForm() {
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
+      // First, authenticate with NextAuth
       const result = await signIn("credentials", {
         redirect: false,
         email: data.email,
@@ -47,28 +48,29 @@ export default function LoginForm() {
 
       if (result?.error) {
         setError("Invalid email or password");
-      } else {
-        // Fetch the latest token directly from the API
-        const response = await fetch("http://localhost:8080/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
-        const loginResponse: LoginResponse = await response.json();
-
-        // Store the new token in localStorage
-        localStorage.setItem("authToken", loginResponse.token);
-        console.log("New token saved to localStorage:", loginResponse.token);
-
-        // Redirect based on user role
-        const dashboardPath = `/dashboard/${loginResponse.user.role.toLowerCase()}`;
-        router.push(dashboardPath);
+        return;
       }
+
+      // If NextAuth authentication is successful, fetch the token from your API
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const loginResponse: LoginResponse = await response.json();
+
+      // Store the new token in localStorage
+      localStorage.setItem("authToken", loginResponse.token);
+      console.log("New token saved to localStorage:", loginResponse.token);
+
+      // Redirect based on user role
+      const dashboardPath = `/dashboard/${loginResponse.user.role.toLowerCase()}`;
+      router.push(dashboardPath);
     } catch (error) {
       console.error("Login error:", error);
       setError("An error occurred. Please try again.");
@@ -115,3 +117,4 @@ export default function LoginForm() {
     </Card>
   );
 }
+
