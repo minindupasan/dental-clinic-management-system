@@ -4,7 +4,7 @@ import clsx from "clsx";
 import React from "react";
 import { fontSans } from "@/config/fonts";
 import { Toaster } from "react-hot-toast";
-import { Provider } from "./Provider";
+import { Provider } from "./provider";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { SessionProvider } from "@/components/SessionProvider";
