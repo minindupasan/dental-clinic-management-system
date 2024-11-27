@@ -1,9 +1,9 @@
 "use client";
 
-import { NextUIProvider, ScrollShadow } from "@nextui-org/react";
+import { SessionProvider } from "next-auth/react";
+import { NextUIProvider } from "@nextui-org/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useEffect, useState } from "react";
-import { SessionProvider } from "next-auth/react";
 import NavBar from "@/components/NavBar";
 import { Toaster } from "react-hot-toast";
 

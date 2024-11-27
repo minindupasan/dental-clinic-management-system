@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { Provider } from "./Provider";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
+import { SessionProvider } from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
   title: "DentCare+",
@@ -35,26 +36,28 @@ export default async function RootLayout({
           fontSans.variable
         )}
       >
-        <Provider session={session}>
-          <div className="relative flex flex-col h-screen">
-            <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
-              {children}
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 5000,
-                  style: {
-                    background: "#363636",
-                    color: "#fff",
-                  },
-                  success: {
-                    duration: 3000,
-                  },
-                }}
-              />
-            </main>
-          </div>
-        </Provider>
+        <SessionProvider session={session}>
+          <Provider session={session}>
+            <div className="relative flex flex-col h-screen">
+              <main className={clsx("flex-grow mx-4 md:mx-6 lg:mx-10")}>
+                {children}
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 5000,
+                    style: {
+                      background: "#363636",
+                      color: "#fff",
+                    },
+                    success: {
+                      duration: 3000,
+                    },
+                  }}
+                />
+              </main>
+            </div>
+          </Provider>
+        </SessionProvider>
       </body>
     </html>
   );

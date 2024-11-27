@@ -1,7 +1,13 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Button, Navbar, NavbarBrand, NavbarContent } from "@nextui-org/react";
+import {
+  Button,
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  User,
+} from "@nextui-org/react";
 import NavBarTabs from "./NavBarTabs";
 import MenuBar from "./MenuBar";
 import { useTheme } from "next-themes";
@@ -56,14 +62,34 @@ export default function NavBar() {
         <NavBarTabs onTabClick={handleTabClick} currentPath={pathname} />
       </NavbarContent>
 
-      <NavbarContent className="flex-1 justify-end gap-4">
-        {status === "loading" ? (
-          <Button variant="flat" disabled>
-            Loading...
-          </Button>
-        ) : session?.user ? (
-          <>
-            <p className="text-sm">{session.user.name}</p>
+      <NavbarContent className="w-full">
+        <div className="w-full flex items-center justify-between gap-4">
+          <div className="flex-grow">
+            {status === "loading" ? (
+              <Button variant="flat" isLoading className="w-full">
+                Loading...
+              </Button>
+            ) : session?.user ? (
+              <User
+                name={session.user.name}
+                description={session.user.email}
+                avatarProps={{
+                  src: session.user.image || undefined,
+                  name: session.user.name?.charAt(0) || "U",
+                }}
+                className="w-full justify-start"
+              />
+            ) : (
+              <Button
+                variant="flat"
+                onClick={handleSignInOut}
+                className="hover:bg-primary-100 w-full"
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
+          {session?.user && (
             <Button
               variant="flat"
               onClick={handleSignInOut}
@@ -71,24 +97,16 @@ export default function NavBar() {
             >
               Sign Out
             </Button>
-          </>
-        ) : (
+          )}
           <Button
-            variant="flat"
-            onClick={handleSignInOut}
-            className="hover:bg-primary-100"
+            isIconOnly
+            variant="light"
+            aria-label="Toggle theme"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
-            Sign In
+            {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
           </Button>
-        )}
-        <Button
-          isIconOnly
-          variant="light"
-          aria-label="Toggle theme"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          {theme === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
-        </Button>
+        </div>
       </NavbarContent>
     </Navbar>
   );

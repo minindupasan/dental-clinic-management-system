@@ -4,6 +4,14 @@ import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Input,
+  Button,
+  Spacer,
+} from "@nextui-org/react";
 
 type FormData = {
   email: string;
@@ -43,47 +51,42 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
-      {error && <div className="text-red-500 text-center">{error}</div>}
-      <div>
-        <label htmlFor="email" className="sr-only">
-          Email address
-        </label>
-        <input
-          id="email"
-          type="email"
-          {...register("email", { required: "Email is required" })}
-          className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-          placeholder="Email address"
-        />
-        {errors.email && (
-          <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
-        )}
-      </div>
-      <div>
-        <label htmlFor="password" className="sr-only">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          {...register("password", { required: "Password is required" })}
-          className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-          placeholder="Password"
-        />
-        {errors.password && (
-          <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
-        )}
-      </div>
-      <div>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          {isSubmitting ? "Signing in..." : "Sign in"}
-        </button>
-      </div>
-    </form>
+    <Card className="max-w-md w-full">
+      <CardHeader className="flex justify-center">
+        <h1 className="text-2xl font-bold">Sign in</h1>
+      </CardHeader>
+      <CardBody>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {error && <div className="text-danger text-center">{error}</div>}
+          <Input
+            id="email"
+            type="email"
+            label="Email address"
+            placeholder="Enter your email"
+            {...register("email", { required: "Email is required" })}
+            isInvalid={!!errors.email}
+            errorMessage={errors.email?.message}
+          />
+          <Input
+            id="password"
+            type="password"
+            label="Password"
+            placeholder="Enter your password"
+            {...register("password", { required: "Password is required" })}
+            isInvalid={!!errors.password}
+            errorMessage={errors.password?.message}
+          />
+          <Spacer y={2} />
+          <Button
+            type="submit"
+            color="primary"
+            isLoading={isSubmitting}
+            fullWidth
+          >
+            {isSubmitting ? "Signing in..." : "Sign in"}
+          </Button>
+        </form>
+      </CardBody>
+    </Card>
   );
 }
