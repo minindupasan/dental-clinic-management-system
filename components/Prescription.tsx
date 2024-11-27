@@ -38,6 +38,8 @@ type Medication = {
   dosage: string;
   frequency: number;
   duration: number;
+  durationDisplay: string;
+  frequencyDisplay: string;
 };
 
 type Prescription = {
@@ -59,7 +61,6 @@ export default function PrescriptionButton({
   const [prescription, setPrescription] = useState<Prescription | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
 
   const fetchPrescription = async () => {
     setLoading(true);
@@ -68,14 +69,14 @@ export default function PrescriptionButton({
       const response = await fetch(
         `${API_BASE_URL}/api/prescription/${appointmentId}`
       );
-      if (response.status === 404) {
-        setPrescription(null);
-        return;
-      }
       if (!response.ok) {
+        if (response.status === 404) {
+          setPrescription(null);
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: Prescription = await response.json();
       setPrescription(data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -97,6 +98,7 @@ export default function PrescriptionButton({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            appointmentId: appointmentId,
             dateIssued: new Date().toISOString().split("T")[0],
             notes: "",
             medications: [],
@@ -106,9 +108,8 @@ export default function PrescriptionButton({
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: Prescription = await response.json();
       setPrescription(data);
-      setIsEditing(true);
       toast.success("New prescription created successfully.");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -123,11 +124,12 @@ export default function PrescriptionButton({
   };
 
   const updatePrescription = async () => {
+    if (!prescription) return;
     setLoading(true);
     setError(null);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/prescription/${prescription?.prescriptionId}`,
+        `${API_BASE_URL}/api/prescription/${prescription.prescriptionId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -137,9 +139,8 @@ export default function PrescriptionButton({
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: Prescription = await response.json();
       setPrescription(data);
-      setIsEditing(false);
       toast.success("Prescription updated successfully.");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -174,6 +175,16 @@ export default function PrescriptionButton({
       if (!prev) return null;
       const newMedications = [...prev.medications];
       newMedications[index] = { ...newMedications[index], [field]: value };
+
+      if (field === "frequency") {
+        newMedications[index].frequencyDisplay =
+          `${value} time${value !== 1 ? "s" : ""} per day`;
+      }
+      if (field === "duration") {
+        newMedications[index].durationDisplay =
+          `${value} day${value !== 1 ? "s" : ""}`;
+      }
+
       return { ...prev, medications: newMedications };
     });
   };
@@ -185,7 +196,14 @@ export default function PrescriptionButton({
         ...prev,
         medications: [
           ...prev.medications,
-          { medicationName: "", dosage: "", frequency: 1, duration: 1 },
+          {
+            medicationName: "",
+            dosage: "",
+            frequency: 1,
+            duration: 1,
+            frequencyDisplay: "1 time per day",
+            durationDisplay: "1 day",
+          },
         ],
       };
     });
@@ -296,166 +314,113 @@ export default function PrescriptionButton({
                   </div>
                 ) : prescription ? (
                   <div className="space-y-6">
-                    {isEditing ? (
+                    {renderSection(
+                      "Prescription Details",
+                      <Calendar className="w-5 h-5" />,
                       <>
-                        {renderSection(
-                          "Prescription Details",
-                          <Calendar className="w-5 h-5" />,
-                          <>
-                            {renderEditableField(
-                              "Date Issued",
-                              "dateIssued",
-                              prescription.dateIssued
-                            )}
-                            {renderEditableField(
-                              "Notes",
-                              "notes",
-                              prescription.notes,
-                              "textarea"
-                            )}
-                          </>
+                        {renderEditableField(
+                          "Date Issued",
+                          "dateIssued",
+                          prescription.dateIssued
                         )}
-                        {renderSection(
-                          "Medications",
-                          <Pill className="w-5 h-5" />,
-                          <>
-                            <Table aria-label="Medications table">
-                              <TableHeader>
-                                <TableColumn>Medication Name</TableColumn>
-                                <TableColumn>Dosage</TableColumn>
-                                <TableColumn>Frequency</TableColumn>
-                                <TableColumn>Duration</TableColumn>
-                                <TableColumn>Actions</TableColumn>
-                              </TableHeader>
-                              <TableBody>
-                                {prescription.medications.map(
-                                  (medication, index) => (
-                                    <TableRow key={index}>
-                                      <TableCell>
-                                        <Input
-                                          value={medication.medicationName}
-                                          onChange={(e) =>
-                                            handleMedicationChange(
-                                              index,
-                                              "medicationName",
-                                              e.target.value
-                                            )
-                                          }
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <Input
-                                          value={medication.dosage}
-                                          onChange={(e) =>
-                                            handleMedicationChange(
-                                              index,
-                                              "dosage",
-                                              e.target.value
-                                            )
-                                          }
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <Input
-                                          type="number"
-                                          value={medication.frequency.toString()}
-                                          onChange={(e) =>
-                                            handleMedicationChange(
-                                              index,
-                                              "frequency",
-                                              parseInt(e.target.value)
-                                            )
-                                          }
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <Input
-                                          type="number"
-                                          value={medication.duration.toString()}
-                                          onChange={(e) =>
-                                            handleMedicationChange(
-                                              index,
-                                              "duration",
-                                              parseInt(e.target.value)
-                                            )
-                                          }
-                                        />
-                                      </TableCell>
-                                      <TableCell>
-                                        <Button
-                                          color="danger"
-                                          variant="light"
-                                          onPress={() =>
-                                            removeMedication(index)
-                                          }
-                                          isIconOnly
-                                        >
-                                          <Trash2 size={16} />
-                                        </Button>
-                                      </TableCell>
-                                    </TableRow>
-                                  )
-                                )}
-                              </TableBody>
-                            </Table>
-                            <Button
-                              color="primary"
-                              variant="flat"
-                              onPress={addMedication}
-                              startContent={<Plus size={16} />}
-                              className="mt-4"
-                            >
-                              Add Medication
-                            </Button>
-                          </>
+                        {renderEditableField(
+                          "Notes",
+                          "notes",
+                          prescription.notes,
+                          "textarea"
                         )}
                       </>
-                    ) : (
+                    )}
+                    {renderSection(
+                      "Medications",
+                      <Pill className="w-5 h-5" />,
                       <>
-                        {renderSection(
-                          "Prescription Details",
-                          <Calendar className="w-5 h-5" />,
-                          <div className="grid gap-2">
-                            <p>
-                              <span className="font-medium">Date Issued:</span>{" "}
-                              {prescription.dateIssued}
-                            </p>
-                            <p>
-                              <span className="font-medium">Notes:</span>{" "}
-                              {prescription.notes}
-                            </p>
-                          </div>
-                        )}
-                        {renderSection(
-                          "Medications",
-                          <Pill className="w-5 h-5" />,
-                          <Table aria-label="Medications table">
-                            <TableHeader>
-                              <TableColumn>Medication Name</TableColumn>
-                              <TableColumn>Dosage</TableColumn>
-                              <TableColumn>Frequency</TableColumn>
-                              <TableColumn>Duration</TableColumn>
-                            </TableHeader>
-                            <TableBody>
-                              {prescription.medications.map(
-                                (medication, index) => (
-                                  <TableRow key={index}>
-                                    <TableCell>
-                                      {medication.medicationName}
-                                    </TableCell>
-                                    <TableCell>{medication.dosage}</TableCell>
-                                    <TableCell>
-                                      {medication.frequency} times per day
-                                    </TableCell>
-                                    <TableCell>
-                                      {medication.duration} days
-                                    </TableCell>
-                                  </TableRow>
-                                )
-                              )}
-                            </TableBody>
-                          </Table>
-                        )}
+                        <Table aria-label="Medications table">
+                          <TableHeader>
+                            <TableColumn>Medication Name</TableColumn>
+                            <TableColumn>Dosage</TableColumn>
+                            <TableColumn>Frequency</TableColumn>
+                            <TableColumn>Duration</TableColumn>
+                            <TableColumn>Actions</TableColumn>
+                          </TableHeader>
+                          <TableBody>
+                            {prescription.medications.map(
+                              (medication, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>
+                                    <Input
+                                      value={medication.medicationName}
+                                      onChange={(e) =>
+                                        handleMedicationChange(
+                                          index,
+                                          "medicationName",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Input
+                                      value={medication.dosage}
+                                      onChange={(e) =>
+                                        handleMedicationChange(
+                                          index,
+                                          "dosage",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Input
+                                      type="number"
+                                      value={medication.frequency.toString()}
+                                      onChange={(e) =>
+                                        handleMedicationChange(
+                                          index,
+                                          "frequency",
+                                          parseInt(e.target.value)
+                                        )
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Input
+                                      type="number"
+                                      value={medication.duration.toString()}
+                                      onChange={(e) =>
+                                        handleMedicationChange(
+                                          index,
+                                          "duration",
+                                          parseInt(e.target.value)
+                                        )
+                                      }
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Button
+                                      color="danger"
+                                      variant="light"
+                                      onPress={() => removeMedication(index)}
+                                      isIconOnly
+                                    >
+                                      <Trash2 size={16} />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            )}
+                          </TableBody>
+                        </Table>
+                        <Button
+                          color="primary"
+                          variant="flat"
+                          onPress={addMedication}
+                          startContent={<Plus size={16} />}
+                          className="mt-4"
+                        >
+                          Add Medication
+                        </Button>
                       </>
                     )}
                   </div>
@@ -475,26 +440,17 @@ export default function PrescriptionButton({
                 )}
               </ModalBody>
               <ModalFooter>
-                {prescription &&
-                  (isEditing ? (
-                    <Button
-                      color="primary"
-                      variant="flat"
-                      onPress={updatePrescription}
-                      startContent={<Save size={16} />}
-                    >
-                      Save Changes
-                    </Button>
-                  ) : (
-                    <Button
-                      color="primary"
-                      variant="flat"
-                      onPress={() => setIsEditing(true)}
-                      startContent={<Edit size={16} />}
-                    >
-                      Edit Prescription
-                    </Button>
-                  ))}
+                {prescription && (
+                  <Button
+                    color="primary"
+                    variant="flat"
+                    onPress={updatePrescription}
+                    startContent={<Save size={16} />}
+                    isLoading={loading}
+                  >
+                    Save Changes
+                  </Button>
+                )}
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Close
                 </Button>
