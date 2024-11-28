@@ -5,8 +5,13 @@ import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
 
 declare module "next-auth" {
+  interface Session {
+    user: User & {
+      role: "dentist" | "receptionist" | "assistant" | null;
+    };
+  }
   interface User {
-    role?: "dentist" | "receptionist" | "assistant";
+    role?: "dentist" | "receptionist" | "assistant" | null;
   }
 }
 
@@ -42,7 +47,8 @@ export const authOptions: AuthOptions = {
         session.user.role = token.role as
           | "dentist"
           | "receptionist"
-          | "assistant";
+          | "assistant"
+          | null;
       }
       return session;
     },
