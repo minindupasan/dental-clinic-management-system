@@ -1,9 +1,11 @@
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { AuthOptions, User } from "next-auth";
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
 
+// Extend NextAuth types for custom user role
 declare module "next-auth" {
   interface Session {
     user: User & {
@@ -15,6 +17,7 @@ declare module "next-auth" {
   }
 }
 
+// Define authentication options
 export const authOptions: AuthOptions = {
   session: {
     strategy: "jwt",
@@ -30,7 +33,7 @@ export const authOptions: AuthOptions = {
           name: `${profile.given_name} ${profile.family_name}`,
           email: profile.email,
           image: profile.picture,
-          role: profile.role ? profile.role : "assistant", // Default role is assistant
+          role: profile.role ? profile.role : "assistant", // Default role is "assistant"
         };
       },
     }),
@@ -58,6 +61,13 @@ export const authOptions: AuthOptions = {
   },
 };
 
+// API route handlers for NextAuth
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST };
+export async function GET(req: NextRequest) {
+  return handler(req, NextResponse);
+}
+
+export async function POST(req: NextRequest) {
+  return handler(req, NextResponse);
+}
