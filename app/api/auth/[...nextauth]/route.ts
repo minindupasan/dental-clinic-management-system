@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { AuthOptions, User } from "next-auth";
+import { AuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -18,7 +18,7 @@ declare module "next-auth" {
 }
 
 // Define authentication options
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -61,13 +61,14 @@ export const authOptions: AuthOptions = {
   },
 };
 
-// API route handlers for NextAuth
+// Create NextAuth handler
 const handler = NextAuth(authOptions);
 
+// API route handlers for NextAuth
 export async function GET(req: NextRequest) {
-  return handler(req, NextResponse);
+  return handler(req as any, NextResponse as any);
 }
 
 export async function POST(req: NextRequest) {
-  return handler(req, NextResponse);
+  return handler(req as any, NextResponse as any);
 }
