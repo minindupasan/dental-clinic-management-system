@@ -3,9 +3,8 @@
 import UpcomingAppointmentsCard from "@/components/appointments/UpcomingAppointmentsCard";
 import TodayAppointmentsCard from "@/components/appointments/TodayAppointmentsCard";
 import DentureCard from "@/components/dentures/DenturesCard";
-import InventoryCard from "@/components/inventory/InventoryCard";
-import PendingPayments from "@/components/treatments/PendingPaymentsCard";
 import PatientsTableCard from "@/components/patients/PatientsTableCard";
+import InventoryCard from "@/components/inventory/InventoryCard";
 
 export default function Dashboard() {
   return (
