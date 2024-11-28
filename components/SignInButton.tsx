@@ -45,17 +45,8 @@ const SignInButton = () => {
         </DropdownTrigger>
         <DropdownMenu aria-label="User menu actions" variant="flat">
           <DropdownItem key="profile" className="h-14 gap-2">
-            <p className="font-semibold">Signed in as</p>
-            <p className="font-semibold">{session.user.email}</p>
-          </DropdownItem>
-          <DropdownItem key="settings" startContent={<Settings size={16} />}>
-            My Settings
-          </DropdownItem>
-          <DropdownItem
-            key="help_and_feedback"
-            startContent={<HelpCircle size={16} />}
-          >
-            Help & Feedback
+            <p>Signed in as</p>
+            <p>{session.user.email}</p>
           </DropdownItem>
           <DropdownItem key="logout" color="danger" onClick={handleSignOut}>
             <div className="flex items-center gap-2">
@@ -69,12 +60,7 @@ const SignInButton = () => {
   }
 
   return (
-    <Button
-      onClick={handleSignIn}
-      color="primary"
-      variant="flat"
-      className="font-semibold"
-    >
+    <Button onClick={handleSignIn} color="success" variant="flat">
       Sign In
     </Button>
   );

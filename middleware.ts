@@ -35,8 +35,8 @@ export default withAuth(
     // Role-based access control
     const roleAccessMap = {
       dentist: ["/dashboard/dentist", ...protectedRoutes],
-      receptionist: ["/dashboard/receptionist", "/inventory", "/appointments"],
-      assistant: ["/dashboard/assistant", "/appointments"],
+      receptionist: ["/dashboard/receptionist", "/appointments", "/patients",],
+      assistant: ["/dashboard/assistant", "/appointments","/patients", "/dentures","/inventory"],
     };
 
     const allowedPaths =
