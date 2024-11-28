@@ -1,8 +1,14 @@
 import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { AuthOptions } from "next-auth";
+import { AuthOptions, User } from "next-auth";
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
+
+declare module "next-auth" {
+  interface User {
+    role?: "dentist" | "receptionist" | "assistant";
+  }
+}
 
 export const authOptions: AuthOptions = {
   session: {
@@ -19,20 +25,30 @@ export const authOptions: AuthOptions = {
           name: `${profile.given_name} ${profile.family_name}`,
           email: profile.email,
           image: profile.picture,
-          role: profile.role ? profile.role : "dentist",
+          role: profile.role ? profile.role : "assistant", // Default role is assistant
         };
       },
     }),
   ],
-
   callbacks: {
     async jwt({ token, user }) {
-      return { ...token, ...user };
+      if (user) {
+        token.role = user.role ?? null;
+      }
+      return token;
     },
     async session({ session, token }) {
-      session.user.role = token.role;
+      if (session.user) {
+        session.user.role = token.role as
+          | "dentist"
+          | "receptionist"
+          | "assistant";
+      }
       return session;
     },
+  },
+  pages: {
+    signIn: "/auth/signin",
   },
 };
 

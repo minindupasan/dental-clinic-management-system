@@ -1,11 +1,26 @@
 "use client";
 
-import React from "react";
-import LoginCard from "@/components/LoginCard";
-import Catalogue from "@/components/Catalogue";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AboutCard from "@/components/AboutCard";
+import Catalogue from "@/components/Catalogue";
+import LoginCard from "@/components/LoginCard";
 
-export default function HomePage() {
+export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.role) {
+      router.push(`/dashboard/${session.user.role}`);
+    }
+  }, [session, status, router]);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <div className="container mx-auto px-6 py-8">
